@@ -1,18 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Copy, Check } from "lucide-react"
+import { Check } from "lucide-react"
+import { formatRgba, hexToRgbString } from "@/lib/color-formats"
 
 interface ColorOutputDisplayProps {
   selectedColor: string
   colorCombination: string
+  colorAlpha?: number
   lastResult?: {
-    color: string
-    name: string
-    hex: string
-    rgb: string
+    color?: string
+    name?: string
+    hex?: string
+    rgb?: string
+    rgba?: string
   } | null
 }
 
@@ -24,22 +27,14 @@ interface ColorInfo {
 
 export function ColorOutputDisplay({ 
   selectedColor, 
-  colorCombination, 
+  colorCombination,
+  colorAlpha = 1,
   lastResult 
 }: ColorOutputDisplayProps) {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   // Convert HEX to RGB
-  const hexToRgb = (hex: string): string => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-    if (result) {
-      const r = parseInt(result[1], 16)
-      const g = parseInt(result[2], 16)
-      const b = parseInt(result[3], 16)
-      return `${r}, ${g}, ${b}`
-    }
-    return "0, 0, 0"
-  }
+  const hexToRgb = (hex: string): string => hexToRgbString(hex)
 
   // Convert HEX to HSL
   const hexToHsl = (hex: string): { h: number; s: number; l: number } => {
@@ -297,13 +292,16 @@ export function ColorOutputDisplay({
     return colors
   }
 
-  const colors = generateColorCombination()
+  const colors = generateColorCombination().map((color) => ({
+    ...color,
+    rgba: formatRgba(color.hex, colorAlpha),
+  }))
 
-  const copyToClipboard = async (text: string, index: number) => {
+  const copyToClipboard = async (text: string, key: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedIndex(index)
-      setTimeout(() => setCopiedIndex(null), 2000)
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 2000)
     } catch (err) {
       console.error('Failed to copy text: ', err)
     }
@@ -386,26 +384,63 @@ export function ColorOutputDisplay({
           {displayColors.map((color, index) => (
             <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div
-                className="w-12 h-12 rounded-lg border-2 border-gray-200 shadow-sm"
-                style={{ backgroundColor: color.hex }}
-              />
-              <div className="flex-1 min-w-0">
+                className="relative h-12 w-12 overflow-hidden rounded-lg border-2 border-gray-200 shadow-sm"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                  backgroundSize: "8px 8px",
+                  backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0",
+                }}
+              >
+                <div className="absolute inset-0" style={{ backgroundColor: color.rgba }} />
+              </div>
+              <div className="flex-1 min-w-0 space-y-0.5">
                 <div className="text-sm font-medium text-gray-900">{color.name}</div>
                 <div className="text-xs text-gray-500 font-mono">{color.hex}</div>
                 <div className="text-xs text-gray-500 font-mono">RGB({color.rgb})</div>
+                <div className="text-xs text-gray-500 font-mono">{color.rgba}</div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(color.hex, index)}
-                className="h-8 w-8 p-0"
-              >
-                {copiedIndex === index ? (
-                  <Check className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(color.hex, `${index}-hex`)}
+                  className="h-8 px-2 text-[10px]"
+                  title="Copy HEX"
+                >
+                  {copiedKey === `${index}-hex` ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    "HEX"
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(`rgb(${color.rgb})`, `${index}-rgb`)}
+                  className="h-8 px-2 text-[10px]"
+                  title="Copy RGB"
+                >
+                  {copiedKey === `${index}-rgb` ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    "RGB"
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(color.rgba, `${index}-rgba`)}
+                  className="h-8 px-2 text-[10px]"
+                  title="Copy RGBA"
+                >
+                  {copiedKey === `${index}-rgba` ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    "RGBA"
+                  )}
+                </Button>
+              </div>
             </div>
           ))}
         </div>

@@ -1,42 +1,75 @@
 "use client"
 
 import { useState, useEffect, useRef, useMemo, type ReactNode } from "react"
+import dynamic from "next/dynamic"
 import Header from "@/components/header"
 import EnhancedWheelSection from "@/components/enhanced-wheel-section"
 import PickerWheelInputPanel from "@/components/picker-wheel/input-panel"
-import AIInputPanel from "@/components/ai-input-panel"
 import TemplateSection from "@/components/template-section"
+import { HomeNamePickerTemplates } from "@/components/home/home-name-picker-templates"
 import Footer from "@/components/footer"
-import SettingsPanel from "@/components/settings-panel"
 import { Button } from "@/components/ui/button"
 import { Sparkles, FileText } from "lucide-react"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { useEnhancedWheelStore } from "@/stores/enhanced-wheel-store"
 import { useSettingsStore } from "@/stores/settings-store"
 import { ToastProvider } from "@/contexts/toast-context"
-import { GameSelectionDialog } from "@/components/picker-wheel-games/game-selection-dialog"
 import { GameStatusBar } from "@/components/picker-wheel-games/game-status-bar"
-import { BingoCard } from "@/components/picker-wheel-games/bingo-card"
 import { usePickerWheelGames } from "@/hooks/use-picker-wheel-games"
-import PickerWheelAchievementsDisplay from "@/components/picker-wheel-achievements-display"
-import PickerWheelThemeSelector from "@/components/picker-wheel-theme-selector"
-import PickerWheelAnalyticsDisplay from "@/components/picker-wheel-analytics-display"
-import PickerWheelSocialHub from "@/components/picker-wheel-social-hub"
-import PickerWheelGameModes from "@/components/picker-wheel-game-modes"
 import { PICKER_WHEEL_ACHIEVEMENTS, checkAchievementUnlocks } from "@/lib/picker-wheel-achievements"
 import { PICKER_WHEEL_THEMES, checkThemeUnlocks } from "@/lib/picker-wheel-themes"
 import { analyzeSpinData, SpinRecord } from "@/lib/picker-wheel-analytics"
 import { SocialProfile, calculateLevel } from "@/lib/picker-wheel-social"
-import { GameMode } from "@/lib/picker-wheel-game-modes"
 import { useGameSession } from "@/hooks/use-game-session"
-import PickerWheelGameStatus from "@/components/picker-wheel-game-status"
-import { PickerWheelCustomizationPanel } from '@/components/picker-wheel-customization-panel'
-import { loadCustomization, applyCustomization } from '@/lib/picker-wheel-customization'
-import Confetti from "react-confetti"
-import PickerResultsModal from "@/components/picker-results-modal"
+import { loadCustomization, applyCustomization } from "@/lib/picker-wheel-customization"
 import { Badge } from "@/components/ui/badge"
 import { ToolFavoriteStar } from "@/components/tool-favorite-star"
 import { HOME_SHORT_TITLE } from "@/lib/home-seo"
+import {
+  getHomeNameTemplate,
+  type HomeNameTemplateId,
+} from "@/lib/home-name-templates-data"
+import type { HomeNameDeepLink } from "@/lib/home-name-picker-spokes"
+
+/** Deferred chunks — keep first paint light for LCP / mobile ranking */
+const Confetti = dynamic(() => import("react-confetti"), { ssr: false })
+const AIInputPanel = dynamic(() => import("@/components/ai-input-panel"), { ssr: false })
+const SettingsPanel = dynamic(() => import("@/components/settings-panel"), { ssr: false })
+const GameSelectionDialog = dynamic(
+  () =>
+    import("@/components/picker-wheel-games/game-selection-dialog").then((m) => ({
+      default: m.GameSelectionDialog,
+    })),
+  { ssr: false },
+)
+const BingoCard = dynamic(
+  () =>
+    import("@/components/picker-wheel-games/bingo-card").then((m) => ({
+      default: m.BingoCard,
+    })),
+  { ssr: false },
+)
+const PickerWheelAchievementsDisplay = dynamic(
+  () => import("@/components/picker-wheel-achievements-display"),
+  { ssr: false },
+)
+const PickerWheelThemeSelector = dynamic(
+  () => import("@/components/picker-wheel-theme-selector"),
+  { ssr: false },
+)
+const PickerWheelAnalyticsDisplay = dynamic(
+  () => import("@/components/picker-wheel-analytics-display"),
+  { ssr: false },
+)
+const PickerWheelSocialHub = dynamic(() => import("@/components/picker-wheel-social-hub"), {
+  ssr: false,
+})
+const PickerWheelGameStatus = dynamic(() => import("@/components/picker-wheel-game-status"), {
+  ssr: false,
+})
+const PickerResultsModal = dynamic(() => import("@/components/picker-results-modal"), {
+  ssr: false,
+})
 
 export interface WheelOption {
   id: string
@@ -50,9 +83,18 @@ export interface WheelOption {
 type HomeWheelAppProps = {
   seoIntro?: ReactNode
   seoSections?: ReactNode
+  shortTitle?: string
+  toolSubtitle?: string
+  deepLink?: HomeNameDeepLink
 }
 
-export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProps) {
+export default function HomeWheelApp({
+  seoIntro,
+  seoSections,
+  shortTitle,
+  toolSubtitle,
+  deepLink,
+}: HomeWheelAppProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [useAIInput, setUseAIInput] = useState(false)
   const [showGames, setShowGames] = useState(false)
@@ -60,8 +102,11 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
   const [showThemeSelector, setShowThemeSelector] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [showSocialHub, setShowSocialHub] = useState(false)
-  const [showGameModes, setShowGameModes] = useState(false)
   const [achievements, setAchievements] = useState(PICKER_WHEEL_ACHIEVEMENTS)
+  const [activeTemplateId, setActiveTemplateId] = useState<HomeNameTemplateId | null>(
+    deepLink?.templateId ?? null,
+  )
+  const deepLinkAppliedRef = useRef(false)
   
   // Advanced game session management
   const {
@@ -83,9 +128,24 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
   const [spinHistory, setSpinHistory] = useState<SpinRecord[]>([])
   const [currentUser, setCurrentUser] = useState<SocialProfile | undefined>()
   const lastProcessedResult = useRef<string>('')
-  const { setCurrentTool, createNewWheel, getCurrentWheel } = useWheelManagerStore()
+  const { setCurrentTool, createNewWheel, getCurrentWheel, currentWheelId } = useWheelManagerStore()
   const { setTemplateOptions, selectedResult, getOptions, getTotalSpins } = useEnhancedWheelStore()
   const { settings, loadFromDatabase: loadSettings } = useSettingsStore()
+
+  const applyNameTemplate = (templateId: HomeNameTemplateId) => {
+    const template = getHomeNameTemplate(templateId)
+    if (!template) return
+    setTemplateOptions(template.options)
+    setActiveTemplateId(templateId)
+  }
+
+  // Apply spoke deep-link once the picker-wheel tool/wheel is ready
+  useEffect(() => {
+    if (!deepLink?.templateId || deepLinkAppliedRef.current) return
+    if (!currentWheelId) return
+    deepLinkAppliedRef.current = true
+    applyNameTemplate(deepLink.templateId)
+  }, [deepLink?.templateId, currentWheelId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Customization state
   const [showCustomization, setShowCustomization] = useState(false)
@@ -381,7 +441,7 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
       onOpenThemeSelector={() => setShowThemeSelector(true)}
       onOpenAnalytics={() => setShowAnalytics(true)}
       onOpenSocialHub={() => setShowSocialHub(true)}
-      onOpenGameModes={() => setShowGameModes(true)}
+      onOpenGameModes={() => setShowGames(true)}
       onOpenCustomization={() => setShowCustomization(true)}
       customization={customization}
       totalPoints={totalPoints}
@@ -400,12 +460,22 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
 
   return (
     <ToastProvider>
-      {showConfetti && <Confetti width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={typeof window !== 'undefined' ? window.innerHeight : 1080} numberOfPieces={400} recycle={false} gravity={0.3} wind={0.05} style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }} />}
+      {showConfetti && settings.confettiSound?.enableConfetti !== false && (
+        <Confetti
+          width={typeof window !== "undefined" ? window.innerWidth : 1920}
+          height={typeof window !== "undefined" ? window.innerHeight : 1080}
+          numberOfPieces={typeof window !== "undefined" && window.innerWidth < 640 ? 160 : 320}
+          recycle={false}
+          gravity={0.3}
+          wind={0.05}
+          style={{ position: "fixed", top: 0, left: 0, zIndex: 9999, pointerEvents: "none" }}
+        />
+      )}
       <div
         className={
           isFullscreen
-            ? "fixed inset-0 z-50 bg-white overflow-auto"
-            : "min-h-screen transition-colors duration-300 overflow-x-hidden"
+            ? "fixed inset-0 z-50 overflow-auto bg-white"
+            : "min-h-screen overflow-x-hidden transition-colors duration-300"
         }
         style={
           isFullscreen
@@ -421,11 +491,13 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
         }
       >
         {!isFullscreen && settings.appearance.bannerLogo && (
-          <div className="text-center py-4">
+          <div className="py-3 text-center sm:py-4">
             <img
               src={settings.appearance.bannerLogo || "/placeholder.svg"}
               alt="Banner Logo"
-              className="h-16 mx-auto object-contain"
+              className="mx-auto h-12 object-contain sm:h-16"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         )}
@@ -438,19 +510,37 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
         )}
 
         {isFullscreen ? (
-          <div className="flex min-h-full flex-col items-center justify-center p-4">
+          <div className="flex min-h-full flex-col items-center justify-center p-3 sm:p-4">
             {wheelSection}
           </div>
         ) : (
-        <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mb-6 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <p className="font-spin-display text-2xl font-bold text-gray-800 sm:text-3xl">
-                {HOME_SHORT_TITLE}
+        <main className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-3 text-center sm:mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-2 px-1">
+              <p className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+                {shortTitle ?? HOME_SHORT_TITLE}
               </p>
               <ToolFavoriteStar toolType="picker-wheel" />
             </div>
+            {toolSubtitle && (
+              <p className="mt-1 px-2 text-sm text-gray-600">{toolSubtitle}</p>
+            )}
           </div>
+
+          <HomeNamePickerTemplates
+            activeId={activeTemplateId}
+            onSelectTemplate={(options, templateId) => {
+              setTemplateOptions(options)
+              if (templateId) setActiveTemplateId(templateId)
+            }}
+          />
+          {activeTemplateId && (
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+              <Badge className="bg-slate-800 text-white hover:bg-slate-800">
+                Template: {getHomeNameTemplate(activeTemplateId)?.label}
+              </Badge>
+            </div>
+          )}
 
           {/* Game Status Bar */}
           {gameMode !== "normal" && (
@@ -474,49 +564,39 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
               session={currentSession}
               onEndGame={() => {
                 endAdvancedGame()
-                // Add game points to total points
                 const gameScore = getGameScore()
-                setTotalPoints(prev => prev + gameScore)
-                
-                // Save game stats
+                setTotalPoints((prev) => prev + gameScore)
                 const gameStats = getGameStats()
                 if (gameStats) {
-                  console.log('Game completed:', gameStats)
+                  console.log("Game completed:", gameStats)
                 }
               }}
               onRestartGame={() => {
-                // Add current game points to total points before restarting
                 const gameScore = getGameScore()
-                setTotalPoints(prev => prev + gameScore)
-                
-                // Save game stats
+                setTotalPoints((prev) => prev + gameScore)
                 const gameStats = getGameStats()
                 if (gameStats) {
-                  console.log('Game completed:', gameStats)
+                  console.log("Game completed:", gameStats)
                 }
-                
-                // Reset wheel data for restart
-                const currentWheel = getCurrentWheel();
+                const currentWheel = getCurrentWheel()
                 if (currentWheel) {
-                  const { updateWheelData } = useWheelManagerStore.getState();
+                  const { updateWheelData } = useWheelManagerStore.getState()
                   updateWheelData("picker-wheel", currentWheel.id, {
                     ...currentWheel.data,
                     totalSpins: 0,
                     spinHistory: [],
                     recentResults: [],
-                    selectedResult: null
-                  });
+                    selectedResult: null,
+                  })
                 }
-                
-                // Restart the game
                 restartAdvancedGame()
               }}
             />
           )}
 
           {/* Input Mode Toggle */}
-          <div className="flex justify-center mb-6">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="mb-4 flex justify-center sm:mb-6">
+            <div className="flex flex-wrap justify-center rounded-lg bg-gray-100 p-1">
               <Button
                 variant={!useAIInput ? "default" : "ghost"}
                 size="sm"
@@ -531,26 +611,32 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
                 size="sm"
                 onClick={() => setUseAIInput(true)}
                 className={`flex items-center gap-2 ${
-                  useAIInput 
-                    ? "bg-gradient-to-r from-violet-500 to-pink-500 text-white hover:from-violet-600 hover:to-pink-600" 
+                  useAIInput
+                    ? "bg-gradient-to-r from-violet-500 to-pink-500 text-white hover:from-violet-600 hover:to-pink-600"
                     : "bg-white"
                 }`}
               >
                 <Sparkles className="h-4 w-4" />
-                <span className={useAIInput ? "text-white" : "bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent"}>
+                <span
+                  className={
+                    useAIInput
+                      ? "text-white"
+                      : "bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent"
+                  }
+                >
                   AI-Powered
                 </span>
               </Button>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8 mb-8">
-            <div className="relative lg:col-span-2 bg-white rounded-lg shadow-sm border p-6 overflow-hidden">
+          <div className="mb-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className="relative overflow-x-hidden rounded-lg border bg-white p-3 shadow-sm sm:p-6 lg:col-span-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowResultsModal(true)}
-                className="absolute top-4 left-4 z-10 text-xs px-3 py-1 bg-white hover:bg-gray-50 shadow-sm border-blue-500 text-blue-600 hover:border-blue-600"
+                className="absolute left-2 top-2 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:left-4 sm:top-4 sm:px-3"
               >
                 Results
                 {allWheelResults.length > 0 && (
@@ -560,16 +646,17 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
                 )}
               </Button>
 
-              {wheelSection}
-              
-              {/* Game-specific displays */}
+              <div className="flex justify-center pt-8 sm:pt-4">{wheelSection}</div>
+
               {gameMode === "bingo" && bingoCard && (
                 <div className="mt-6">
                   <BingoCard bingoCard={bingoCard} />
                 </div>
               )}
             </div>
-            {useAIInput ? <AIInputPanel /> : (
+            {useAIInput ? (
+              <AIInputPanel />
+            ) : (
               <PickerWheelInputPanel
                 onViewResults={() => setShowResultsModal(true)}
                 onOpenSettings={() => setShowSettings(true)}
@@ -579,11 +666,13 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
             )}
           </div>
 
-          <PickerResultsModal
-            isOpen={showResultsModal}
-            onClose={() => setShowResultsModal(false)}
-            results={allWheelResults}
-          />
+          {showResultsModal && (
+            <PickerResultsModal
+              isOpen={showResultsModal}
+              onClose={() => setShowResultsModal(false)}
+              results={allWheelResults}
+            />
+          )}
 
           {seoIntro}
 
@@ -595,78 +684,58 @@ export default function HomeWheelApp({ seoIntro, seoSections }: HomeWheelAppProp
 
         {!isFullscreen && <Footer />}
 
-        <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
-        
-        <GameSelectionDialog
-          showGames={showGames}
-          setShowGames={setShowGames}
-          gameStats={gameStats}
-          gameMode={gameMode}
-          setGameMode={startGame}
-          resetGame={resetGame}
-        />
+        {showSettings && (
+          <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
+        )}
 
-        <PickerWheelAchievementsDisplay
-          achievements={achievements}
-          totalPoints={totalPoints}
-          isVisible={showAchievements}
-          onClose={() => setShowAchievements(false)}
-        />
+        {showGames && (
+          <GameSelectionDialog
+            showGames={showGames}
+            setShowGames={setShowGames}
+            gameStats={gameStats}
+            gameMode={gameMode}
+            setGameMode={startGame}
+            resetGame={resetGame}
+          />
+        )}
 
-        <PickerWheelThemeSelector
-          themes={themes}
-          currentTheme={currentTheme}
-          onThemeSelect={handleThemeSelect}
-          isVisible={showThemeSelector}
-          onClose={() => setShowThemeSelector(false)}
-        />
+        {showAchievements && (
+          <PickerWheelAchievementsDisplay
+            achievements={achievements}
+            totalPoints={totalPoints}
+            isVisible={showAchievements}
+            onClose={() => setShowAchievements(false)}
+          />
+        )}
 
-        <PickerWheelAnalyticsDisplay
-          analytics={analyzeSpinData(spinHistory)}
-          isVisible={showAnalytics}
-          onClose={() => setShowAnalytics(false)}
-        />
+        {showThemeSelector && (
+          <PickerWheelThemeSelector
+            themes={themes}
+            currentTheme={currentTheme}
+            onThemeSelect={handleThemeSelect}
+            isVisible={showThemeSelector}
+            onClose={() => setShowThemeSelector(false)}
+          />
+        )}
 
-        <PickerWheelSocialHub
-          isVisible={showSocialHub}
-          onClose={() => setShowSocialHub(false)}
-          currentUser={currentUser}
-          onShareWheel={() => {
-            // TODO: Implement wheel sharing functionality
-            console.log('Share wheel functionality')
-          }}
-        />
+        {showAnalytics && (
+          <PickerWheelAnalyticsDisplay
+            analytics={analyzeSpinData(spinHistory)}
+            isVisible={showAnalytics}
+            onClose={() => setShowAnalytics(false)}
+          />
+        )}
 
-        <PickerWheelGameModes
-          isVisible={showGameModes}
-          onClose={() => setShowGameModes(false)}
-          userPoints={totalPoints}
-          onStartGame={(gameMode: GameMode) => {
-            // Reset wheel data for new game
-            const currentWheel = getCurrentWheel();
-            if (currentWheel) {
-              const { updateWheelData } = useWheelManagerStore.getState();
-              updateWheelData("picker-wheel", currentWheel.id, {
-                ...currentWheel.data,
-                totalSpins: 0,
-                spinHistory: [],
-                recentResults: [],
-                selectedResult: null
-              });
-            }
-            
-            startAdvancedGame(gameMode)
-            setShowGameModes(false)
-          }}
-        />
-
-        {/* Customization Panel - commented out for now
-        <PickerWheelCustomizationPanel
-          isOpen={showCustomization}
-          onClose={() => setShowCustomization(false)}
-          onApply={handleApplyCustomization}
-        />
-        */}
+        {showSocialHub && (
+          <PickerWheelSocialHub
+            isVisible={showSocialHub}
+            onClose={() => setShowSocialHub(false)}
+            currentUser={currentUser}
+            onShareWheel={() => {
+              console.log("Share wheel functionality")
+            }}
+          />
+        )}
       </div>
     </ToastProvider>
   )

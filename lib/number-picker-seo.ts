@@ -273,7 +273,7 @@ export const NUMBER_PICKER_RELATED_TOOLS: NumberPickerLinkItem[] = [
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-no-picker-wheel",
+    href: "/yes-or-no-wheel",
     description: "A simple decision wheel for binary choices.",
   },
   {

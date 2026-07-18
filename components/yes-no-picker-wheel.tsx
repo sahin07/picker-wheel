@@ -1,29 +1,67 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useSettings } from "@/contexts/settings-context"
 import { WheelDisplay } from "@/components/yes-no-picker-wheel/wheel-display"
 import { ResultsDisplay } from "@/components/yes-no-picker-wheel/results-display"
-import { BackgroundEffects } from "@/components/yes-no-picker-wheel/background-effects"
 import { TitleModal } from "@/components/yes-no-picker-wheel/title-modal"
 import { YesNoPickerSidebar } from "@/components/yes-no-picker-wheel/yes-no-picker-sidebar"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { useYesNoWheelStore } from "@/stores/yes-no-wheel-store"
 import { useSettingsStore } from "@/stores/settings-store"
-import { Brain, Sparkles, Zap } from "lucide-react"
+import { Sparkles, Palette, BarChart3, Users, Gamepad2, Trophy, Share2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { AchievementsDisplay, Achievement } from "@/components/yes-no-picker-wheel/achievements-display"
 import { initializeAchievements, checkAchievements } from "@/lib/achievement-system"
-import { ChallengesDisplay, Challenge } from "@/components/yes-no-picker-wheel/challenges-display"
-import { initializeChallenges, checkChallenges } from "@/lib/decision-challenges"
+import { ChallengesDisplay } from "@/components/yes-no-picker-wheel/challenges-display"
+import { initializeChallenges, checkChallenges, type Challenge } from "@/lib/decision-challenges"
 import { ThemeSelector } from "@/components/yes-no-picker-wheel/theme-selector"
 import { WHEEL_THEMES, WheelTheme, checkThemeUnlocks } from "@/lib/wheel-themes"
 import { SpinHistory, SpinRecord } from "@/components/yes-no-picker-wheel/spin-history"
+import type { YesNoActionMode, YesNoOptionKey } from "@/components/yes-no-picker-wheel/yes-no-picker-sidebar"
+import { YesNoPickerUseCases } from "@/components/yes-no-picker-wheel/yes-no-picker-use-cases"
+import {
+  getYesNoPickerUseCase,
+  type YesNoPickerUseCaseId,
+} from "@/lib/yes-no-picker-use-cases"
+import type { YesNoPickerDeepLink } from "@/lib/yes-no-picker-spokes"
+import PickerWheelAnalyticsDisplay from "@/components/picker-wheel-analytics-display"
+import PickerWheelSocialHub from "@/components/picker-wheel-social-hub"
+import PickerWheelGameModes from "@/components/picker-wheel-game-modes"
+import {
+  analyzeSpinData,
+  type SpinRecord as AnalyticsSpinRecord,
+} from "@/lib/picker-wheel-analytics"
+import { resolveNumberFromRotation } from "@/components/wheel-canvas"
+import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
+import type { YesNoCanvasItem } from "@/components/yes-no-picker-wheel/wheel-display"
+import Confetti from "react-confetti"
 
-export function YesNoPickerWheel() {
+export type YesNoPickerWheelProps = {
+  /** Bump from Header → Games to open game modes */
+  openGamesSignal?: number
+  /** Bump to open achievements modal */
+  openAchievementsSignal?: number
+  /** Header / shared Settings panel opener */
+  onOpenSettings?: () => void
+  /** Spoke pages apply a one-shot preset on mount (canonical path, no query). */
+  deepLink?: YesNoPickerDeepLink
+}
+
+export function YesNoPickerWheel({
+  openGamesSignal = 0,
+  openAchievementsSignal = 0,
+  onOpenSettings,
+  deepLink,
+}: YesNoPickerWheelProps = {}) {
+  const searchParams = useSearchParams()
+  const lastUrlKeyRef = useRef<string>("")
+  const deepLinkAppliedRef = useRef(false)
   const [isClient, setIsClient] = useState(false)
   const { settings: globalSettings, updateSettings } = useSettings()
-  const { settings: localSettings } = useSettingsStore()
+  const { settings: localSettings, updateSettings: updateLocalSettings } = useSettingsStore()
   const { getCurrentWheel, updateWheelData, setCurrentTool, createNewWheel, currentWheelId } = useWheelManagerStore()
   const toolType = 'yes-no-picker-wheel';
   const prevWheelId = useRef<string | null>(null)
@@ -50,7 +88,7 @@ export function YesNoPickerWheel() {
     if (typeof window !== "undefined") {
       const wheel = getCurrentWheel()
       if (!wheel) {
-        const newWheelId = createNewWheel("yes-no-picker-wheel", "Yes or No Picker Wheel")
+        const newWheelId = createNewWheel("yes-no-picker-wheel", "Yes or No Wheel")
         console.log('Created new yes/no picker wheel with ID:', newWheelId)
         
         // Check the created wheel data
@@ -65,24 +103,27 @@ export function YesNoPickerWheel() {
   }, [setCurrentTool, getCurrentWheel, createNewWheel, isClient])
 
   // State management - use default values directly
-  const [activeTab, setActiveTab] = useState("manual")
+  const [activeTab, setActiveTab] = useState<"manual" | "ai">("manual")
   const [mode, setMode] = useState<"yes-no" | "yes-no-maybe">("yes-no")
   const [inputSets, setInputSets] = useState(1)
   const [userQuestion, setUserQuestion] = useState("")
   const [aiAdvice, setAiAdvice] = useState("")
   const [isGeneratingAdvice, setIsGeneratingAdvice] = useState(false)
   const [showStats, setShowStats] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  const [showInputs, setShowInputs] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showTitle, setShowTitle] = useState(true)
+  const [actionMode, setActionMode] = useState<YesNoActionMode>("normal")
+  const [eliminatedOptions, setEliminatedOptions] = useState<YesNoOptionKey[]>([])
   const [confettiEnabled, setConfettiEnabled] = useState(true)
   const [soundEnabled, setSoundEnabled] = useState(globalSettings.confettiSound.enableSound)
   const [wheelTheme, setWheelTheme] = useState("classic")
   const [showConfetti, setShowConfetti] = useState(false)
-  const [wheelShake, setWheelShake] = useState(false)
-  const [showParticles, setShowParticles] = useState(false)
   
   // Title and description state
   const [wheelTitle, setWheelTitle] = useState("Yes or No Picker Wheel")
   const [wheelDescription, setWheelDescription] = useState("Make decisions with a simple spin of the wheel")
+  const [resultTitle, setResultTitle] = useState("Your decision")
   const [showTitleModal, setShowTitleModal] = useState(false)
   const [optionLabels, setOptionLabels] = useState({ yes: "YES", no: "NO", maybe: "MAYBE" })
   const [customColors, setCustomColors] = useState<{ yes: string; no: string; maybe: string } | null>(
@@ -118,11 +159,36 @@ export function YesNoPickerWheel() {
   // Spin History System
   const [spinHistory, setSpinHistory] = useState<SpinRecord[]>([])
   const [showSpinHistory, setShowSpinHistory] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showSocialHub, setShowSocialHub] = useState(false)
+  const [showGameModes, setShowGameModes] = useState(false)
+  const [activeUseCaseId, setActiveUseCaseId] = useState<YesNoPickerUseCaseId | null>(null)
+
+  // Header → Games / Achievements
+  useEffect(() => {
+    if (openGamesSignal > 0) setShowGameModes(true)
+  }, [openGamesSignal])
+
+  useEffect(() => {
+    if (openAchievementsSignal > 0) setShowAchievements(true)
+  }, [openAchievementsSignal])
+
+  const openSettings = () => {
+    if (onOpenSettings) onOpenSettings()
+  }
 
   // Wheel state
   const [isSpinning, setIsSpinning] = useState(false)
   const [rotation, setRotation] = useState(0)
-  const animationRef = useRef<number | null>(null)
+  const [highlightIndex, setHighlightIndex] = useState<number | null>(null)
+  const isSpinningRef = useRef(false)
+  const currentRotationRef = useRef(0)
+  const finalRotationRef = useRef(0)
+  const pendingWinnerRef = useRef<{ index: number; result: string } | null>(null)
+  const spinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const spinAudioRef = useRef<SpinAudioController | null>(null)
+  const finishSpinRef = useRef<() => void>(() => {})
+  const canvasItemsRef = useRef<YesNoCanvasItem[]>([])
   const isUpdatingRef = useRef(false)
 
   // Temporarily disable wheel store updates to prevent infinite re-renders
@@ -155,15 +221,18 @@ export function YesNoPickerWheel() {
       setLastResult(null)
       setIsSpinning(false)
       setRotation(0)
-      setWheelShake(false)
-      setShowParticles(false)
+      setHighlightIndex(null)
       setShowConfetti(false)
+      isSpinningRef.current = false
+      pendingWinnerRef.current = null
+      currentRotationRef.current = 0
+      finalRotationRef.current = 0
       
       if (wheel.data && Object.keys(wheel.data).length > 0) {
         const d = wheel.data as any;
         console.log('Loading wheel data:', d)
         
-        setActiveTab(d.activeTab || "manual");
+        setActiveTab(d.activeTab === "ai" ? "ai" : "manual");
         setMode(d.mode || "yes-no");
         setInputSets(d.inputSets || 1);
         setUserQuestion(d.userQuestion || "");
@@ -173,6 +242,10 @@ export function YesNoPickerWheel() {
         setWheelTheme(d.wheelTheme || "classic");
         setWheelTitle(d.wheelTitle || "Yes or No Picker Wheel");
         setWheelDescription(d.wheelDescription || "Make decisions with a simple spin of the wheel");
+        setResultTitle(d.resultTitle || "Your decision");
+        setActionMode(d.actionMode || "normal");
+        setEliminatedOptions(d.eliminatedOptions || []);
+        setOptionLabels(d.optionLabels || { yes: "YES", no: "NO", maybe: "MAYBE" });
         setResults(d.results || { yes: 0, no: 0, maybe: 0 });
         setLastResult(d.lastResult || null);
         setTotalSpins(d.totalSpins || 0);
@@ -244,6 +317,104 @@ export function YesNoPickerWheel() {
     }
   }, [getCurrentWheel, updateWheelData])
 
+  const syncEliminationWithSettings = useCallback((enabled: boolean) => {
+    setActionMode(enabled ? "elimination" : "normal")
+    const latest = useSettingsStore.getState().settings
+    updateLocalSettings({
+      spinBehavior: {
+        ...latest.spinBehavior,
+        removeWinnerAfterSpin: enabled,
+      },
+    })
+    if (!enabled) {
+      setEliminatedOptions([])
+    }
+  }, [updateLocalSettings])
+
+  const applyUseCasePreset = useCallback(
+    (id: YesNoPickerUseCaseId, overrides?: Omit<YesNoPickerDeepLink, "mode">) => {
+      const useCase = getYesNoPickerUseCase(id)
+      if (!useCase || isSpinningRef.current) return
+
+      const c = useCase.config
+      setActiveUseCaseId(id)
+      setShowInputs(true)
+      setShowTitle(true)
+
+      // Wheel behavior
+      setMode(c.mode)
+      setActiveTab(c.controlMode)
+      setInputSets(c.inputSets)
+      setOptionLabels({ ...c.optionLabels, ...overrides?.optionLabels })
+      setWheelTitle(overrides?.toolTitle ?? c.toolTitle)
+      setWheelDescription(overrides?.toolDescription ?? c.toolDescription)
+      setResultTitle(overrides?.resultTitle ?? c.resultTitle)
+
+      // Fresh spin state for the new mode
+      setEliminatedOptions([])
+      setLastResult(null)
+      setHighlightIndex(null)
+      setResults({ yes: 0, no: 0, maybe: 0 })
+      setStreak({ type: "", count: 0 })
+      setAiAdvice("")
+      setAiContext("")
+      if (c.controlMode !== "ai") {
+        setUserQuestion("")
+      }
+
+      syncEliminationWithSettings(c.elimination)
+
+      // Nudge wheel angle so the new slices are obviously loaded
+      const nudge = (currentRotationRef.current + 15) % 360
+      currentRotationRef.current = nudge
+      finalRotationRef.current = nudge
+      setRotation(nudge)
+    },
+    [syncEliminationWithSettings],
+  )
+
+  // Spoke deep link — apply once on mount (letter-spoke pattern)
+  useEffect(() => {
+    if (!isClient || !deepLink || deepLinkAppliedRef.current || isSpinningRef.current) return
+    if (!getYesNoPickerUseCase(deepLink.mode)) return
+
+    deepLinkAppliedRef.current = true
+    const { mode, ...overrides } = deepLink
+    applyUseCasePreset(mode, overrides)
+  }, [isClient, deepLink, applyUseCasePreset])
+
+  // Popular Yes/No Wheels / deep links: ?mode=date-night
+  useEffect(() => {
+    if (!isClient || isSpinningRef.current) return
+    const key = searchParams.toString()
+    if (!key || key === lastUrlKeyRef.current) return
+    lastUrlKeyRef.current = key
+
+    const mode = searchParams.get("mode") as YesNoPickerUseCaseId | null
+    if (mode && getYesNoPickerUseCase(mode)) {
+      applyUseCasePreset(mode)
+    }
+  }, [searchParams, isClient, applyUseCasePreset])
+
+  // Keep Action Mode ↔ Manage/Header "Remove winner" in sync
+  useEffect(() => {
+    const wantElimination = !!localSettings.spinBehavior?.removeWinnerAfterSpin
+    const wantMode: YesNoActionMode = wantElimination ? "elimination" : "normal"
+    if (actionMode !== wantMode) {
+      setActionMode(wantMode)
+    }
+  }, [localSettings.spinBehavior?.removeWinnerAfterSpin])
+
+  // Escape exits fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsFullscreen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [isFullscreen])
+
   // Save wheel data whenever important state changes
   useEffect(() => {
     const wheel = getCurrentWheel()
@@ -265,6 +436,10 @@ export function YesNoPickerWheel() {
         aiContext,
         wheelTitle,
         wheelDescription,
+        resultTitle,
+        actionMode,
+        eliminatedOptions,
+        optionLabels,
         enhancedAchievements,
         recentResults,
         decisionDates: decisionDates.map(date => date.toISOString()),
@@ -291,50 +466,58 @@ export function YesNoPickerWheel() {
     }
   }, [activeTab, mode, inputSets, userQuestion, aiAdvice, showStats, confettiEnabled,
       wheelTheme, results, lastResult, totalSpins, streak, achievements, aiContext, 
-      wheelTitle, wheelDescription, enhancedAchievements, recentResults, decisionDates, 
+      wheelTitle, wheelDescription, resultTitle, actionMode, eliminatedOptions, optionLabels,
+      enhancedAchievements, recentResults, decisionDates, 
       usedThemes, aiUsageCount, challenges, totalPoints, themes, spinHistory, syncWheelData, isClient])
 
-  // Generate wheel segments based on mode and input sets
-  const generateSegments = () => {
-    const currentTheme = themes.find((t) => t.id === wheelTheme) || themes[0]
-    const themeColors = customColors ?? currentTheme.colors
-    const segments = []
-    const totalSegments = mode === "yes-no" ? inputSets * 2 : inputSets * 3
-    const anglePerSegment = 360 / totalSegments
-
-    for (let i = 0; i < totalSegments; i++) {
-      let label = ""
-      let color = ""
-
-      if (mode === "yes-no") {
-        label = i % 2 === 0 ? optionLabels.yes : optionLabels.no
-        color = i % 2 === 0 ? themeColors.yes : themeColors.no
-      } else {
-        const option = i % 3
-        if (option === 0) {
-          label = optionLabels.yes
-          color = themeColors.yes
-        } else if (option === 1) {
-          label = optionLabels.no
-          color = themeColors.no
-        } else {
-          label = optionLabels.maybe
-          color = themeColors.maybe
-        }
-      }
-
-      segments.push({
-        label,
-        color,
-        angle: anglePerSegment,
-        startAngle: i * anglePerSegment,
-      })
-    }
-
-    return segments
+  const resolveOptionKey = (label: string): YesNoOptionKey | null => {
+    if (label === optionLabels.yes) return "yes"
+    if (label === optionLabels.no) return "no"
+    if (label === optionLabels.maybe) return "maybe"
+    const lower = label.toLowerCase()
+    if (lower === "yes") return "yes"
+    if (lower === "no") return "no"
+    if (lower === "maybe") return "maybe"
+    return null
   }
 
-  const segments = generateSegments();
+  // Canvas wheel items (same style as letter/number WheelCanvas)
+  const canvasItems = (() => {
+    const currentTheme = themes.find((t) => t.id === wheelTheme) || themes[0]
+    const themeColors = customColors ?? currentTheme.colors
+    const unitKeys: YesNoOptionKey[] =
+      mode === "yes-no" ? ["yes", "no"] : ["yes", "no", "maybe"]
+    const eliminate =
+      actionMode === "elimination" || !!localSettings.spinBehavior?.removeWinnerAfterSpin
+    const activeKeys = eliminate
+      ? unitKeys.filter((k) => !eliminatedOptions.includes(k))
+      : unitKeys
+    // Never revive eliminated options; empty wheel means round is over
+    const keys = activeKeys
+    const items: YesNoCanvasItem[] = []
+    if (keys.length === 0) return items
+    const total = Math.max(1, keys.length * inputSets)
+    for (let i = 0; i < total; i++) {
+      const key = keys[i % keys.length]
+      items.push({
+        id: `${key}-${i}`,
+        key,
+        value: optionLabels[key],
+        weight: 1,
+        color: themeColors[key],
+      })
+    }
+    return items
+  })()
+  canvasItemsRef.current = canvasItems
+
+  const unitKeysForMode: YesNoOptionKey[] =
+    mode === "yes-no" ? ["yes", "no"] : ["yes", "no", "maybe"]
+  const activeOptionCount = unitKeysForMode.filter((k) => !eliminatedOptions.includes(k)).length
+  const activePaletteColors = customColors
+    ? [customColors.yes, customColors.no, customColors.maybe]
+    : null
+  const manuallyStop = !!localSettings.spinBehavior?.manuallyStop
 
   // AI advice generation
   const generateAdvice = async () => {
@@ -342,7 +525,6 @@ export function YesNoPickerWheel() {
 
     setIsGeneratingAdvice(true);
     try {
-      // Simulate AI API call - replace with actual AI service
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const advice = `Based on your question "${userQuestion}", I've analyzed the situation and created a decision wheel with ${inputSets} set(s) of options. The wheel will help you make an informed decision by considering multiple perspectives.`;
@@ -356,224 +538,235 @@ export function YesNoPickerWheel() {
     }
   };
 
-  // Spin wheel function
-  const spinWheel = () => {
-    if (isSpinning) return;
+  const finishSpinWithWinner = (result: string, index: number) => {
+    spinAudioRef.current?.stop()
+    isSpinningRef.current = false
+    setIsSpinning(false)
+    setHighlightIndex(index)
 
-    // Play sound immediately on user interaction if enabled
-    if (globalSettings.confettiSound.enableSound && soundEnabled) {
-      console.log('Playing sound on spin...');
-      const audio = new Audio("/sound-win.mp3");
-      audio.volume = globalSettings.confettiSound.soundVolume || 0.5;
-      audio.play().catch((error) => {
-        console.error('Error playing sound:', error);
-      });
+    const soundCfg = useSettingsStore.getState().settings.confettiSound
+    const soundOn = soundCfg?.enableSound !== false && soundEnabled
+    if (soundOn) {
+      try {
+        const audio = new Audio("/sound-win.mp3")
+        audio.volume = soundCfg?.soundVolume ?? 0.5
+        void audio.play()
+      } catch {
+        // ignore autoplay errors
+      }
     }
 
-    setIsSpinning(true);
-    
-    // Apply theme-specific effects
-    const currentTheme = themes.find(t => t.id === wheelTheme) || themes[0];
-    setWheelShake(currentTheme.animations?.shake || false);
-    setShowParticles(currentTheme.effects?.particles || false);
+    const confettiOn =
+      (soundCfg?.enableConfetti !== false) && confettiEnabled
+    if (confettiOn) {
+      setShowConfetti(true)
+      setTimeout(() => setShowConfetti(false), 5000)
+    }
 
-    // Get spin speed multiplier
-    const spinSpeedMultiplier = currentTheme.animations?.spinSpeed || 1;
-    
-    // Generate random rotation
-    const spins = 5 + Math.random() * 5; // 5-10 full rotations
-    const finalRotation = Math.random() * 360;
-    const totalRotation = spins * 360 + finalRotation;
-    const duration = (3000 + Math.random() * 2000) / spinSpeedMultiplier; // 3-5 seconds adjusted by theme speed
+    const optionKey = resolveOptionKey(result)
+    const nextResults = optionKey
+      ? { ...results, [optionKey]: results[optionKey] + 1 }
+      : results
 
-    const startTime = Date.now();
-    const startRotation = rotation;
+    setLastResult(result)
+    if (optionKey) {
+      setResults(nextResults)
+    }
+    setTotalSpins((prev) => prev + 1)
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smooth deceleration
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentRotation = startRotation + totalRotation * easeOut;
-      
-      setRotation(currentRotation);
-
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        // Determine result
-        const normalizedRotation = (currentRotation % 360 + 360) % 360;
-        // The pointer is at the top (0 degrees), so we need to find which segment is at the top
-        // Since the wheel rotates clockwise, we need to invert the calculation
-        const segmentIndex = Math.floor((360 - normalizedRotation) / (360 / segments.length)) % segments.length;
-        const result = segments[segmentIndex].label;
-
-        setLastResult(result);
-        setResults((prev: { yes: number; no: number; maybe: number }) => ({
-          ...prev,
-          [result.toLowerCase()]: prev[result.toLowerCase() as keyof typeof prev] + 1
-        }));
-        setTotalSpins((prev: number) => prev + 1);
-
-        // Update streak
-        setStreak((prev: { type: string; count: number }) => {
-          if (prev.type === result) {
-            return { type: result, count: prev.count + 1 };
-          } else {
-            return { type: result, count: 1 };
-          }
-        });
-
-        // Record spin history
-        const spinRecord: SpinRecord = {
-          id: Date.now().toString(),
-          timestamp: new Date(),
-          result,
-          rotation: currentRotation,
-          duration,
-          mode,
-          activeTab,
-          userQuestion: userQuestion || undefined,
-          aiAdvice: aiAdvice || undefined,
-          wheelTheme,
-          streak: { type: result, count: 1 }, // Will be updated by setStreak above
-          totalSpins: totalSpins + 1,
-          results: { ...results, [result.toLowerCase()]: results[result.toLowerCase() as keyof typeof results] + 1 }
-        };
-        setSpinHistory(prev => [spinRecord, ...prev.slice(0, 99)]); // Keep last 100 spins
-
-        // Update achievement tracking data
-        setRecentResults(prev => [...prev.slice(-9), result]); // Keep last 10 results
-        setDecisionDates(prev => [...prev, new Date()]);
-        
-        // Track theme usage
-        if (!usedThemes.includes(wheelTheme)) {
-          setUsedThemes(prev => [...prev, wheelTheme]);
-        }
-
-        // Track AI usage
-        if (activeTab === "ai") {
-          setAiUsageCount(prev => prev + 1);
-        }
-
-        // Check achievements
-        setEnhancedAchievements(prevAchievements => {
-          const { updatedAchievements, newlyUnlocked } = checkAchievements(
-            prevAchievements,
-            totalSpins + 1,
-            { ...results, [result.toLowerCase()]: results[result.toLowerCase() as keyof typeof results] + 1 },
-            { type: result, count: 1 }, // Current streak
-            activeTab,
-            [...recentResults.slice(-9), result],
-            usedThemes.includes(wheelTheme) ? usedThemes : [...usedThemes, wheelTheme],
-            [...decisionDates, new Date()]
-          );
-          
-          // Show achievement notification if new ones unlocked
-          if (newlyUnlocked.length > 0) {
-            console.log('New achievements unlocked:', newlyUnlocked);
-            // You could add a toast notification here
-          }
-          
-          return updatedAchievements;
-        });
-
-        // Check challenges
-        setChallenges(prevChallenges => {
-          const { updatedChallenges, newlyCompleted, totalPoints: newTotalPoints } = checkChallenges(
-            prevChallenges,
-            totalSpins + 1,
-            { ...results, [result.toLowerCase()]: results[result.toLowerCase() as keyof typeof results] + 1 },
-            { type: result, count: 1 }, // Current streak
-            activeTab,
-            [...recentResults.slice(-9), result],
-            aiUsageCount + (activeTab === "ai" ? 1 : 0),
-            [...decisionDates, new Date()]
-          );
-          
-          // Update total points
-          setTotalPoints(newTotalPoints);
-          
-          // Show challenge completion notification if new ones completed
-          if (newlyCompleted.length > 0) {
-            console.log('New challenges completed:', newlyCompleted);
-            // You could add a toast notification here
-          }
-          
-          return updatedChallenges;
-        });
-
-        // Check theme unlocks
-        setThemes(prevThemes => {
-          const { updatedThemes, newlyUnlocked } = checkThemeUnlocks(
-            prevThemes,
-            totalSpins + 1,
-            { ...results, [result.toLowerCase()]: results[result.toLowerCase() as keyof typeof results] + 1 },
-            usedThemes.includes(wheelTheme) ? usedThemes : [...usedThemes, wheelTheme],
-            totalPoints,
-            challenges.filter(c => c.completed).length
-          );
-          
-          // Show theme unlock notification if new ones unlocked
-          if (newlyUnlocked.length > 0) {
-            console.log('New themes unlocked:', newlyUnlocked);
-            setNewlyUnlockedThemes(newlyUnlocked);
-            // You could add a toast notification here
-          }
-          
-          return updatedThemes;
-        });
-
-        // Force save wheel data after spin
-        setTimeout(() => {
-          const wheel = getCurrentWheel()
-          if (wheel && isClient) {
-            const wheelData = {
-              activeTab,
-              mode,
-              inputSets,
-              userQuestion,
-              aiAdvice,
-              showStats,
-              confettiEnabled,
-              wheelTheme,
-              results: { ...results, [result.toLowerCase()]: results[result.toLowerCase() as keyof typeof results] + 1 },
-              lastResult: result,
-              totalSpins: totalSpins + 1,
-              streak: { type: result, count: 1 }, // Will be updated by the setStreak call above
-              achievements,
-              aiContext,
-              wheelTitle,
-              wheelDescription,
-              enhancedAchievements,
-              recentResults,
-              decisionDates: decisionDates.map(d => d.toISOString()),
-              usedThemes,
-              aiUsageCount,
-              challenges,
-              totalPoints,
-              themes,
-              spinHistory: spinHistory.map(record => ({
-                ...record,
-                timestamp: record.timestamp.toISOString()
-              })),
-            }
-            console.log('Force saving wheel data after spin:', wheelData)
-            syncWheelData(wheelData)
-          }
-        }, 100)
-
-        // Confetti and sound effects are handled by useEffect when lastResult changes
-
-        setIsSpinning(false);
-        setWheelShake(false);
-        setShowParticles(false);
+    setStreak((prev) => {
+      if (prev.type === result) {
+        return { type: result, count: prev.count + 1 }
       }
-    };
+      return { type: result, count: 1 }
+    })
 
-    animationRef.current = requestAnimationFrame(animate);
-  };
+    const durationMs = Math.max(0.5, localSettings.spinBehavior?.spinningDuration || 10) * 1000
+    const spinRecord: SpinRecord = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      result,
+      rotation: finalRotationRef.current,
+      duration: durationMs,
+      mode,
+      activeTab,
+      userQuestion: userQuestion || undefined,
+      aiAdvice: aiAdvice || undefined,
+      wheelTheme,
+      streak: { type: result, count: 1 },
+      totalSpins: totalSpins + 1,
+      results: nextResults,
+    }
+    setSpinHistory((prev) => [spinRecord, ...prev.slice(0, 99)])
+
+    const eliminate =
+      actionMode === "elimination" ||
+      !!useSettingsStore.getState().settings.spinBehavior?.removeWinnerAfterSpin
+    if (eliminate && optionKey) {
+      const unitKeys: YesNoOptionKey[] =
+        mode === "yes-no" ? ["yes", "no"] : ["yes", "no", "maybe"]
+      const stillActive = unitKeys.filter((k) => !eliminatedOptions.includes(k))
+      // Keep at least one option on the wheel
+      if (stillActive.length > 1) {
+        setEliminatedOptions((prev) => (prev.includes(optionKey) ? prev : [...prev, optionKey]))
+      }
+    }
+
+    setRecentResults((prev) => [...prev.slice(-9), result])
+    setDecisionDates((prev) => [...prev, new Date()])
+
+    if (!usedThemes.includes(wheelTheme)) {
+      setUsedThemes((prev) => [...prev, wheelTheme])
+    }
+    if (activeTab === "ai") {
+      setAiUsageCount((prev) => prev + 1)
+    }
+
+    setEnhancedAchievements((prevAchievements) => {
+      const { updatedAchievements } = checkAchievements(
+        prevAchievements,
+        totalSpins + 1,
+        nextResults,
+        { type: result, count: 1 },
+        activeTab,
+        [...recentResults.slice(-9), result],
+        usedThemes.includes(wheelTheme) ? usedThemes : [...usedThemes, wheelTheme],
+        [...decisionDates, new Date()],
+      )
+      return updatedAchievements
+    })
+
+    setChallenges((prevChallenges) => {
+      const { updatedChallenges, totalPoints: newTotalPoints } = checkChallenges(
+        prevChallenges,
+        totalSpins + 1,
+        nextResults,
+        { type: result, count: 1 },
+        activeTab,
+        [...recentResults.slice(-9), result],
+        aiUsageCount + (activeTab === "ai" ? 1 : 0),
+        [...decisionDates, new Date()],
+      )
+      setTotalPoints(newTotalPoints)
+      return updatedChallenges
+    })
+
+    setThemes((prevThemes) => {
+      const { updatedThemes, newlyUnlocked } = checkThemeUnlocks(
+        prevThemes,
+        totalSpins + 1,
+        nextResults,
+        usedThemes.includes(wheelTheme) ? usedThemes : [...usedThemes, wheelTheme],
+        totalPoints,
+        challenges.filter((c) => c.completed).length,
+      )
+      if (newlyUnlocked.length > 0) setNewlyUnlockedThemes(newlyUnlocked)
+      return updatedThemes
+    })
+  }
+
+  const finishSpin = () => {
+    if (!isSpinningRef.current) return
+    if (spinTimeoutRef.current) {
+      clearTimeout(spinTimeoutRef.current)
+      spinTimeoutRef.current = null
+    }
+
+    const lockedRotation = finalRotationRef.current
+    currentRotationRef.current = lockedRotation
+    setRotation(lockedRotation)
+
+    const pending = pendingWinnerRef.current
+    pendingWinnerRef.current = null
+    if (pending) {
+      finishSpinWithWinner(pending.result, pending.index)
+      return
+    }
+
+    const resolved = resolveNumberFromRotation(lockedRotation, canvasItemsRef.current)
+    if (!resolved) {
+      isSpinningRef.current = false
+      setIsSpinning(false)
+      spinAudioRef.current?.stop()
+      return
+    }
+    finishSpinWithWinner(String(resolved.value), resolved.index)
+  }
+  finishSpinRef.current = finishSpin
+
+  const spinWheel = () => {
+    if (isSpinning || isSpinningRef.current || canvasItems.length === 0) return
+
+    isSpinningRef.current = true
+    setIsSpinning(true)
+    setHighlightIndex(null)
+    setLastResult(null)
+    pendingWinnerRef.current = null
+
+    if (localSettings.confettiSound?.enableSound !== false && soundEnabled) {
+      try {
+        if (!spinAudioRef.current) spinAudioRef.current = createSpinAudioController()
+        spinAudioRef.current.startWhoosh(
+          "/wheel-sound.mp3",
+          localSettings.confettiSound.soundVolume || 0.5,
+        )
+      } catch {
+        // ignore
+      }
+    }
+
+    const baseRotation = localSettings.display?.randomInitialAngle ? Math.random() * 360 : 0
+    const finalRotation =
+      currentRotationRef.current + baseRotation + 10 * 360 + Math.random() * 360
+    finalRotationRef.current = finalRotation
+    setRotation(finalRotation)
+
+    const resolved = resolveNumberFromRotation(finalRotation, canvasItems)
+    if (resolved) {
+      pendingWinnerRef.current = { index: resolved.index, result: String(resolved.value) }
+    }
+
+    const durationMs = Math.max(0.5, localSettings.spinBehavior?.spinningDuration || 10) * 1000
+    if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current)
+    spinTimeoutRef.current = setTimeout(() => {
+      finishSpinRef.current()
+    }, durationMs + 80)
+  }
+
+  const handleManualStop = () => {
+    if (!localSettings.spinBehavior?.manuallyStop) return
+    if (!isSpinningRef.current) return
+    const stoppedAt = currentRotationRef.current
+    finalRotationRef.current = stoppedAt
+    const resolved = resolveNumberFromRotation(stoppedAt, canvasItemsRef.current)
+    if (resolved) {
+      pendingWinnerRef.current = { index: resolved.index, result: String(resolved.value) }
+    }
+    finishSpinRef.current()
+  }
+
+  const handleRotationFrame = (rotationDegrees: number, segmentCount: number) => {
+    currentRotationRef.current = rotationDegrees
+    const soundCfg = useSettingsStore.getState().settings.confettiSound
+    if (soundCfg?.enableSound === false || !soundEnabled || segmentCount <= 0) return
+    try {
+      if (!spinAudioRef.current) spinAudioRef.current = createSpinAudioController()
+      spinAudioRef.current.syncFrame(
+        rotationDegrees,
+        segmentCount,
+        soundCfg?.soundVolume || 0.5,
+        null,
+      )
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleCanvasSpinComplete = () => {
+    finishSpinRef.current()
+  }
+
+  const onSpinAction = !isSpinning ? spinWheel : handleManualStop
 
   // Reset function
   const resetWheel = () => {
@@ -586,6 +779,11 @@ export function YesNoPickerWheel() {
     setAiContext("");
     setUserQuestion("");
     setRotation(0);
+    currentRotationRef.current = 0
+    finalRotationRef.current = 0
+    setHighlightIndex(null);
+    setEliminatedOptions([]);
+    setOptionLabels({ yes: "YES", no: "NO", maybe: "MAYBE" });
     
     // Reset enhanced achievement data
     setEnhancedAchievements(initializeAchievements([]));
@@ -643,17 +841,23 @@ export function YesNoPickerWheel() {
 
   // Shuffle wheel function
   const shuffleWheel = () => {
-    // Add a random rotation to shuffle the wheel appearance
-    const randomRotation = Math.random() * 360;
-    setRotation(randomRotation);
-    
-    // Add a brief shake effect
-    setWheelShake(true);
-    setTimeout(() => setWheelShake(false), 500);
+    const shuffled = Math.random() * 360
+    currentRotationRef.current = shuffled
+    finalRotationRef.current = shuffled
+    setRotation(shuffled)
+    setHighlightIndex(null)
   };
 
   const applySoundEnabled = (enabled: boolean) => {
     setSoundEnabled(enabled)
+    const latest = useSettingsStore.getState().settings
+    updateLocalSettings({
+      confettiSound: {
+        ...latest.confettiSound,
+        enableSound: enabled,
+      },
+    })
+    // Keep legacy context in sync if used elsewhere
     updateSettings({
       confettiSound: {
         ...globalSettings.confettiSound,
@@ -662,8 +866,15 @@ export function YesNoPickerWheel() {
     })
   }
 
-  const toggleGlobalSound = () => {
-    applySoundEnabled(!soundEnabled)
+  const applyConfettiEnabled = (enabled: boolean) => {
+    setConfettiEnabled(enabled)
+    const latest = useSettingsStore.getState().settings
+    updateLocalSettings({
+      confettiSound: {
+        ...latest.confettiSound,
+        enableConfetti: enabled,
+      },
+    })
   }
 
   // Share function
@@ -681,46 +892,27 @@ export function YesNoPickerWheel() {
 
   // Replay function for spin history
   const replaySpin = (spin: SpinRecord) => {
-    // Set the wheel to the exact state of the recorded spin
-    setMode(spin.mode);
-    setActiveTab(spin.activeTab);
-    setWheelTheme(spin.wheelTheme);
-    setUserQuestion(spin.userQuestion || "");
-    setAiAdvice(spin.aiAdvice || "");
-    
-    // Animate the wheel to the recorded rotation
-    setIsSpinning(true);
-    setWheelShake(false);
-    setShowParticles(false);
-    
-    const startTime = Date.now();
-    const startRotation = rotation;
-    const targetRotation = spin.rotation;
-    const replayDuration = 2000; // 2 seconds for replay
-    
-    const animateReplay = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / replayDuration, 1);
-      
-      // Easing function for smooth animation
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
-      
-      setRotation(currentRotation);
-      
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animateReplay);
-      } else {
-        // Show the result briefly
-        setLastResult(spin.result);
-        setTimeout(() => {
-          setLastResult(null);
-          setIsSpinning(false);
-        }, 2000);
-      }
-    };
-    
-    animationRef.current = requestAnimationFrame(animateReplay);
+    if (isSpinningRef.current) return
+    setMode(spin.mode)
+    setActiveTab(spin.activeTab)
+    setWheelTheme(spin.wheelTheme)
+    setUserQuestion(spin.userQuestion || "")
+    setAiAdvice(spin.aiAdvice || "")
+
+    isSpinningRef.current = true
+    setIsSpinning(true)
+    setHighlightIndex(null)
+    setLastResult(null)
+    pendingWinnerRef.current = { index: 0, result: spin.result }
+
+    const finalRotation = currentRotationRef.current + 4 * 360 + (spin.rotation % 360)
+    finalRotationRef.current = finalRotation
+    setRotation(finalRotation)
+
+    if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current)
+    spinTimeoutRef.current = setTimeout(() => {
+      finishSpinRef.current()
+    }, 2080)
   };
 
   // Keyboard shortcut for Ctrl + Enter to spin
@@ -730,7 +922,7 @@ export function YesNoPickerWheel() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
         event.preventDefault();
-        spinWheel();
+        if (!isSpinningRef.current) spinWheel();
       }
     };
 
@@ -738,39 +930,29 @@ export function YesNoPickerWheel() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isSpinning, isClient]); // Re-add listener when spinning state changes
+  }, [isClient]);
 
-  // Sync local sound state with global settings
+  // Sync local toggles with Header Settings (zustand store)
   useEffect(() => {
-    setSoundEnabled(globalSettings.confettiSound.enableSound);
-  }, [globalSettings.confettiSound.enableSound]);
+    setSoundEnabled(localSettings.confettiSound?.enableSound !== false)
+    setConfettiEnabled(localSettings.confettiSound?.enableConfetti !== false)
+  }, [
+    localSettings.confettiSound?.enableSound,
+    localSettings.confettiSound?.enableConfetti,
+  ])
 
-  // Handle confetti and sound effects when result changes
-  useEffect(() => {
-    if (!isClient || !lastResult || isSpinning) return
-    
-    console.log('Result achieved:', lastResult);
-    console.log('Global confetti enabled:', globalSettings.confettiSound.enableConfetti);
-    console.log('Global sound enabled:', globalSettings.confettiSound.enableSound);
-    console.log('Local sound enabled:', soundEnabled);
-    
-    // Show confetti if enabled (use global settings)
-    if (globalSettings.confettiSound.enableConfetti) {
-      console.log('Showing confetti...');
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-    }
-    
-
-  }, [lastResult, isSpinning, globalSettings.confettiSound, soundEnabled, isClient]);
-
-  // Cleanup animation on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current)
+      spinAudioRef.current?.stop()
     };
+  }, []);
+
+  // Don't leave spinning stuck after HMR
+  useEffect(() => {
+    setIsSpinning(false)
+    isSpinningRef.current = false
   }, []);
 
     // Don't render until client is ready
@@ -786,48 +968,241 @@ export function YesNoPickerWheel() {
   }
 
   return (
-    <div className="relative w-full">
-      <BackgroundEffects showConfetti={showConfetti} />
+    <div
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-50 overflow-auto bg-white p-4"
+          : "relative w-full"
+      }
+    >
+      {showConfetti && (
+        <Confetti
+          width={typeof window !== "undefined" ? window.innerWidth : 1920}
+          height={typeof window !== "undefined" ? window.innerHeight : 1080}
+          numberOfPieces={400}
+          recycle={false}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            pointerEvents: "none",
+            zIndex: 1000,
+          }}
+        />
+      )}
 
       <div className="relative z-10 w-full">
-        <div className="grid items-start gap-6 lg:grid-cols-3">
-          {/* Wheel */}
-          <div className="relative overflow-hidden rounded-lg border bg-white p-4 shadow-sm lg:col-span-2 sm:p-6">
-            {(wheelTitle || wheelDescription) && (
-              <div className="mb-4 text-center">
-                {wheelTitle && (
-                  <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">{wheelTitle}</h2>
+        {!isFullscreen && (
+          <>
+            <YesNoPickerUseCases
+              activeId={activeUseCaseId}
+              onSelectPreset={applyUseCasePreset}
+            />
+            {activeUseCaseId && (
+              <div className="mb-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <Badge className="bg-slate-800 text-white hover:bg-slate-800">
+                  Mode: {getYesNoPickerUseCase(activeUseCaseId)?.label}
+                </Badge>
+                {(actionMode === "elimination" ||
+                  !!localSettings.spinBehavior?.removeWinnerAfterSpin) && (
+                  <Badge variant="secondary">
+                    {Math.max(activeOptionCount, 0)} left on wheel
+                  </Badge>
                 )}
-                {wheelDescription && (
-                  <p className="mt-1 text-sm text-slate-600">{wheelDescription}</p>
+                {getYesNoPickerUseCase(activeUseCaseId)?.config.controlMode === "ai" && (
+                  <Badge variant="outline" className="border-purple-300 text-purple-700">
+                    AI mode
+                  </Badge>
                 )}
               </div>
             )}
-            <div className="flex items-center justify-center">
+          </>
+        )}
+
+        <div className="grid items-start gap-6 lg:grid-cols-3">
+          {/* Wheel column (left) */}
+          <div
+            className={`relative overflow-hidden bg-white p-4 sm:p-6 ${
+              isFullscreen
+                ? "lg:col-span-3"
+                : "rounded-lg border shadow-sm lg:col-span-2"
+            }`}
+          >
+            {!isFullscreen && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSpinHistory(true)}
+                className="absolute left-4 top-4 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+              >
+                Results
+                {spinHistory.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {spinHistory.length}
+                  </Badge>
+                )}
+              </Button>
+            )}
+
+            <div className="flex flex-col items-center space-y-6 pt-8">
+              {!activeUseCaseId &&
+                (actionMode === "elimination" ||
+                  !!localSettings.spinBehavior?.removeWinnerAfterSpin) &&
+                eliminatedOptions.length > 0 &&
+                !isFullscreen && (
+                  <Badge variant="secondary">
+                    {Math.max(activeOptionCount, 0)} left on wheel
+                  </Badge>
+                )}
+
               <WheelDisplay
-                segments={segments}
-                wheelBackground={`conic-gradient(from 0deg, ${segments.map((s, i) => `${s.color} ${s.startAngle}deg ${s.startAngle + s.angle}deg`).join(", ")})`}
+                items={canvasItems}
                 rotation={rotation}
                 isSpinning={isSpinning}
-                wheelShake={wheelShake}
-                showParticles={showParticles}
-                activeTab={activeTab}
-                onSpin={spinWheel}
+                highlightIndex={highlightIndex}
                 soundEnabled={soundEnabled}
                 setSoundEnabled={applySoundEnabled}
-                showStats={showStats}
-                setShowStats={setShowStats}
-                onShare={shareResult}
-                lastResult={lastResult}
-                wheelTheme={wheelTheme}
-                setWheelTheme={setWheelTheme}
-                themeEffects={themes.find((t) => t.id === wheelTheme)?.effects}
-                themeAnimations={themes.find((t) => t.id === wheelTheme)?.animations}
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={() => setIsFullscreen((v) => !v)}
+                onSpin={onSpinAction}
+                onRotationFrame={handleRotationFrame}
+                onSpinComplete={handleCanvasSpinComplete}
+                manuallyStop={manuallyStop}
               />
+
+              {lastResult && !isSpinning && (
+                <div className="w-full max-w-md rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-6 text-center shadow-lg">
+                  <h3 className="mb-2 text-lg font-semibold text-green-800">
+                    🎉 {resultTitle || "Winner!"}
+                  </h3>
+                  <p className="text-2xl font-bold text-green-900">{lastResult}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 gap-1.5"
+                    onClick={shareResult}
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </Button>
+                </div>
+              )}
+
+              {canvasItems.length === 0 && (
+                <p className="text-center text-sm text-slate-500">
+                  No options left — pick a mode again or turn off Elimination and Reset.
+                </p>
+              )}
+
+              <Button
+                onClick={onSpinAction}
+                disabled={
+                  (!isSpinning && canvasItems.length === 0) ||
+                  (isSpinning && !manuallyStop)
+                }
+                className={`px-12 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl ${
+                  activeTab === "ai"
+                    ? "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700"
+                    : localSettings.display?.spinButtonAnimation
+                      ? "animate-pulse bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                      : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {isSpinning ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    {manuallyStop ? "Click Wheel to Stop" : "Spinning..."}
+                  </span>
+                ) : activeTab === "ai" ? (
+                  "🧠 SPIN WITH AI"
+                ) : (
+                  "🎯 SPIN THE WHEEL"
+                )}
+              </Button>
+
+              {localSettings.display?.showSpinCount && (
+                <div className="text-sm text-gray-500">Total spins: {totalSpins}</div>
+              )}
+
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowThemeSelector(true)}
+                  className="relative border-purple-500 px-3 py-1 text-xs text-purple-600 hover:border-purple-600 hover:bg-purple-50"
+                >
+                  <Palette className="mr-2 h-4 w-4" />
+                  Themes
+                  {themes.filter((t) => t.unlocked).length > 3 && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {themes.filter((t) => t.unlocked).length}
+                    </Badge>
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAnalytics(true)}
+                  className="relative border-green-500 px-3 py-1 text-xs text-green-600 hover:border-green-600 hover:bg-green-50"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Analytics
+                  {spinHistory.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {spinHistory.length}
+                    </Badge>
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSocialHub(true)}
+                  className="relative border-orange-500 px-3 py-1 text-xs text-orange-600 hover:border-orange-600 hover:bg-orange-50"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Social
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowGameModes(true)}
+                  className="relative border-red-500 px-3 py-1 text-xs text-red-600 hover:border-red-600 hover:bg-red-50"
+                >
+                  <Gamepad2 className="mr-2 h-4 w-4" />
+                  Games
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAchievements(true)}
+                  className="relative border-yellow-500 px-3 py-1 text-xs text-yellow-600 hover:border-yellow-600 hover:bg-yellow-50"
+                >
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Achievements
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {totalPoints}
+                  </Badge>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowChallenges(true)}
+                  className="relative border-sky-500 px-3 py-1 text-xs text-sky-600 hover:border-sky-600 hover:bg-sky-50"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Challenges
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Sidebar column */}
+          {!isFullscreen && (
           <div className="space-y-4 lg:col-span-1">
             <ResultsDisplay
               results={results}
@@ -836,27 +1211,56 @@ export function YesNoPickerWheel() {
               activeTab={activeTab}
               aiContext={aiContext}
               streak={streak}
-              achievements={achievements}
               showStats={showStats}
               totalSpins={totalSpins}
+              optionLabels={optionLabels}
             />
 
+            {showInputs ? (
             <YesNoPickerSidebar
               controlMode={activeTab === "ai" ? "ai" : "manual"}
               setControlMode={(m) => setActiveTab(m === "ai" ? "ai" : "manual")}
               mode={mode}
-              setMode={setMode}
+              setMode={(m) => {
+                setMode(m)
+                setActiveUseCaseId(null)
+                if (m === "yes-no") {
+                  setEliminatedOptions((prev) => prev.filter((k) => k !== "maybe"))
+                }
+              }}
+              actionMode={
+                actionMode === "elimination" ||
+                !!localSettings.spinBehavior?.removeWinnerAfterSpin
+                  ? "elimination"
+                  : "normal"
+              }
+              onActionModeChange={(m) => {
+                setActiveUseCaseId(null)
+                syncEliminationWithSettings(m === "elimination")
+              }}
               inputSets={inputSets}
-              setInputSets={setInputSets}
+              setInputSets={(n) => {
+                setActiveUseCaseId(null)
+                setInputSets(n)
+              }}
               userQuestion={userQuestion}
               setUserQuestion={setUserQuestion}
+              questionPlaceholder={
+                activeUseCaseId
+                  ? getYesNoPickerUseCase(activeUseCaseId)?.config.questionPlaceholder
+                  : undefined
+              }
               onGenerateAdvice={generateAdvice}
               isGeneratingAdvice={isGeneratingAdvice}
               aiAdvice={aiAdvice}
+              showTitle={showTitle}
+              setShowTitle={setShowTitle}
               wheelTitle={wheelTitle}
               setWheelTitle={setWheelTitle}
               wheelDescription={wheelDescription}
               setWheelDescription={setWheelDescription}
+              resultTitle={resultTitle}
+              setResultTitle={setResultTitle}
               optionLabels={optionLabels}
               setOptionLabels={setOptionLabels}
               onApplyPalette={(colors) => {
@@ -866,49 +1270,39 @@ export function YesNoPickerWheel() {
                   maybe: colors[2] ?? colors[1] ?? colors[0] ?? "#f97316",
                 })
               }}
+              activePaletteColors={activePaletteColors}
               confettiEnabled={confettiEnabled}
-              setConfettiEnabled={setConfettiEnabled}
+              setConfettiEnabled={applyConfettiEnabled}
               soundEnabled={soundEnabled}
               setSoundEnabled={applySoundEnabled}
+              showStats={showStats}
+              setShowStats={setShowStats}
               onShuffle={shuffleWheel}
               onReset={resetWheel}
+              onHideInputs={() => setShowInputs(false)}
               onViewHistory={() => setShowSpinHistory(true)}
               onOpenAchievements={() => setShowAchievements(true)}
               onOpenChallenges={() => setShowChallenges(true)}
-              onOpenSettings={() => setShowTitleModal(true)}
+              onOpenSettings={openSettings}
+              onToggleFullscreen={() => setIsFullscreen((v) => !v)}
+              onOpenAI={() => {
+                setActiveTab("ai")
+                setShowInputs(true)
+              }}
+              onOpenThemes={() => setShowThemeSelector(true)}
               resultsCount={totalSpins}
               historyCount={spinHistory.length}
               totalPoints={totalPoints}
+              activeCount={Math.max(activeOptionCount, 0) * inputSets}
+              eliminatedCount={eliminatedOptions.length}
             />
-
-            <Button
-              onClick={spinWheel}
-              disabled={isSpinning}
-              className={`relative z-30 h-14 w-full text-lg font-bold shadow-lg transition-all duration-300 hover:scale-[1.02] ${
-                activeTab === "ai"
-                  ? "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700"
-                  : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700"
-              }`}
-            >
-              {isSpinning ? (
-                <span className="flex items-center gap-2">
-                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white" />
-                  SPINNING…
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  {activeTab === "ai" ? <Brain className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
-                  {activeTab === "ai" ? "SPIN WITH AI" : "SPIN THE WHEEL"}
-                  {activeTab === "ai" ? <Brain className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
-                </span>
-              )}
-            </Button>
-
-            <p className="text-center text-xs text-slate-500">
-              Press Ctrl + Enter to spin
-              {activeTab === "ai" ? " · AI mode" : ""}
-            </p>
+            ) : (
+              <Button variant="outline" onClick={() => setShowInputs(true)}>
+                Show inputs
+              </Button>
+            )}
           </div>
+          )}
         </div>
       </div>
 
@@ -950,6 +1344,44 @@ export function YesNoPickerWheel() {
         onReplay={replaySpin}
         currentMode={mode}
         currentActiveTab={activeTab}
+      />
+
+      <PickerWheelAnalyticsDisplay
+        analytics={analyzeSpinData(
+          spinHistory.map(
+            (s): AnalyticsSpinRecord => ({
+              id: s.id,
+              timestamp: s.timestamp,
+              result: s.result,
+              options:
+                s.mode === "yes-no"
+                  ? [optionLabels.yes, optionLabels.no]
+                  : [optionLabels.yes, optionLabels.no, optionLabels.maybe],
+              mode: s.activeTab,
+              theme: s.wheelTheme,
+              spinDuration: s.duration,
+              userQuestion: s.userQuestion,
+            }),
+          ),
+        )}
+        isVisible={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+      />
+
+      <PickerWheelSocialHub
+        isVisible={showSocialHub}
+        onClose={() => setShowSocialHub(false)}
+        onShareWheel={shareResult}
+      />
+
+      <PickerWheelGameModes
+        isVisible={showGameModes}
+        onClose={() => setShowGameModes(false)}
+        userPoints={totalPoints}
+        onStartGame={() => {
+          setShowGameModes(false)
+          setShowChallenges(true)
+        }}
       />
 
       <TitleModal

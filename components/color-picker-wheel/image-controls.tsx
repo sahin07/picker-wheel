@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Slider } from "@/components/ui/slider"
 import { RotateCcw, Settings, Volume2, VolumeX, Upload, Plus, Trash2, Edit3 } from "lucide-react"
+import type { ColorResultShowMode } from "@/lib/color-formats"
+import { formatAlpha } from "@/lib/color-formats"
 
 interface ImageControlsProps {
   customColors: Array<{
@@ -27,18 +30,10 @@ interface ImageControlsProps {
   setConfettiEnabled: (enabled: boolean) => void
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
-  resultShowMode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }
-  setResultShowMode: (mode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }) => void
+  resultShowMode: ColorResultShowMode
+  setResultShowMode: (mode: ColorResultShowMode) => void
+  colorAlpha: number
+  setColorAlpha: (alpha: number) => void
 }
 
 export function ImageControls({
@@ -52,7 +47,9 @@ export function ImageControls({
   soundEnabled,
   setSoundEnabled,
   resultShowMode,
-  setResultShowMode
+  setResultShowMode,
+  colorAlpha,
+  setColorAlpha,
 }: ImageControlsProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [extractedColors, setExtractedColors] = useState<Array<{ color: string; name: string }>>([])
@@ -302,6 +299,29 @@ export function ImageControls({
               onChange={(e) => setResultShowMode({ ...resultShowMode, rgb: e.target.checked })}
             />
             <Label htmlFor="show-rgb-image">RGB</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="show-rgba-image"
+              checked={resultShowMode.rgba}
+              onChange={(e) => setResultShowMode({ ...resultShowMode, rgba: e.target.checked })}
+            />
+            <Label htmlFor="show-rgba-image">RGBA</Label>
+          </div>
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="color-alpha-image">Alpha (opacity)</Label>
+              <span className="font-mono text-xs text-slate-500">{formatAlpha(colorAlpha)}</span>
+            </div>
+            <Slider
+              id="color-alpha-image"
+              min={0}
+              max={100}
+              step={1}
+              value={[Math.round(colorAlpha * 100)]}
+              onValueChange={(value) => setColorAlpha((value[0] ?? 100) / 100)}
+            />
           </div>
         </CardContent>
       </Card>

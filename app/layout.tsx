@@ -25,6 +25,13 @@ export const metadata: Metadata = {
     "Spin the wheel online for free with our random wheel picker. Create custom wheels, add names or options, and make fair random choices in seconds.",
 }
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover" as const,
+}
+
 export default function RootLayout({
   children,
 }: {

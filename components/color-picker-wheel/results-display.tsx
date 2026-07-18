@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { History, Share2, Trash2 } from "lucide-react"
+import type { ColorResultShowMode } from "@/lib/color-formats"
+import { formatRgba, rgbStringToRgba } from "@/lib/color-formats"
 
 interface ResultsDisplayProps {
   results: Array<{
@@ -12,6 +14,7 @@ interface ResultsDisplayProps {
     name: string
     hex: string
     rgb: string
+    rgba?: string
     timestamp: Date
   }>
   lastResult: {
@@ -19,15 +22,12 @@ interface ResultsDisplayProps {
     name: string
     hex: string
     rgb: string
+    rgba?: string
   } | null
   inputMethod: string
   activeTab: string
-  resultShowMode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }
+  resultShowMode: ColorResultShowMode
+  colorAlpha?: number
   showStats: boolean
   totalSpins: number
 }
@@ -38,6 +38,7 @@ export function ResultsDisplay({
   inputMethod,
   activeTab,
   resultShowMode,
+  colorAlpha = 1,
   showStats,
   totalSpins
 }: ResultsDisplayProps) {
@@ -47,6 +48,14 @@ export function ResultsDisplay({
     return null
   }
 
+  const liveRgba = lastResult
+    ? lastResult.hex
+      ? formatRgba(lastResult.hex, colorAlpha)
+      : lastResult.rgb
+        ? rgbStringToRgba(lastResult.rgb, colorAlpha)
+        : lastResult.rgba || ""
+    : ""
+
   return (
     <div className="space-y-4">
       {/* Last Result */}
@@ -55,9 +64,19 @@ export function ResultsDisplay({
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <div 
-                className="w-6 h-6 rounded border"
-                style={{ backgroundColor: lastResult.color }}
-              />
+                className="relative h-6 w-6 overflow-hidden rounded border"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                  backgroundSize: "6px 6px",
+                  backgroundPosition: "0 0, 0 3px, 3px -3px, -3px 0",
+                }}
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundColor: liveRgba || lastResult.color }}
+                />
+              </div>
               Last Result
             </CardTitle>
           </CardHeader>
@@ -67,9 +86,19 @@ export function ResultsDisplay({
                 <div className="flex items-center gap-3">
                   <span className="font-medium">Color:</span>
                   <div 
-                    className="w-8 h-8 rounded border"
-                    style={{ backgroundColor: lastResult.color }}
-                  />
+                    className="relative h-8 w-8 overflow-hidden rounded border"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                      backgroundSize: "8px 8px",
+                      backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0",
+                    }}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{ backgroundColor: liveRgba || lastResult.color }}
+                    />
+                  </div>
                 </div>
               )}
               
@@ -93,7 +122,16 @@ export function ResultsDisplay({
                 <div className="flex items-center gap-3">
                   <span className="font-medium">RGB:</span>
                   <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
-                    {lastResult.rgb}
+                    rgb({lastResult.rgb})
+                  </code>
+                </div>
+              )}
+
+              {resultShowMode.rgba && liveRgba && (
+                <div className="flex items-center gap-3">
+                  <span className="font-medium">RGBA:</span>
+                  <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
+                    {liveRgba}
                   </code>
                 </div>
               )}
@@ -166,7 +204,13 @@ export function ResultsDisplay({
                     <div>
                       <div className="font-medium">{result.name}</div>
                       <div className="text-sm text-gray-600">
-                        {result.hex} • {result.rgb}
+                        {result.hex}
+                        {result.rgb ? ` · rgb(${result.rgb})` : ""}
+                        {result.rgba
+                          ? ` · ${result.rgba}`
+                          : result.rgb
+                            ? ` · ${rgbStringToRgba(result.rgb, colorAlpha)}`
+                            : ""}
                       </div>
                     </div>
                   </div>

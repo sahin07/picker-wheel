@@ -1,44 +1,94 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { useSettings } from "@/contexts/settings-context"
+import { useToast } from "@/hooks/use-toast"
 import { WheelDisplay } from "@/components/color-picker-wheel/wheel-display"
 import { TitleModal } from "@/components/color-picker-wheel/title-modal"
 import { ResultsDisplay } from "@/components/color-picker-wheel/results-display"
-import { ColorOutputDisplay } from "@/components/color-picker-wheel/color-output-display"
-import { ColorWheelControls } from "@/components/color-picker-wheel/color-wheel-controls"
-import { ManualControls } from "@/components/color-picker-wheel/manual-controls"
-import { ImageControls } from "@/components/color-picker-wheel/image-controls"
-import { AIColorAnalysis } from "@/components/color-picker-wheel/ai-color-analysis"
-import { AIColorLearning } from "@/components/color-picker-wheel/ai-color-learning"
-import { AIPaletteGenerator } from "@/components/color-picker-wheel/ai-palette-generator"
-import { ColorBlindnessSimulator } from "@/components/color-picker-wheel/color-blindness-simulator"
-import { EnhancedColorNaming } from "@/components/color-picker-wheel/enhanced-color-naming"
+import {
+  ColorPickerSidebar,
+  type ColorPickerModeTab,
+} from "@/components/color-picker-wheel/color-picker-sidebar"
+import { ColorResultsHistory } from "@/components/color-picker-wheel/color-results-history"
+import { ColorThemeSelector } from "@/components/color-picker-wheel/color-theme-selector"
+import {
+  AchievementsDisplay,
+  type Achievement,
+} from "@/components/yes-no-picker-wheel/achievements-display"
+import { ChallengesDisplay } from "@/components/yes-no-picker-wheel/challenges-display"
+import { initializeAchievements, checkAchievements } from "@/lib/achievement-system"
+import { initializeChallenges, checkChallenges, type Challenge } from "@/lib/decision-challenges"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { useSettingsStore } from "@/stores/settings-store"
 import { generateIntelligentColorName } from "@/lib/ai-color-utils"
-import { Settings, Palette, Image, Eye, RotateCcw, BarChart3, Share2, Maximize2, Minimize2, Brain } from "lucide-react"
+import {
+  analyzeSpinData,
+  type SpinRecord as AnalyticsSpinRecord,
+} from "@/lib/picker-wheel-analytics"
+import PickerWheelAnalyticsDisplay from "@/components/picker-wheel-analytics-display"
+import PickerWheelSocialHub from "@/components/picker-wheel-social-hub"
+import PickerWheelGameModes from "@/components/picker-wheel-game-modes"
+import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
+import { Palette, Share2, BarChart3, Users, Gamepad2, Trophy, Sparkles } from "lucide-react"
 import Confetti from "react-confetti"
+import { getColorPickerPalette } from "@/lib/color-picker-palettes"
+import type { ColorPickerDeepLink } from "@/lib/color-picker-spokes"
+import {
+  DEFAULT_COLOR_RESULT_SHOW_MODE,
+  formatRgba,
+  hexToRgbString,
+  rgbStringToRgba,
+} from "@/lib/color-formats"
 
 interface ColorPickerWheelProps {
   onOpenSettings?: () => void
+  openGamesSignal?: number
+  openAchievementsSignal?: number
+  /** SEO / deep-link tab (`?tab=`) */
+  initialTab?: ColorPickerModeTab
+  /** SEO / deep-link combination (`?combo=`) */
+  initialCombination?: string
+  /** Spoke / palette deep link */
+  deepLink?: ColorPickerDeepLink
 }
 
-export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {}) {
+export function ColorPickerWheel({
+  onOpenSettings,
+  openGamesSignal = 0,
+  openAchievementsSignal = 0,
+  initialTab,
+  initialCombination,
+  deepLink,
+}: ColorPickerWheelProps = {}) {
   const [isClient, setIsClient] = useState(false)
   const { settings: globalSettings, updateSettings } = useSettings()
-  const { settings: localSettings } = useSettingsStore()
+  const { settings: localSettings, updateSettings: updateLocalSettings } = useSettingsStore()
+  const { toast } = useToast()
   const { getCurrentWheel, updateWheelData, setCurrentTool, createNewWheel, currentWheelId } = useWheelManagerStore()
   const toolType = 'color-picker-wheel';
   const prevWheelId = useRef<string | null>(null)
+  const seoDeepLinkKey = useRef<string>("")
 
   // Ensure we're on the client side
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // Header → Games / Achievements (same modals as left toolbar)
+  useEffect(() => {
+    if (openGamesSignal > 0) setShowGameModes(true)
+  }, [openGamesSignal])
+
+  useEffect(() => {
+    if (openAchievementsSignal > 0) setShowAchievements(true)
+  }, [openAchievementsSignal])
+
+  const openSettings = () => {
+    if (onOpenSettings) onOpenSettings()
+  }
 
   // Initialize tool and wheel
   useEffect(() => {
@@ -57,8 +107,8 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
   }, [setCurrentTool, getCurrentWheel, createNewWheel, isClient])
 
   // State management
-  const [activeTab, setActiveTab] = useState("color-wheel")
-  const [colorCombination, setColorCombination] = useState("complementary")
+  const [activeTab, setActiveTab] = useState<ColorPickerModeTab>(initialTab ?? "color-wheel")
+  const [colorCombination, setColorCombination] = useState(initialCombination ?? "complementary")
   const [spinningPointerMode, setSpinningPointerMode] = useState<"manual" | "random">("random")
   const [selectedColor, setSelectedColor] = useState("#FF0000")
   const [customColors, setCustomColors] = useState<Array<{
@@ -68,7 +118,6 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
     enabled: boolean
   }>>([])
   const [showStats, setShowStats] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [showAIFeatures, setShowAIFeatures] = useState(true)
   const [confettiEnabled, setConfettiEnabled] = useState(true)
   const [soundEnabled, setSoundEnabled] = useState(globalSettings.confettiSound.enableSound)
@@ -77,6 +126,27 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
   const [wheelShake, setWheelShake] = useState(false)
   const [showParticles, setShowParticles] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
+  const [showInputs, setShowInputs] = useState(true)
+  const [showSpinHistory, setShowSpinHistory] = useState(false)
+  const [showThemeSelector, setShowThemeSelector] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showSocialHub, setShowSocialHub] = useState(false)
+  const [showGameModes, setShowGameModes] = useState(false)
+  const [showAchievements, setShowAchievements] = useState(false)
+  const [showChallenges, setShowChallenges] = useState(false)
+  const [enhancedAchievements, setEnhancedAchievements] = useState<Achievement[]>(() =>
+    initializeAchievements([]),
+  )
+  const [challenges, setChallenges] = useState<Challenge[]>(() => initializeChallenges([]))
+  const [totalPoints, setTotalPoints] = useState(0)
+  const [recentResults, setRecentResults] = useState<string[]>([])
+  const [usedThemes, setUsedThemes] = useState<string[]>(["classic"])
+  const [decisionDates, setDecisionDates] = useState<Date[]>([])
+  const [colorStreak, setColorStreak] = useState<{ type: string; count: number }>({
+    type: "",
+    count: 0,
+  })
+  const [aiUsageCount, setAiUsageCount] = useState(0)
   
   // Title and description state
   const [wheelTitle, setWheelTitle] = useState("Color Picker Wheel")
@@ -90,6 +160,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        timestamp: Date
      }>
      "manual": Array<{
@@ -97,6 +168,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        timestamp: Date
      }>
      "image": Array<{
@@ -104,6 +176,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        timestamp: Date
      }>
      "ai": Array<{
@@ -111,6 +184,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        timestamp: Date
      }>
    }>({
@@ -126,9 +200,11 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        complementary?: {
          hex: string
          rgb: string
+         rgba?: string
        }
      } | null
      "manual": {
@@ -136,9 +212,11 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        complementary?: {
          hex: string
          rgb: string
+         rgba?: string
        }
      } | null
      "image": {
@@ -146,9 +224,11 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        complementary?: {
          hex: string
          rgb: string
+         rgba?: string
        }
      } | null
      "ai": {
@@ -156,9 +236,11 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
        name: string
        hex: string
        rgb: string
+       rgba?: string
        complementary?: {
          hex: string
          rgb: string
+         rgba?: string
        }
      } | null
    }>({
@@ -179,12 +261,8 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
      "image": 0,
      "ai": 0
    })
-  const [resultShowMode, setResultShowMode] = useState({
-    color: true,
-    text: true,
-    hex: true,
-    rgb: true
-  })
+  const [resultShowMode, setResultShowMode] = useState(DEFAULT_COLOR_RESULT_SHOW_MODE)
+  const [colorAlpha, setColorAlpha] = useState(1)
   
   // Result Action Modes
   const [resultActionMode, setResultActionMode] = useState<"normal" | "elimination">("normal")
@@ -194,6 +272,9 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
   const [isSpinning, setIsSpinning] = useState(false)
   const [rotation, setRotation] = useState(0)
   const animationRef = useRef<number | null>(null)
+  const isSpinningRef = useRef(false)
+  const spinAudioRef = useRef<SpinAudioController | null>(null)
+  const rotationRef = useRef(0)
 
   // Debug current state
   useEffect(() => {
@@ -246,7 +327,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
          const d = wheel.data as any;
          console.log('Loading wheel data:', d)
          
-         setActiveTab(d.activeTab || "color-wheel");
+         setActiveTab((d.activeTab as ColorPickerModeTab) || "color-wheel");
          setColorCombination(d.colorCombination || "complementary");
          setSpinningPointerMode(d.spinningPointerMode || "random");
          setSelectedColor(d.selectedColor || "#FF0000");
@@ -281,7 +362,11 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
                      "image": loadedTotalSpins["image"] || 0,
                      "ai": loadedTotalSpins["ai"] || 0
                    });
-         setResultShowMode(d.resultShowMode || { color: true, text: true, hex: true, rgb: true });
+         setResultShowMode({
+           ...DEFAULT_COLOR_RESULT_SHOW_MODE,
+           ...(d.resultShowMode || {}),
+         });
+         if (typeof d.colorAlpha === "number") setColorAlpha(d.colorAlpha);
          setResultActionMode(d.resultActionMode || "normal");
          setEliminatedColors(new Set(d.eliminatedColors || []));
          
@@ -318,16 +403,87 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
            "image": 0,
            "ai": 0
          });
-         setResultShowMode({ color: true, text: true, hex: true, rgb: true });
+         setResultShowMode({ ...DEFAULT_COLOR_RESULT_SHOW_MODE });
+         setColorAlpha(1);
          setResultActionMode("normal");
          setEliminatedColors(new Set());
          
          console.log('Set default data for existing wheel with no data')
        }
+
+      if (initialTab) setActiveTab(initialTab)
+      if (initialCombination) setColorCombination(initialCombination)
+
+      if (deepLink?.palette) {
+        const swatches = getColorPickerPalette(deepLink.palette)
+        setCustomColors(
+          swatches.map((swatch, i) => ({
+            id: `seo-${deepLink.palette}-${i}`,
+            color: swatch.color,
+            name: swatch.name,
+            enabled: true,
+          })),
+        )
+        setActiveTab(deepLink.tab ?? "manual")
+        if (deepLink.toolTitle) setWheelTitle(deepLink.toolTitle)
+        if (deepLink.toolDescription) setWheelDescription(deepLink.toolDescription)
+        setEliminatedColors(new Set())
+        seoDeepLinkKey.current = JSON.stringify({
+          palette: deepLink.palette,
+          tab: deepLink.tab ?? null,
+          combination: deepLink.combination ?? null,
+          title: deepLink.toolTitle ?? null,
+        })
+      }
       
       prevWheelId.current = wheel.id
     }
-  }, [getCurrentWheel, currentWheelId, isClient])
+  }, [getCurrentWheel, currentWheelId, isClient, initialTab, initialCombination, deepLink])
+
+  // SEO / spoke deep links (palette + tab + combo + titles)
+  useEffect(() => {
+    if (!isClient) return
+    const key = JSON.stringify({
+      palette: deepLink?.palette ?? null,
+      tab: deepLink?.tab ?? initialTab ?? null,
+      combination: deepLink?.combination ?? initialCombination ?? null,
+      title: deepLink?.toolTitle ?? null,
+    })
+    if (!key || key === seoDeepLinkKey.current) return
+    if (
+      !deepLink?.palette &&
+      !deepLink?.tab &&
+      !deepLink?.combination &&
+      !deepLink?.toolTitle &&
+      !initialTab &&
+      !initialCombination
+    ) {
+      return
+    }
+
+    seoDeepLinkKey.current = key
+
+    const tab = deepLink?.tab ?? initialTab
+    const combo = deepLink?.combination ?? initialCombination
+    if (tab) setActiveTab(tab)
+    if (combo) setColorCombination(combo)
+    if (deepLink?.toolTitle) setWheelTitle(deepLink.toolTitle)
+    if (deepLink?.toolDescription) setWheelDescription(deepLink.toolDescription)
+
+    if (deepLink?.palette) {
+      const swatches = getColorPickerPalette(deepLink.palette)
+      setCustomColors(
+        swatches.map((swatch, i) => ({
+          id: `seo-${deepLink.palette}-${i}`,
+          color: swatch.color,
+          name: swatch.name,
+          enabled: true,
+        })),
+      )
+      setActiveTab(deepLink.tab ?? "manual")
+      setEliminatedColors(new Set())
+    }
+  }, [isClient, deepLink, initialTab, initialCombination])
 
   // Unified sync for all wheel data
   const syncWheelData = useCallback((data: any) => {
@@ -356,6 +512,7 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
         lastResult,
         totalSpins,
         resultShowMode,
+        colorAlpha,
         wheelTitle,
         wheelDescription,
       }
@@ -371,7 +528,8 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
       }, 100)
     }
       }, [activeTab, colorCombination, spinningPointerMode, selectedColor, customColors, 
-      resultActionMode, eliminatedColors, showStats, confettiEnabled, wheelTheme, results, lastResult, totalSpins, resultShowMode, 
+      resultActionMode, eliminatedColors, showStats, confettiEnabled, wheelTheme, results, lastResult, totalSpins, resultShowMode,
+      colorAlpha,
       wheelTitle, wheelDescription, syncWheelData, isClient])
 
   // Generate wheel segments based on input method
@@ -460,169 +618,239 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
 
   // Get complementary color
   const getComplementaryColor = (hue: number) => {
-    const complementaryHue = (hue + 180) % 360;
+    const complementaryHue = (hue + 180) % 360
+    const hex = hslToHex(complementaryHue, 100, 50)
+    const rgb = hslToRgb(complementaryHue, 100, 50)
+      .map((n) => Math.round(n))
+      .join(", ")
     return {
-      hex: hslToHex(complementaryHue, 100, 50),
-      rgb: hslToRgb(complementaryHue, 100, 50).join(", ")
-    };
-  };
+      hex,
+      rgb,
+      rgba: formatRgba(hex, colorAlpha),
+    }
+  }
 
   // Spin wheel function
   const spinWheel = () => {
-    if (isSpinning) return;
+    if (isSpinning || isSpinningRef.current) return
 
-    setIsSpinning(true);
-    setWheelShake(true);
-    setShowParticles(true);
+    const currentSegments = generateSegments()
+    if (currentSegments.length === 0) return
 
-    // Generate segments based on current input method
-    const currentSegments = generateSegments();
-    if (currentSegments.length === 0) {
-      setIsSpinning(false);
-      return;
+    const availableSegments =
+      resultActionMode === "elimination"
+        ? currentSegments.filter((segment) => !eliminatedColors.has(segment.color))
+        : currentSegments
+
+    if (availableSegments.length === 0) return
+
+    isSpinningRef.current = true
+    setIsSpinning(true)
+    setWheelShake(true)
+    setShowParticles(true)
+
+    const soundCfg = useSettingsStore.getState().settings.confettiSound
+    const soundOn = soundCfg?.enableSound !== false && soundEnabled
+    const volume = soundCfg?.soundVolume || 0.5
+
+    if (soundOn) {
+      try {
+        if (!spinAudioRef.current) spinAudioRef.current = createSpinAudioController()
+        spinAudioRef.current.startWhoosh("/wheel-sound.mp3", volume)
+      } catch {
+        // ignore autoplay
+      }
     }
 
-    // Filter out eliminated colors if in elimination mode
-    const availableSegments = resultActionMode === "elimination" 
-      ? currentSegments.filter(segment => !eliminatedColors.has(segment.color))
-      : currentSegments;
-
-    if (availableSegments.length === 0) {
-      setIsSpinning(false);
-      return;
-    }
-
-    // Generate random rotation
-    const spins = 5 + Math.random() * 5; // 5-10 full rotations
-    const finalRotation = Math.random() * 360;
-    const totalRotation = spins * 360 + finalRotation;
-    const duration = 3000 + Math.random() * 2000; // 3-5 seconds
-
-    const startTime = Date.now();
-    const startRotation = rotation;
+    const durationSec = Math.max(0.5, localSettings.spinBehavior?.spinningDuration || 4)
+    const duration = durationSec * 1000
+    const spins = 5 + Math.random() * 5
+    const finalAngle = Math.random() * 360
+    const totalRotation = spins * 360 + finalAngle
+    const startTime = Date.now()
+    const startRotation = rotationRef.current
+    const tickSegments =
+      activeTab === "color-wheel" ? 24 : Math.max(availableSegments.length, 1)
 
     const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smooth deceleration
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentRotation = startRotation + totalRotation * easeOut;
-      
-      setRotation(currentRotation);
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      const currentRotation = startRotation + totalRotation * easeOut
+
+      rotationRef.current = currentRotation
+      setRotation(currentRotation)
+
+      if (soundOn && spinAudioRef.current) {
+        try {
+          spinAudioRef.current.syncFrame(currentRotation, tickSegments, volume, null)
+        } catch {
+          // ignore
+        }
+      }
 
       if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        // Determine result from available segments
-        const normalizedRotation = (currentRotation % 360 + 360) % 360;
-        const segmentIndex = Math.floor((360 - normalizedRotation) / (360 / availableSegments.length)) % availableSegments.length;
-        const segment = availableSegments[segmentIndex];
-
-        let result;
-        if (activeTab === "color-wheel") {
-          const hue = segmentIndex;
-          const hex = hslToHex(hue, 100, 50);
-          const rgb = hslToRgb(hue, 100, 50).join(", ");
-          const complementary = getComplementaryColor(hue);
-          
-          result = {
-            color: segment.color,
-            name: `Hue ${hue}°`,
-            hex,
-            rgb,
-            complementary: {
-              hex: complementary.hex,
-              rgb: complementary.rgb
-            }
-          };
-        } else {
-          result = {
-            color: segment.color,
-            name: segment.label,
-            hex: segment.color,
-            rgb: "", // Would need to convert hex to rgb
-            complementary: undefined
-          };
-        }
-
-                 // Update results for current mode
-         setLastResult(prev => ({
-           ...prev,
-           [activeTab]: result
-         }));
-         
-         setResults(prev => ({
-           ...prev,
-           [activeTab]: [{
-             color: result.color,
-             name: result.name,
-             hex: result.hex,
-             rgb: result.rgb,
-             timestamp: new Date()
-           }, ...prev[activeTab as keyof typeof prev].slice(0, 99)] // Keep last 100 results
-         }));
-         
-         setTotalSpins(prev => ({
-           ...prev,
-           [activeTab]: prev[activeTab as keyof typeof prev] + 1
-         }));
-
-         // Handle elimination mode
-         if (resultActionMode === "elimination") {
-           setEliminatedColors(prev => new Set([...prev, result.color]));
-         }
-
-         // Force save wheel data after spin
-         setTimeout(() => {
-           const wheel = getCurrentWheel()
-           if (wheel && isClient) {
-             const wheelData = {
-               activeTab,
-               colorCombination,
-               spinningPointerMode,
-               selectedColor,
-               customColors,
-               resultActionMode,
-               eliminatedColors: Array.from(eliminatedColors),
-               showStats,
-               confettiEnabled,
-               wheelTheme,
-               results: {
-                 ...results,
-                 [activeTab]: [{
-                   color: result.color,
-                   name: result.name,
-                   hex: result.hex,
-                   rgb: result.rgb,
-                   timestamp: new Date()
-                 }, ...results[activeTab as keyof typeof results].slice(0, 99)]
-               },
-               lastResult: {
-                 ...lastResult,
-                 [activeTab]: result
-               },
-               totalSpins: {
-                 ...totalSpins,
-                 [activeTab]: totalSpins[activeTab as keyof typeof totalSpins] + 1
-               },
-               resultShowMode,
-               wheelTitle,
-               wheelDescription,
-             }
-             console.log('Force saving wheel data after spin:', wheelData)
-             syncWheelData(wheelData)
-           }
-         }, 100)
-
-        setIsSpinning(false);
-        setWheelShake(false);
-        setShowParticles(false);
+        animationRef.current = requestAnimationFrame(animate)
+        return
       }
-    };
 
-    animationRef.current = requestAnimationFrame(animate);
-  };
+      // Finished — resolve winner
+      spinAudioRef.current?.stop()
+
+      const normalizedRotation = ((currentRotation % 360) + 360) % 360
+      const segmentSize = 360 / availableSegments.length
+      const segmentIndex =
+        Math.floor(((360 - normalizedRotation) % 360) / segmentSize) %
+        availableSegments.length
+      const segment = availableSegments[segmentIndex]
+
+      let result: {
+        color: string
+        name: string
+        hex: string
+        rgb: string
+        rgba: string
+        complementary?: { hex: string; rgb: string; rgba?: string }
+      }
+
+      if (activeTab === "color-wheel") {
+        const hue = Math.round(segment.startAngle) % 360
+        const hex = hslToHex(hue, 100, 50)
+        const rgb = hslToRgb(hue, 100, 50)
+          .map((n) => Math.round(n))
+          .join(", ")
+        const complementary = getComplementaryColor(hue)
+        result = {
+          color: segment.color,
+          name: `Hue ${hue}°`,
+          hex,
+          rgb,
+          rgba: formatRgba(hex, colorAlpha),
+          complementary: {
+            hex: complementary.hex,
+            rgb: complementary.rgb,
+            rgba: complementary.rgba,
+          },
+        }
+      } else {
+        const hex = segment.color
+        const rgb = hexToRgbString(hex)
+        result = {
+          color: segment.color,
+          name: segment.label,
+          hex,
+          rgb,
+          rgba: formatRgba(hex, colorAlpha),
+        }
+      }
+
+      setLastResult((prev) => ({
+        ...prev,
+        [activeTab]: result,
+      }))
+
+      setResults((prev) => ({
+        ...prev,
+        [activeTab]: [
+          {
+            color: result.color,
+            name: result.name,
+            hex: result.hex,
+            rgb: result.rgb,
+            rgba: result.rgba,
+            timestamp: new Date(),
+          },
+          ...prev[activeTab as keyof typeof prev].slice(0, 99),
+        ],
+      }))
+
+      setTotalSpins((prev) => ({
+        ...prev,
+        [activeTab]: prev[activeTab as keyof typeof prev] + 1,
+      }))
+
+      const resultLabel = result.name || result.hex || result.color
+      const nextLifetimeSpins =
+        Object.values(totalSpins).reduce((sum, n) => sum + n, 0) + 1
+      const nextRecent = [...recentResults.slice(-9), resultLabel]
+      const nextThemes = usedThemes.includes(wheelTheme)
+        ? usedThemes
+        : [...usedThemes, wheelTheme]
+      const nextDates = [...decisionDates, new Date()]
+      const nextStreak =
+        colorStreak.type === resultLabel
+          ? { type: resultLabel, count: colorStreak.count + 1 }
+          : { type: resultLabel, count: 1 }
+      const nextAiUsage = aiUsageCount + (activeTab === "ai" ? 1 : 0)
+      const stubResults = {
+        yes: nextLifetimeSpins,
+        no: 0,
+        maybe: 0,
+      }
+
+      setRecentResults(nextRecent)
+      setUsedThemes(nextThemes)
+      setDecisionDates(nextDates)
+      setColorStreak(nextStreak)
+      if (activeTab === "ai") setAiUsageCount(nextAiUsage)
+
+      setEnhancedAchievements((prevAchievements) => {
+        const { updatedAchievements } = checkAchievements(
+          prevAchievements,
+          nextLifetimeSpins,
+          stubResults,
+          nextStreak,
+          activeTab === "ai" ? "ai" : "manual",
+          nextRecent,
+          nextThemes,
+          nextDates,
+        )
+        return updatedAchievements
+      })
+
+      setChallenges((prevChallenges) => {
+        const { updatedChallenges, totalPoints: newTotalPoints } = checkChallenges(
+          prevChallenges,
+          nextLifetimeSpins,
+          stubResults,
+          nextStreak,
+          activeTab === "ai" ? "ai" : "manual",
+          nextRecent,
+          nextAiUsage,
+          nextDates,
+        )
+        setTotalPoints(newTotalPoints)
+        return updatedChallenges
+      })
+
+      if (resultActionMode === "elimination") {
+        setEliminatedColors((prev) => new Set([...prev, result.color]))
+      }
+
+      if (soundOn) {
+        try {
+          const audio = new Audio("/sound-win.mp3")
+          audio.volume = volume
+          void audio.play()
+        } catch {
+          // ignore
+        }
+      }
+
+      const confettiOn = soundCfg?.enableConfetti !== false && confettiEnabled
+      if (confettiOn) {
+        setShowConfetti(true)
+        setTimeout(() => setShowConfetti(false), 5000)
+      }
+
+      isSpinningRef.current = false
+      setIsSpinning(false)
+      setWheelShake(false)
+      setShowParticles(false)
+    }
+
+    animationRef.current = requestAnimationFrame(animate)
+  }
 
   // Reset function
   const resetWheel = () => {
@@ -690,127 +918,133 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
 
   // Shuffle wheel function
   const shuffleWheel = () => {
-    // Add a random rotation to shuffle the wheel appearance
-    const randomRotation = Math.random() * 360;
-    setRotation(randomRotation);
-    
-    // Add a brief shake effect
-    setWheelShake(true);
-    setTimeout(() => setWheelShake(false), 500);
-  };
+    const randomRotation = Math.random() * 360
+    rotationRef.current = randomRotation
+    setRotation(randomRotation)
+    setWheelShake(true)
+    setTimeout(() => setWheelShake(false), 500)
+  }
 
-  // Global sound toggle function
-  const toggleGlobalSound = () => {
-    const newSoundEnabled = !soundEnabled;
-    console.log('Toggling sound from', soundEnabled, 'to', newSoundEnabled);
-    setSoundEnabled(newSoundEnabled);
-    // Update global settings
+  // Sound enable/disable (accepts boolean for Switch + mute button)
+  const applySoundEnabled = (enabled: boolean) => {
+    setSoundEnabled(enabled)
+    const latest = useSettingsStore.getState().settings
+    updateLocalSettings({
+      confettiSound: {
+        ...latest.confettiSound,
+        enableSound: enabled,
+      },
+    } as any)
     updateSettings({
       confettiSound: {
         ...globalSettings.confettiSound,
-        enableSound: newSoundEnabled
-      }
-    });
-  };
+        enableSound: enabled,
+      },
+    })
+  }
+
+  const toggleGlobalSound = () => {
+    applySoundEnabled(!soundEnabled)
+  }
 
   // Share function
-  const shareResult = () => {
-    const currentLastResult = lastResult[activeTab as keyof typeof lastResult];
-    if (currentLastResult) {
-      const text = `I just got "${currentLastResult.name}" (${currentLastResult.hex}) on the Color Picker Wheel! 🎨`;
-      if (navigator.share) {
-        navigator.share({ text });
-      } else {
-        navigator.clipboard.writeText(text);
-        // Show toast notification
+  const shareResult = async () => {
+    const currentLastResult = lastResult[activeTab as keyof typeof lastResult]
+    const rgbaText = currentLastResult?.hex
+      ? formatRgba(currentLastResult.hex, colorAlpha)
+      : currentLastResult?.rgb
+        ? rgbStringToRgba(currentLastResult.rgb, colorAlpha)
+        : ""
+    const text = currentLastResult
+      ? `I just got "${currentLastResult.name}" (${currentLastResult.hex}${rgbaText ? ` / ${rgbaText}` : ""}) on the Color Picker Wheel! 🎨`
+      : `Try the Color Picker Wheel — pick a random color by spinning! ${typeof window !== "undefined" ? window.location.href : ""}`
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ text, title: "Color Picker Wheel" })
+        return
       }
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        toast({
+          title: currentLastResult ? "Result copied" : "Link copied",
+          description: currentLastResult
+            ? "Your color result is on the clipboard."
+            : "Spin once to share a color result, or paste this link anywhere.",
+        })
+        return
+      }
+      toast({
+        title: "Unable to share",
+        description: "Clipboard and share are not available in this browser.",
+        variant: "destructive",
+      })
+    } catch {
+      // User cancelled native share — ignore
     }
-  };
+  }
 
-  // Toggle full screen
+  // Toggle full screen (CSS overlay — matches Yes/No / Letter)
   const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        setIsFullScreen(true);
-      }).catch(err => {
-        console.log('Error attempting to enable fullscreen:', err);
-      });
-    } else {
-      document.exitFullscreen().then(() => {
-        setIsFullScreen(false);
-      }).catch(err => {
-        console.log('Error attempting to exit fullscreen:', err);
-      });
-    }
-  };
+    setIsFullScreen((v) => !v)
+  }
 
-  // Keyboard shortcut for Ctrl + Enter to spin
+  // Keyboard: Ctrl+Enter spin, Escape exit fullscreen
   useEffect(() => {
     if (!isClient) return
-    
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        spinWheel();
-      }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault()
+        spinWheel()
+      }
+      if (event.key === "Escape" && isFullScreen) {
+        setIsFullScreen(false)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isSpinning, isClient]);
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [isSpinning, isClient, isFullScreen])
 
   // Sync local sound state with global settings
   useEffect(() => {
-    setSoundEnabled(globalSettings.confettiSound.enableSound);
-  }, [globalSettings.confettiSound.enableSound]);
+    setSoundEnabled(globalSettings.confettiSound.enableSound)
+  }, [globalSettings.confettiSound.enableSound])
 
-  // Listen for fullscreen changes
-  useEffect(() => {
-    if (!isClient) return;
-
-    const handleFullscreenChange = () => {
-      setIsFullScreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
-  }, [isClient]);
-
-  // Show confetti when a spin finishes and a result is selected
-  useEffect(() => {
-    if (!isClient) return;
-    
-    const currentLastResult = lastResult[activeTab as keyof typeof lastResult];
-    if (currentLastResult && !isSpinning) {
-      setShowConfetti(true);
-      // Play custom win sound if global sound is enabled and not locally muted
-      if (globalSettings.confettiSound?.enableSound && soundEnabled) {
-        console.log('Playing sound - Global enabled:', globalSettings.confettiSound.enableSound, 'Local sound enabled:', soundEnabled, 'Volume:', globalSettings.confettiSound.soundVolume);
-        const audio = new Audio("/sound-win.mp3");
-        audio.volume = globalSettings.confettiSound.soundVolume || 0.5; // Volume is already a decimal
-        audio.play().catch((error) => {
-          console.error('Error playing sound:', error);
-        });
-      } else {
-        console.log('Sound not playing - Global enabled:', globalSettings.confettiSound?.enableSound, 'Local sound enabled:', soundEnabled);
-      }
-      const timeout = setTimeout(() => setShowConfetti(false), 5000); // 5 seconds
-      return () => clearTimeout(timeout);
-    }
-  }, [lastResult, activeTab, isSpinning, globalSettings.confettiSound?.enableSound, globalSettings.confettiSound?.soundVolume, soundEnabled, isClient]);
-
-  // Cleanup animation on unmount
+  // Cleanup animation / audio on unmount
   useEffect(() => {
     return () => {
       if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+        cancelAnimationFrame(animationRef.current)
       }
-    };
-  }, []);
+      spinAudioRef.current?.stop()
+    }
+  }, [])
+
+  const currentResults = results[activeTab as keyof typeof results] || []
+  const colorAnalytics = useMemo(
+    () =>
+      analyzeSpinData(
+        currentResults.map(
+          (r, i): AnalyticsSpinRecord => ({
+            id: `${activeTab}-${i}-${String(r.timestamp)}`,
+            timestamp: r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp),
+            result: r.name || r.hex || r.color,
+            options:
+              activeTab === "color-wheel"
+                ? ["spectrum"]
+                : customColors.filter((c) => c.enabled).map((c) => c.name || c.color),
+            mode: activeTab === "ai" ? "ai" : "manual",
+            theme: wheelTheme,
+            spinDuration: 0,
+          }),
+        ),
+      ),
+    [currentResults, activeTab, customColors, wheelTheme],
+  )
 
   // Don't render until client is ready
   if (!isClient) {
@@ -825,395 +1059,380 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 relative overflow-hidden ${isFullScreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div className={`relative overflow-hidden ${isFullScreen ? "fixed inset-0 z-50 bg-gradient-to-br from-purple-50 via-blue-50 to-green-50" : ""}`}>
       {showConfetti && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
+        <div className="pointer-events-none fixed inset-0 z-50">
           <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={400} recycle={false} />
         </div>
       )}
 
+      <div className="relative z-10 w-full">
+        <div className="grid items-start gap-6 lg:grid-cols-3">
+          {/* Wheel column (left) */}
+          <div
+            className={`relative overflow-hidden bg-white p-4 sm:p-6 ${
+              isFullScreen
+                ? "lg:col-span-3"
+                : "rounded-lg border shadow-sm lg:col-span-2"
+            }`}
+          >
+            {!isFullScreen && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSpinHistory(true)}
+                className="absolute left-4 top-4 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+              >
+                Results
+                {results[activeTab as keyof typeof results]?.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {results[activeTab as keyof typeof results].length}
+                  </Badge>
+                )}
+              </Button>
+            )}
 
+            <div className="flex flex-col items-center space-y-6 pt-8">
+              {resultActionMode === "elimination" && eliminatedColors.size > 0 && !isFullScreen && (
+                <Badge variant="secondary">
+                  {Math.max(
+                    (activeTab === "color-wheel"
+                      ? 360
+                      : customColors.filter((c) => c.enabled).length) - eliminatedColors.size,
+                    0,
+                  )}{" "}
+                  left on wheel
+                </Badge>
+              )}
 
-             {/* Main Content */}
-       <div className="max-w-none mx-0 p-0 relative z-10">
-         <div className={`grid ${isFullScreen ? 'grid-cols-1' : 'lg:grid-cols-2'} gap-8 items-start px-4 pt-6`}>
-          {/* Left Column - Wheel and Results */}
-          <div className="space-y-6">
-            {/* Wheel Section - Show for all modes */}
-            <div className="flex justify-center items-center">
-                             <WheelDisplay
-                 segments={segments}
-                 wheelBackground={activeTab === "color-wheel" 
-                   ? "conic-gradient(from 0deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))"
-                   : `conic-gradient(from 0deg, ${segments.map((s, i) => {
-                       const isEliminated = resultActionMode === "elimination" && eliminatedColors.has(s.color);
-                       const color = isEliminated ? "#cccccc" : s.color; // Gray out eliminated colors
-                       return `${color} ${s.startAngle}deg ${s.startAngle + s.angle}deg`;
-                     }).join(", ")})`
-                 }
-                 rotation={rotation}
-                 isSpinning={isSpinning}
-                 wheelShake={wheelShake}
-                 showParticles={showParticles}
-                 activeTab={activeTab}
-                 onSpin={spinWheel}
-                 soundEnabled={soundEnabled}
-                 setSoundEnabled={toggleGlobalSound}
-                 showStats={showStats}
-                 setShowStats={setShowStats}
-                 onShare={shareResult}
-                 lastResult={lastResult[activeTab as keyof typeof lastResult]}
-                 wheelTheme={wheelTheme}
-                 setWheelTheme={setWheelTheme}
-                 isFullScreen={isFullScreen}
-               />
-            </div>
+              <WheelDisplay
+                segments={segments}
+                wheelBackground={
+                  activeTab === "color-wheel"
+                    ? "conic-gradient(from 0deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))"
+                    : `conic-gradient(from 0deg, ${segments
+                        .map((s) => {
+                          const isEliminated =
+                            resultActionMode === "elimination" && eliminatedColors.has(s.color)
+                          const color = isEliminated ? "#cccccc" : s.color
+                          return `${color} ${s.startAngle}deg ${s.startAngle + s.angle}deg`
+                        })
+                        .join(", ")})`
+                }
+                rotation={rotation}
+                isSpinning={isSpinning}
+                wheelShake={wheelShake}
+                showParticles={showParticles}
+                activeTab={activeTab}
+                onSpin={spinWheel}
+                soundEnabled={soundEnabled}
+                setSoundEnabled={applySoundEnabled}
+                isFullScreen={isFullScreen}
+                onToggleFullscreen={toggleFullScreen}
+                wheelTheme={wheelTheme}
+              />
 
-                         {/* Results Display - Moved to left side under wheel */}
-             {!isFullScreen && (
-               <ResultsDisplay
-                 results={results[activeTab as keyof typeof results]}
-                 lastResult={lastResult[activeTab as keyof typeof lastResult]}
-                 inputMethod={activeTab}
-                 activeTab={activeTab}
-                 resultShowMode={resultShowMode}
-                 showStats={showStats}
-                 totalSpins={totalSpins[activeTab as keyof typeof totalSpins]}
-               />
-             )}
-          </div>
-
-          {/* Right Column - Controls */}
-          {!isFullScreen && (
-            <div className="space-y-6">
-                             {/* Color Output Display - Only show for Color Wheel mode */}
-               {activeTab === "color-wheel" && (
-                 <ColorOutputDisplay
-                   selectedColor={selectedColor}
-                   colorCombination={colorCombination}
-                   lastResult={lastResult[activeTab as keyof typeof lastResult]}
-                 />
-               )}
-
-
-
-              {/* Result Action Mode Toggle - Show for all modes */}
-              {(
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium">Result Mode:</span>
-                      <Button
-                        variant={resultActionMode === "normal" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setResultActionMode("normal")}
-                        className="text-xs"
-                      >
-                        Normal
-                      </Button>
-                      <Button
-                        variant={resultActionMode === "elimination" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setResultActionMode("elimination")}
-                        className="text-xs"
-                      >
-                        Elimination
-                      </Button>
-                    </div>
-                    {resultActionMode === "elimination" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEliminatedColors(new Set())}
-                        className="text-xs"
-                        title="Restore all eliminated colors"
-                      >
-                        Restore All
-                      </Button>
-                    )}
+              {lastResult[activeTab as keyof typeof lastResult] && !isSpinning && (
+                <div className="w-full max-w-md rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-6 text-center shadow-lg">
+                  <h3 className="mb-2 text-lg font-semibold text-green-800">🎉 Color picked!</h3>
+                  <div className="mb-2 flex items-center justify-center gap-3">
+                    <span
+                      className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-white shadow"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                        backgroundSize: "8px 8px",
+                        backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0",
+                      }}
+                    >
+                      <span
+                        className="absolute inset-0"
+                        style={{
+                          backgroundColor: (() => {
+                            const current = lastResult[activeTab as keyof typeof lastResult]
+                            const hex = current?.hex || current?.color
+                            return hex
+                              ? formatRgba(hex, colorAlpha)
+                              : current?.color || "#ccc"
+                          })(),
+                        }}
+                      />
+                    </span>
+                    <p className="text-xl font-bold text-green-900">
+                      {lastResult[activeTab as keyof typeof lastResult]?.name ||
+                        lastResult[activeTab as keyof typeof lastResult]?.color}
+                    </p>
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {resultActionMode === "elimination" && eliminatedColors.size > 0 && (
-                      <span>Eliminated: {eliminatedColors.size}</span>
-                    )}
-                  </div>
+                  {(resultShowMode.hex || resultShowMode.rgb || resultShowMode.rgba) && (
+                    <p className="space-y-0.5 text-sm text-slate-600">
+                      {resultShowMode.hex && (
+                        <span className="block font-mono">
+                          {lastResult[activeTab as keyof typeof lastResult]?.hex ||
+                            lastResult[activeTab as keyof typeof lastResult]?.color}
+                        </span>
+                      )}
+                      {resultShowMode.rgb &&
+                        lastResult[activeTab as keyof typeof lastResult]?.rgb && (
+                          <span className="block font-mono">
+                            rgb({lastResult[activeTab as keyof typeof lastResult]?.rgb})
+                          </span>
+                        )}
+                      {resultShowMode.rgba &&
+                        (lastResult[activeTab as keyof typeof lastResult]?.hex ||
+                          lastResult[activeTab as keyof typeof lastResult]?.rgb) && (
+                          <span className="block font-mono">
+                            {lastResult[activeTab as keyof typeof lastResult]?.hex
+                              ? formatRgba(
+                                  lastResult[activeTab as keyof typeof lastResult]!.hex,
+                                  colorAlpha,
+                                )
+                              : rgbStringToRgba(
+                                  lastResult[activeTab as keyof typeof lastResult]!.rgb,
+                                  colorAlpha,
+                                )}
+                          </span>
+                        )}
+                    </p>
+                  )}
+                  <Button variant="outline" size="sm" className="mt-3 gap-1.5" onClick={shareResult}>
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </Button>
                 </div>
               )}
 
-                                            {/* Action Buttons - Show for all modes */}
-               {(
-                 <div className="flex items-center justify-between mb-4">
-                   <div className="flex space-x-2">
-                     <Button
-                       variant="outline"
-                       size="icon"
-                       onClick={() => setShowTitleModal(true)}
-                       className="hover:scale-110 transition-transform"
-                       title="Modify Title & Description"
-                     >
-                       <Eye className="h-4 w-4" />
-                     </Button>
-                     <Button
-                       variant="outline"
-                       size="icon"
-                       onClick={shuffleWheel}
-                       className="hover:scale-110 transition-transform"
-                       title="Shuffle Wheel"
-                     >
-                       <RotateCcw className="h-4 w-4" />
-                     </Button>
-                     <Button
-                       variant="outline"
-                       size="icon"
-                       onClick={onOpenSettings}
-                       className="hover:scale-110 transition-transform"
-                       title="Settings"
-                     >
-                       <Settings className="h-4 w-4" />
-                     </Button>
-                   </div>
-                                     <div className="flex space-x-2">
-                     <Button
-                       variant="outline"
-                       size="icon"
-                       onClick={() => setShowStats(!showStats)}
-                       className="hover:scale-110 transition-transform"
-                       title={showStats ? "Hide Stats" : "Show Stats"}
-                     >
-                       <BarChart3 className="h-4 w-4" />
-                     </Button>
-                     <Button
-                       variant="outline"
-                       size="icon"
-                       onClick={toggleFullScreen}
-                       className="hover:scale-110 transition-transform"
-                       title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
-                     >
-                       {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                     </Button>
-                   </div>
-                </div>
-              )}
+              {activeTab !== "color-wheel" &&
+                customColors.filter((c) => c.enabled).length === 0 && (
+                  <p className="text-center text-sm text-slate-500">
+                    No colors on the wheel — add colors in Manual, Image, or AI, then spin.
+                  </p>
+                )}
 
-                             {/* Tab System for different input methods */}
-               <Card className="relative z-30 shadow-lg">
-                 <CardContent className="p-4">
-                   <Tabs value={activeTab} onValueChange={setActiveTab}>
-                     <TabsList className="grid w-full grid-cols-4">
-                                               <TabsTrigger 
-                          value="color-wheel" 
-                          className={`flex items-center gap-2 transition-all duration-200 ${
-                            activeTab === "color-wheel" 
-                              ? "bg-gradient-to-r from-red-500 to-orange-500 !text-white shadow-lg" 
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                         <Palette className="h-4 w-4" />
-                         Color Wheel
-                       </TabsTrigger>
-                                               <TabsTrigger 
-                          value="manual" 
-                          className={`flex items-center gap-2 transition-all duration-200 ${
-                            activeTab === "manual" 
-                              ? "bg-gradient-to-r from-green-500 to-blue-500 !text-white shadow-lg" 
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                         <Settings className="h-4 w-4" />
-                         Manual
-                       </TabsTrigger>
-                                               <TabsTrigger 
-                          value="image" 
-                          className={`flex items-center gap-2 transition-all duration-200 ${
-                            activeTab === "image" 
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 !text-white shadow-lg" 
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                         <Image className="h-4 w-4" />
-                         Image
-                       </TabsTrigger>
-                                               <TabsTrigger 
-                          value="ai" 
-                          className={`flex items-center gap-2 transition-all duration-200 ${
-                            activeTab === "ai" 
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 !text-white shadow-lg" 
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                         <Brain className="h-4 w-4" />
-                         AI-Powered
-                       </TabsTrigger>
-                     </TabsList>
-
-                    <TabsContent value="color-wheel">
-                      <ColorWheelControls
-                        colorCombination={colorCombination}
-                        setColorCombination={setColorCombination}
-                        spinningPointerMode={spinningPointerMode}
-                        setSpinningPointerMode={setSpinningPointerMode}
-                        selectedColor={selectedColor}
-                        setSelectedColor={setSelectedColor}
-                        onReset={resetWheel}
-                        showSettings={showSettings}
-                        setShowSettings={setShowSettings}
-                        confettiEnabled={confettiEnabled}
-                        setConfettiEnabled={setConfettiEnabled}
-                        soundEnabled={soundEnabled}
-                        setSoundEnabled={toggleGlobalSound}
-                        resultShowMode={resultShowMode}
-                        setResultShowMode={setResultShowMode}
-                      />
-                    </TabsContent>
-
-                    <TabsContent value="manual">
-                      <ManualControls
-                        customColors={customColors}
-                        setCustomColors={setCustomColors}
-                        onReset={resetWheel}
-                        showSettings={showSettings}
-                        setShowSettings={setShowSettings}
-                        confettiEnabled={confettiEnabled}
-                        setConfettiEnabled={setConfettiEnabled}
-                        soundEnabled={soundEnabled}
-                        setSoundEnabled={toggleGlobalSound}
-                        resultShowMode={resultShowMode}
-                        setResultShowMode={setResultShowMode}
-                      />
-                    </TabsContent>
-
-                                         <TabsContent value="image">
-                       <ImageControls
-                         customColors={customColors}
-                         setCustomColors={setCustomColors}
-                         onReset={resetWheel}
-                         showSettings={showSettings}
-                         setShowSettings={setShowSettings}
-                         confettiEnabled={confettiEnabled}
-                         setConfettiEnabled={setConfettiEnabled}
-                         soundEnabled={soundEnabled}
-                         setSoundEnabled={toggleGlobalSound}
-                         resultShowMode={resultShowMode}
-                         setResultShowMode={setResultShowMode}
-                       />
-                     </TabsContent>
-
-                                           <TabsContent value="ai">
-                        <div className="space-y-6">
-                          {/* AI Palette Generator */}
-                          <AIPaletteGenerator
-                            onAddColors={(colors, names) => {
-                              colors.forEach((color, index) => {
-                                const newColor = {
-                                  id: Date.now().toString() + Math.random(),
-                                  color,
-                                  name: names && names[index] ? names[index] : color,
-                                  enabled: true
-                                };
-                                setCustomColors(prev => [...prev, newColor]);
-                              });
-                            }}
-                          />
-
-                          {/* Enhanced Color Naming */}
-                          <EnhancedColorNaming
-                            color={lastResult[activeTab as keyof typeof lastResult]?.color || "#FF0000"}
-                            onNameChange={(name) => {
-                              // Update the name of the last result
-                              if (lastResult[activeTab as keyof typeof lastResult]) {
-                                setLastResult(prev => ({
-                                  ...prev,
-                                  [activeTab]: {
-                                    ...prev[activeTab as keyof typeof prev]!,
-                                    name
-                                  }
-                                }));
-                              }
-                            }}
-                            currentName={lastResult[activeTab as keyof typeof lastResult]?.name}
-                          />
-
-                          {/* Color Blindness Simulator */}
-                          <ColorBlindnessSimulator
-                            color={lastResult[activeTab as keyof typeof lastResult]?.color || "#FF0000"}
-                            onColorChange={(color) => {
-                              // This could be used to update the current color
-                              console.log('Color changed in simulator:', color);
-                            }}
-                          />
-
-                          {/* AI Color Analysis */}
-                          <AIColorAnalysis
-                            colors={results[activeTab as keyof typeof results].map(r => r.color)}
-                            onAddColor={(color, name) => {
-                              const newColor = {
-                                id: Date.now().toString(),
-                                color,
-                                name: name || color,
-                                enabled: true
-                              };
-                              setCustomColors(prev => [...prev, newColor]);
-                            }}
-                          />
-
-                          {/* AI Color Learning */}
-                          <AIColorLearning
-                            results={results[activeTab as keyof typeof results]}
-                            onAddColor={(color, name) => {
-                              const newColor = {
-                                id: Date.now().toString(),
-                                color,
-                                name: name || color,
-                                enabled: true
-                              };
-                              setCustomColors(prev => [...prev, newColor]);
-                            }}
-                          />
-                        </div>
-                      </TabsContent>
-                   </Tabs>
-                </CardContent>
-              </Card>
-
-              {/* Enhanced Spin Button - Show for all modes */}
-              {(
-                <>
-                  <Button
-                    onClick={spinWheel}
-                    disabled={isSpinning}
-                    className={`relative z-30 w-full h-16 text-xl font-bold transform hover:scale-105 transition-all duration-300 shadow-lg ${
-                      activeTab === "color-wheel"
-                        ? "bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 hover:from-red-700 hover:via-orange-700 hover:to-yellow-700"
-                        : activeTab === "manual"
+              <Button
+                onClick={spinWheel}
+                disabled={
+                  isSpinning ||
+                  (activeTab !== "color-wheel" &&
+                    customColors.filter((c) => c.enabled).length === 0)
+                }
+                className={`px-12 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl ${
+                  activeTab === "ai"
+                    ? "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700"
+                    : activeTab === "color-wheel"
+                      ? "bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 hover:from-red-700 hover:via-orange-700 hover:to-yellow-700"
+                      : activeTab === "manual"
                         ? "bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 hover:from-green-700 hover:via-blue-700 hover:to-purple-700"
                         : "bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700"
-                    }`}
-                  >
-                    {isSpinning ? (
-                      <span className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                        SPINNING...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Palette className="h-6 w-6" />
-                        SPIN THE COLOR WHEEL
-                        <Palette className="h-6 w-6" />
-                      </span>
-                    )}
-                  </Button>
+                }`}
+              >
+                {isSpinning ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Spinning...
+                  </span>
+                ) : activeTab === "ai" ? (
+                  "🧠 SPIN WITH AI"
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Palette className="h-5 w-5" />
+                    SPIN THE COLOR WHEEL
+                  </span>
+                )}
+              </Button>
 
-                  <p className="text-sm text-gray-600 text-center">
-                    ✨ Press Ctrl + Enter to spin ✨{activeTab === "color-wheel" && " | 🎨 Full color spectrum"}
-                  </p>
-                </>
+              {localSettings.display?.showSpinCount && (
+                <div className="text-sm text-gray-500">
+                  Total spins: {totalSpins[activeTab as keyof typeof totalSpins]}
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowThemeSelector(true)}
+                  className="relative border-purple-500 px-3 py-1 text-xs text-purple-600 hover:border-purple-600 hover:bg-purple-50"
+                >
+                  <Palette className="mr-2 h-4 w-4" />
+                  Themes
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAnalytics(true)}
+                  className="relative border-green-500 px-3 py-1 text-xs text-green-600 hover:border-green-600 hover:bg-green-50"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Analytics
+                  {results[activeTab as keyof typeof results]?.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {results[activeTab as keyof typeof results].length}
+                    </Badge>
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSocialHub(true)}
+                  className="relative border-orange-500 px-3 py-1 text-xs text-orange-600 hover:border-orange-600 hover:bg-orange-50"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Social
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowGameModes(true)}
+                  className="relative border-red-500 px-3 py-1 text-xs text-red-600 hover:border-red-600 hover:bg-red-50"
+                >
+                  <Gamepad2 className="mr-2 h-4 w-4" />
+                  Games
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAchievements(true)}
+                  className="relative border-yellow-500 px-3 py-1 text-xs text-yellow-600 hover:border-yellow-600 hover:bg-yellow-50"
+                >
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Achievements
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {totalPoints}
+                  </Badge>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowChallenges(true)}
+                  className="relative border-sky-500 px-3 py-1 text-xs text-sky-600 hover:border-sky-600 hover:bg-sky-50"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Challenges
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={shareResult}
+                  className="relative border-slate-400 px-3 py-1 text-xs text-slate-600 hover:border-slate-500 hover:bg-slate-50"
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar column */}
+          {!isFullScreen && (
+            <div className="space-y-4 lg:col-span-1">
+              <ResultsDisplay
+                results={results[activeTab as keyof typeof results]}
+                lastResult={lastResult[activeTab as keyof typeof lastResult]}
+                inputMethod={activeTab}
+                activeTab={activeTab}
+                resultShowMode={resultShowMode}
+                colorAlpha={colorAlpha}
+                showStats={showStats}
+                totalSpins={totalSpins[activeTab as keyof typeof totalSpins]}
+              />
+
+              {showInputs ? (
+                <ColorPickerSidebar
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  resultActionMode={resultActionMode}
+                  setResultActionMode={setResultActionMode}
+                  eliminatedCount={eliminatedColors.size}
+                  onRestoreEliminated={() => setEliminatedColors(new Set())}
+                  activeCount={
+                    activeTab === "color-wheel"
+                      ? 360
+                      : customColors.filter((c) => c.enabled).length
+                  }
+                  colorCombination={colorCombination}
+                  setColorCombination={setColorCombination}
+                  spinningPointerMode={spinningPointerMode}
+                  setSpinningPointerMode={setSpinningPointerMode}
+                  selectedColor={selectedColor}
+                  setSelectedColor={setSelectedColor}
+                  customColors={customColors}
+                  setCustomColors={setCustomColors}
+                  onReset={resetWheel}
+                  confettiEnabled={confettiEnabled}
+                  setConfettiEnabled={setConfettiEnabled}
+                  soundEnabled={soundEnabled}
+                  setSoundEnabled={applySoundEnabled}
+                  resultShowMode={resultShowMode}
+                  setResultShowMode={setResultShowMode}
+                  colorAlpha={colorAlpha}
+                  setColorAlpha={setColorAlpha}
+                  lastResult={lastResult[activeTab as keyof typeof lastResult]}
+                  results={results[activeTab as keyof typeof results]}
+                  onOpenTitleModal={() => setShowTitleModal(true)}
+                  onShuffle={shuffleWheel}
+                  onHideInputs={() => setShowInputs(false)}
+                  showStats={showStats}
+                  setShowStats={setShowStats}
+                  isFullScreen={isFullScreen}
+                  onToggleFullscreen={toggleFullScreen}
+                  onViewResults={() => setShowSpinHistory(true)}
+                  onOpenAnalytics={() => setShowAnalytics(true)}
+                  onOpenSettings={openSettings}
+                  onOpenAchievements={() => setShowAchievements(true)}
+                  onOpenChallenges={() => setShowChallenges(true)}
+                  resultsCount={results[activeTab as keyof typeof results]?.length || 0}
+                  historyCount={results[activeTab as keyof typeof results]?.length || 0}
+                  totalPoints={totalPoints}
+                  onAddAiColors={(colors, names) => {
+                    colors.forEach((color, index) => {
+                      const newColor = {
+                        id: Date.now().toString() + Math.random(),
+                        color,
+                        name: names && names[index] ? names[index] : color,
+                        enabled: true,
+                      }
+                      setCustomColors((prev) => [...prev, newColor])
+                    })
+                  }}
+                  onUpdateLastResultName={(name) => {
+                    if (lastResult[activeTab as keyof typeof lastResult]) {
+                      setLastResult((prev) => ({
+                        ...prev,
+                        [activeTab]: {
+                          ...prev[activeTab as keyof typeof prev]!,
+                          name,
+                        },
+                      }))
+                    }
+                  }}
+                  onAddSingleColor={(color, name) => {
+                    setCustomColors((prev) => [
+                      ...prev,
+                      {
+                        id: Date.now().toString(),
+                        color,
+                        name: name || color,
+                        enabled: true,
+                      },
+                    ])
+                  }}
+                />
+              ) : (
+                <Button variant="outline" onClick={() => setShowInputs(true)}>
+                  Show inputs
+                </Button>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Title Modal */}
       <TitleModal
         showTitleModal={showTitleModal}
         setShowTitleModal={setShowTitleModal}
@@ -1222,6 +1441,76 @@ export function ColorPickerWheel({ onOpenSettings }: ColorPickerWheelProps = {})
         wheelDescription={wheelDescription}
         setWheelDescription={setWheelDescription}
       />
+
+      <ColorResultsHistory
+        results={currentResults}
+        isVisible={showSpinHistory}
+        onClose={() => setShowSpinHistory(false)}
+        modeLabel={activeTab}
+        onClear={() =>
+          setResults((prev) => ({
+            ...prev,
+            [activeTab]: [],
+          }))
+        }
+      />
+
+      <ColorThemeSelector
+        isVisible={showThemeSelector}
+        onClose={() => setShowThemeSelector(false)}
+        wheelTheme={wheelTheme}
+        setWheelTheme={setWheelTheme}
+      />
+
+      <PickerWheelAnalyticsDisplay
+        analytics={colorAnalytics}
+        isVisible={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+      />
+
+      <PickerWheelSocialHub
+        isVisible={showSocialHub}
+        onClose={() => setShowSocialHub(false)}
+        onShareWheel={shareResult}
+      />
+
+      <PickerWheelGameModes
+        isVisible={showGameModes}
+        onClose={() => setShowGameModes(false)}
+        userPoints={totalPoints}
+        onStartGame={() => {
+          setShowGameModes(false)
+          setShowChallenges(true)
+        }}
+      />
+
+      <AchievementsDisplay
+        achievements={enhancedAchievements}
+        totalSpins={Object.values(totalSpins).reduce((sum, n) => sum + n, 0)}
+        results={{
+          yes: Object.values(totalSpins).reduce((sum, n) => sum + n, 0),
+          no: 0,
+          maybe: 0,
+        }}
+        streak={colorStreak}
+        activeTab={activeTab === "ai" ? "ai" : "manual"}
+        isVisible={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      />
+
+      <ChallengesDisplay
+        challenges={challenges}
+        totalSpins={Object.values(totalSpins).reduce((sum, n) => sum + n, 0)}
+        results={{
+          yes: Object.values(totalSpins).reduce((sum, n) => sum + n, 0),
+          no: 0,
+          maybe: 0,
+        }}
+        streak={colorStreak}
+        activeTab={activeTab === "ai" ? "ai" : "manual"}
+        isVisible={showChallenges}
+        onClose={() => setShowChallenges(false)}
+      />
     </div>
-  );
+  )
 } 

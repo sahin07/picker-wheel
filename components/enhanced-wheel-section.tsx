@@ -6,7 +6,6 @@ import { Volume2, VolumeX, RotateCcw, Trophy, Palette, BarChart3, Users, Gamepad
 import { useEnhancedWheelStore } from "@/stores/enhanced-wheel-store"
 import { useSettingsStore } from "@/stores/settings-store"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
-import Confetti from "react-confetti";
 import { Badge } from "@/components/ui/badge"
 import { WheelCustomization } from '@/lib/picker-wheel-customization'
 import { createSpinAudioController, type SpinAudioController } from '@/lib/wheel-spin-audio'
@@ -83,7 +82,17 @@ export default function EnhancedWheelSection({
     if (tool === "state-wheel") return (wheel.data as any)?.selectedStates ?? null
     return null
   })
-  const { settings } = useSettingsStore();
+  const { settings, updateSettings } = useSettingsStore();
+  const soundEnabled = settings.confettiSound?.enableSound !== false
+  const applySoundEnabled = (enabled: boolean) => {
+    const latest = useSettingsStore.getState().settings
+    updateSettings({
+      confettiSound: {
+        ...latest.confettiSound,
+        enableSound: enabled,
+      },
+    })
+  }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [currentRotation, setCurrentRotation] = useState(0);
   const currentRotationRef = useRef(0);
@@ -95,7 +104,6 @@ export default function EnhancedWheelSection({
   const confettiRef = useRef<number | null>(null);
   const spinAudioRef = useRef<SpinAudioController | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [muted, setMuted] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [mysteryResultRevealed, setMysteryResultRevealed] = useState(false);
 
@@ -217,7 +225,7 @@ export default function EnhancedWheelSection({
   }
 
   const playSpinSound = () => {
-    if (!settings.confettiSound.enableSound || muted) return
+    if (!soundEnabled) return
 
     try {
       getSpinAudio().startWhoosh("/wheel-sound.mp3", settings.confettiSound.soundVolume || 0.5)
@@ -241,9 +249,9 @@ export default function EnhancedWheelSection({
     const startRotation = currentRotationRef.current
     const targetRotation = spinRotation
     const speedMultiplier = settingsRef.current.spinBehavior.spinningSpeedLevel / 5
-    const soundEnabled = settingsRef.current.confettiSound.enableSound && !muted
+    const soundOn = settingsRef.current.confettiSound.enableSound !== false
     const userVolume = settingsRef.current.confettiSound.soundVolume || 0.5
-    const spinAudio = soundEnabled ? getSpinAudio() : null
+    const spinAudio = soundOn ? getSpinAudio() : null
 
     const animate = () => {
       if (token !== spinTokenRef.current) return
@@ -288,7 +296,7 @@ export default function EnhancedWheelSection({
         animationRef.current = null
       }
     }
-  }, [isSpinning, spinRotation, muted, isClient])
+  }, [isSpinning, spinRotation, soundEnabled, isClient])
 
   // Show confetti and play sound only after a spin completes (not on wheel switch / page load)
   useEffect(() => {
@@ -296,9 +304,12 @@ export default function EnhancedWheelSection({
 
     if (selectedResult && !isSpinning && shouldCelebrateResultRef.current) {
       shouldCelebrateResultRef.current = false
-      setShowConfetti(true);
-      onConfettiChange?.(true);
-      if (settings.confettiSound?.enableSound && !muted) {
+      const confettiOn = settings.confettiSound?.enableConfetti !== false
+      if (confettiOn) {
+        setShowConfetti(true);
+        onConfettiChange?.(true);
+      }
+      if (soundEnabled) {
         const audio = new Audio("/sound-win.mp3");
         audio.volume = settings.confettiSound.soundVolume || 0.5;
         audio.play().catch((error) => {
@@ -306,7 +317,7 @@ export default function EnhancedWheelSection({
         });
       }
     }
-  }, [selectedResult, isSpinning, settings.confettiSound?.enableSound, settings.confettiSound?.soundVolume, muted, isClient, onConfettiChange]);
+  }, [selectedResult, isSpinning, soundEnabled, settings.confettiSound?.enableConfetti, settings.confettiSound?.soundVolume, isClient, onConfettiChange]);
 
   // Blink the winning slice so the pointed result is obvious
   useEffect(() => {
@@ -367,7 +378,13 @@ export default function EnhancedWheelSection({
 
   // Show loading state during SSR and initial client render
   if (!isClient) {
-    return <div className="flex flex-col items-center" style={{ height: WHEEL_SIZE + 50 }} />;
+    return (
+      <div
+        className="flex w-full max-w-[680px] flex-col items-center"
+        style={{ aspectRatio: "1 / 1", maxHeight: "min(100vw - 2rem, 680px)" }}
+        aria-hidden
+      />
+    )
   }
 
   const createConfetti = () => {
@@ -707,7 +724,7 @@ export default function EnhancedWheelSection({
 
     setSpinRotation(finalRotation)
 
-    if (settings.confettiSound.enableSound && !muted) {
+    if (soundEnabled) {
       playSpinSound()
     }
 
@@ -754,32 +771,30 @@ export default function EnhancedWheelSection({
     }
   }
   return (
-    <div className="flex flex-col items-center space-y-8 overflow-visible">
-        <div className="relative mb-4 overflow-visible">
+    <div className="flex w-full max-w-[680px] flex-col items-center space-y-4 overflow-visible sm:space-y-6 md:space-y-8">
+        <div className="relative mb-2 w-full max-w-[680px] overflow-visible sm:mb-4">
         <canvas
           ref={canvasRef}
           width={WHEEL_SIZE}
           height={WHEEL_SIZE}
-          className="cursor-pointer drop-shadow-lg max-w-full h-auto"
-          style={{ width: WHEEL_SIZE, height: WHEEL_SIZE }}
+          className="mx-auto h-auto w-full max-w-full cursor-pointer drop-shadow-lg"
+          style={{ aspectRatio: "1 / 1" }}
           onClick={!isSpinning ? handleSpin : handleManualStop}
         />
 
 
-        <div className="absolute bottom-4 left-4 flex flex-col space-y-2">
+        <div className="absolute bottom-2 left-2 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setMuted((m) => !m)}
-            className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md"
-            title={settings.confettiSound?.enableSound ? (muted ? "Unmute" : "Mute") : "Global sound disabled"}
+            onClick={() => applySoundEnabled(!soundEnabled)}
+            className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+            title={soundEnabled ? "Mute" : "Unmute"}
           >
-            {!settings.confettiSound?.enableSound ? (
-              <VolumeX className="w-5 h-5 text-gray-400" />
-            ) : muted ? (
-              <VolumeX className="w-5 h-5" />
+            {soundEnabled ? (
+              <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
             ) : (
-              <Volume2 className="w-5 h-5" />
+              <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
             )}
           </Button>
           {onToggleFullscreen && (
@@ -787,16 +802,20 @@ export default function EnhancedWheelSection({
               variant="ghost"
               size="sm"
               onClick={onToggleFullscreen}
-              className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md"
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
               title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             >
-              {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+              {isFullscreen ? (
+                <Minimize className="h-4 w-4 sm:h-5 sm:w-5" />
+              ) : (
+                <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
             </Button>
           )}
         </div>
 
         {isSpinning && (
-          <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+          <div className="absolute right-2 top-2 rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white animate-pulse sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
             {settings.spinBehavior.manuallyStop ? "Click to Stop!" : "Spinning..."}
           </div>
         )}
@@ -804,7 +823,7 @@ export default function EnhancedWheelSection({
 
       {selectedResult && !isSpinning && (
         <div
-          className={`text-center p-6 bg-gradient-to-r from-green-100 to-blue-100 rounded-xl border-2 border-green-300 shadow-lg ${
+          className={`w-full rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-4 text-center shadow-lg sm:p-6 ${
             settings.spinBehavior.mysteryResult && !mysteryResultRevealed ? "cursor-pointer" : ""
           }`}
           onClick={() => {
@@ -813,29 +832,29 @@ export default function EnhancedWheelSection({
             }
           }}
         >
-          <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Winner!</h3>
+          <h3 className="mb-2 text-base font-semibold text-green-800 sm:text-lg">🎉 Winner!</h3>
           <div className="flex items-center justify-center space-x-3">
             {selectedResult.image && !settings.spinBehavior.mysteryResult && (
               <img
                 src={selectedResult.image || "/placeholder.svg"}
                 alt={selectedResult.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-green-500"
+                className="h-10 w-10 rounded-full border-2 border-green-500 object-cover sm:h-12 sm:w-12"
               />
             )}
-            <p className="text-2xl font-bold text-green-900">
+            <p className="break-words text-xl font-bold text-green-900 sm:text-2xl">
               {settings.spinBehavior.mysteryResult && !mysteryResultRevealed ? "?" : selectedResult.name}
             </p>
           </div>
           {settings.spinBehavior.mysteryResult && !mysteryResultRevealed && (
-            <p className="text-xs text-green-700 mt-2">Click to reveal result</p>
+            <p className="mt-2 text-xs text-green-700">Click to reveal result</p>
           )}
         </div>
       )}
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-2 w-full space-y-2 sm:mt-4">
         {isGameActive && currentGameMode && (
-          <div className="flex items-center justify-center gap-2 p-2 bg-purple-100 border border-purple-300 rounded-lg">
-            <Gamepad2 className="w-4 h-4 text-purple-600" />
+          <div className="flex items-center justify-center gap-2 rounded-lg border border-purple-300 bg-purple-100 p-2">
+            <Gamepad2 className="h-4 w-4 text-purple-600" />
             <span className="text-sm font-medium text-purple-800">
               Playing: {currentGameMode}
             </span>
@@ -845,15 +864,15 @@ export default function EnhancedWheelSection({
         <Button
           onClick={handleSpin}
           disabled={isSpinning || options.length === 0}
-          className={`px-12 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 ${
+          className={`mx-auto flex w-full max-w-sm px-6 py-3 text-base font-semibold shadow-lg transition-all duration-200 hover:shadow-xl sm:w-auto sm:px-12 sm:text-lg ${
             settings.display.spinButtonAnimation
-              ? "bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 animate-pulse"
+              ? "animate-pulse bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
               : "bg-green-600 hover:bg-green-700"
           } text-white`}
         >
           {isSpinning ? (
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
               <span>{settings.spinBehavior.manuallyStop ? "Click Wheel to Stop" : "Spinning..."}</span>
             </div>
           ) : (
@@ -862,17 +881,17 @@ export default function EnhancedWheelSection({
         </Button>
       </div>
 
-      {options.length === 0 && <p className="mt-4 text-gray-500 text-center">Add some options to start spinning!</p>}
+      {options.length === 0 && <p className="mt-4 text-center text-gray-500">Add some options to start spinning!</p>}
 
       {settings.display.showSpinCount && (
-        <div className="mt-4 text-sm text-gray-500 flex items-center space-x-2">
+        <div className="mt-2 flex items-center space-x-2 text-sm text-gray-500 sm:mt-4">
           <span>Total spin = {totalSpins}</span>
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="h-4 w-4" />
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap items-center gap-2 justify-center">
+      <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
         
         {onOpenThemeSelector && (
           <Button 

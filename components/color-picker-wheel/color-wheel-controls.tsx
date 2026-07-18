@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RotateCcw, Settings, Volume2, VolumeX } from "lucide-react"
+import { Slider } from "@/components/ui/slider"
+import { RotateCcw, Volume2, VolumeX } from "lucide-react"
+import type { ColorResultShowMode } from "@/lib/color-formats"
+import { formatAlpha } from "@/lib/color-formats"
 
 interface ColorWheelControlsProps {
   colorCombination: string
@@ -15,24 +18,14 @@ interface ColorWheelControlsProps {
   selectedColor: string
   setSelectedColor: (color: string) => void
   onReset: () => void
-  showSettings: boolean
-  setShowSettings: (show: boolean) => void
   confettiEnabled: boolean
   setConfettiEnabled: (enabled: boolean) => void
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
-  resultShowMode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }
-  setResultShowMode: (mode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }) => void
+  resultShowMode: ColorResultShowMode
+  setResultShowMode: (mode: ColorResultShowMode) => void
+  colorAlpha: number
+  setColorAlpha: (alpha: number) => void
 }
 
 export function ColorWheelControls({
@@ -43,14 +36,14 @@ export function ColorWheelControls({
   selectedColor,
   setSelectedColor,
   onReset,
-  showSettings,
-  setShowSettings,
   confettiEnabled,
   setConfettiEnabled,
   soundEnabled,
   setSoundEnabled,
   resultShowMode,
-  setResultShowMode
+  setResultShowMode,
+  colorAlpha,
+  setColorAlpha,
 }: ColorWheelControlsProps) {
   const [showColorPicker, setShowColorPicker] = useState(false)
 
@@ -388,6 +381,29 @@ export function ColorWheelControls({
             />
             <Label htmlFor="show-rgb">RGB</Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="show-rgba"
+              checked={resultShowMode.rgba}
+              onChange={(e) => setResultShowMode({ ...resultShowMode, rgba: e.target.checked })}
+            />
+            <Label htmlFor="show-rgba">RGBA</Label>
+          </div>
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="color-alpha">Alpha (opacity)</Label>
+              <span className="font-mono text-xs text-slate-500">{formatAlpha(colorAlpha)}</span>
+            </div>
+            <Slider
+              id="color-alpha"
+              min={0}
+              max={100}
+              step={1}
+              value={[Math.round(colorAlpha * 100)]}
+              onValueChange={(value) => setColorAlpha((value[0] ?? 100) / 100)}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -400,14 +416,6 @@ export function ColorWheelControls({
         >
           <RotateCcw className="h-4 w-4" />
           Reset Wheel
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowSettings(!showSettings)}
-          className="flex items-center gap-2"
-        >
-          <Settings className="h-4 w-4" />
-          Settings
         </Button>
         <Button
           variant="outline"

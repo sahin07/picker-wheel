@@ -273,7 +273,11 @@ export default function PickerWheelAnalyticsDisplay({
               <StatCard
                 title="Unique Results"
                 value={analytics.uniqueResults}
-                subtitle={`${((analytics.uniqueResults / analytics.totalSpins) * 100).toFixed(1)}% variety`}
+                subtitle={
+                  analytics.totalSpins > 0
+                    ? `${((analytics.uniqueResults / analytics.totalSpins) * 100).toFixed(1)}% variety`
+                    : "Spin to track variety"
+                }
                 icon={Target}
               />
               <StatCard

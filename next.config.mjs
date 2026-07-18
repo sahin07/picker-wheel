@@ -16,6 +16,21 @@ const nextConfig = {
         destination: "/random-letter-picker",
         permanent: true,
       },
+      {
+        source: "/yes-no-picker-wheel",
+        destination: "/yes-or-no-wheel",
+        permanent: true,
+      },
+      {
+        source: "/wheel-of-colors",
+        destination: "/color-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-name-picker",
+        destination: "/",
+        permanent: true,
+      },
     ]
   },
 }

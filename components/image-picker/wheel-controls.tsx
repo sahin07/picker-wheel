@@ -1,82 +1,54 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Trophy, Maximize, Minimize } from "lucide-react"
-import type { WheelItem, WheelSettings } from "@/lib/types"
+import { Share2 } from "lucide-react"
+import type { WheelItem } from "@/lib/types"
 import { AnimatePresence, motion } from "framer-motion"
-import { useSettings } from "@/contexts/settings-context"
-import { useState } from "react"
 
 interface WheelControlsProps {
-  settings: WheelSettings
   selectedItem: WheelItem | null
   currentTool: string
-  setShowResults: (show: boolean) => void
-  isFullscreen: boolean
-  setIsFullscreen: (fullscreen: boolean) => void
-  toolMuted: boolean
-  setToolMuted: (muted: boolean) => void
+  onShare?: () => void
+  isSpinning?: boolean
 }
 
-export function WheelControls({ settings, selectedItem, currentTool, setShowResults, isFullscreen, setIsFullscreen, toolMuted, setToolMuted }: WheelControlsProps) {
-  const { settings: globalSettings, updateSettings } = useSettings();
-  const muted = !globalSettings.confettiSound.enableSound;
+/** Result banner under the wheel (sound/fullscreen live on WheelDisplay chrome). */
+export function WheelControls({
+  selectedItem,
+  currentTool,
+  onShare,
+  isSpinning = false,
+}: WheelControlsProps) {
   return (
-    <>
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="text-center p-4 bg-green-100 rounded-lg border-2 border-green-300"
-          >
-            <h3 className="text-lg font-semibold text-green-800">Result:</h3>
-            {currentTool === "image" && selectedItem.imageUrl ? (
-              <div className="flex flex-col items-center space-y-2">
-                <img
-                  src={selectedItem.imageUrl || "/placeholder.svg"}
-                  alt={selectedItem.text}
-                  className="w-24 h-24 object-cover rounded border-2 border-green-300"
-                />
-                <p className="text-lg font-bold text-green-900">{selectedItem.text}</p>
-              </div>
-            ) : (
-              <p className="text-2xl font-bold text-green-900">{selectedItem.text}</p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className={
-        (isFullscreen
-          ? "fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] bg-white/90 rounded-lg p-2 shadow-lg flex items-center space-x-4"
-          : "flex items-center space-x-4 mt-4"
-        )
-      }>
-        <Button
-          variant="outline"
-          size="sm"
-          title="Mute/Unmute Sound (Global & Tool)"
-          onClick={() => {
-            const willMute = muted || toolMuted ? false : true;
-            updateSettings({ confettiSound: { ...globalSettings.confettiSound, enableSound: !willMute } });
-            setToolMuted(!willMute);
-          }}
+    <AnimatePresence>
+      {selectedItem && !isSpinning && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="w-full max-w-md rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-6 text-center shadow-lg"
         >
-          {(muted || toolMuted) ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setShowResults(true)}>
-          <Trophy className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-          onClick={() => setIsFullscreen(!isFullscreen)}
-        >
-          {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-        </Button>
-      </div>
-    </>
+          <h3 className="mb-2 text-lg font-semibold text-green-800">🎉 Image picked!</h3>
+          {currentTool === "image" && selectedItem.imageUrl ? (
+            <div className="mb-2 flex flex-col items-center space-y-2">
+              <img
+                src={selectedItem.imageUrl || "/placeholder.svg"}
+                alt={selectedItem.text}
+                className="h-24 w-24 rounded border-2 border-white object-cover shadow"
+              />
+              <p className="text-xl font-bold text-green-900">{selectedItem.text}</p>
+            </div>
+          ) : (
+            <p className="mb-2 text-2xl font-bold text-green-900">{selectedItem.text}</p>
+          )}
+          {onShare && (
+            <Button variant="outline" size="sm" className="mt-1 gap-1.5" onClick={onShare}>
+              <Share2 className="h-3.5 w-3.5" />
+              Share
+            </Button>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

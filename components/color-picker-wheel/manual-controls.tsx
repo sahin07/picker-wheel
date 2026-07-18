@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import type { ColorResultShowMode } from "@/lib/color-formats"
+
 interface ManualControlsProps {
   customColors: Array<{
     id: string
@@ -34,18 +36,8 @@ interface ManualControlsProps {
   setConfettiEnabled: (enabled: boolean) => void
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
-  resultShowMode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }
-  setResultShowMode: (mode: {
-    color: boolean
-    text: boolean
-    hex: boolean
-    rgb: boolean
-  }) => void
+  resultShowMode: ColorResultShowMode
+  setResultShowMode: (mode: ColorResultShowMode) => void
 }
 
 export function ManualControls({

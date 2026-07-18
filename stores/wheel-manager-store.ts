@@ -719,12 +719,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           };
         } else if (toolType === "image-picker-wheel") {
           data = {
-            wheelItems: [
-              { id: "1", text: "Item 1", enabled: true, count: 1 },
-              { id: "2", text: "Item 2", enabled: true, count: 1 },
-              { id: "3", text: "Item 3", enabled: true, count: 1 },
-              { id: "4", text: "Item 4", enabled: true, count: 1 },
-            ],
+            wheelItems: [],
             totalSpins: 0,
             lastResult: null,
             recentResults: [],

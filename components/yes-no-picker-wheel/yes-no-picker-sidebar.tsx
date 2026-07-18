@@ -7,24 +7,37 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   ListChecks,
   Type,
   Palette,
   MoreVertical,
   Brain,
   Settings,
-  RotateCcw,
   History,
   Trophy,
   Target,
+  Eye,
+  EyeOff,
+  Shuffle,
 } from "lucide-react"
 import { SidebarOtherOptions } from "@/components/sidebar-other-options"
+import { SlicesManageMenu } from "@/components/slices-manage-menu"
 import { LETTER_COLOR_PALETTES } from "@/lib/letter-picker-constants"
 import { useSettingsStore } from "@/stores/settings-store"
+import type { WheelSettings } from "@/types/settings"
 
 export type YesNoSidebarTab = "inputs" | "text" | "style" | "other"
 export type YesNoControlMode = "manual" | "ai"
 export type YesNoWheelMode = "yes-no" | "yes-no-maybe"
+export type YesNoActionMode = "normal" | "elimination"
+export type YesNoOptionKey = "yes" | "no" | "maybe"
 
 export type YesNoOptionLabels = {
   yes: string
@@ -44,33 +57,49 @@ export type YesNoPickerSidebarProps = {
   setControlMode: (mode: YesNoControlMode) => void
   mode: YesNoWheelMode
   setMode: (mode: YesNoWheelMode) => void
+  actionMode: YesNoActionMode
+  onActionModeChange: (mode: YesNoActionMode) => void
   inputSets: number
   setInputSets: (sets: number) => void
   userQuestion: string
   setUserQuestion: (q: string) => void
+  questionPlaceholder?: string
   onGenerateAdvice: () => void
   isGeneratingAdvice: boolean
   aiAdvice: string
+  showTitle: boolean
+  setShowTitle: (v: boolean) => void
   wheelTitle: string
   setWheelTitle: (v: string) => void
   wheelDescription: string
   setWheelDescription: (v: string) => void
+  resultTitle: string
+  setResultTitle: (v: string) => void
   optionLabels: YesNoOptionLabels
   setOptionLabels: (labels: YesNoOptionLabels) => void
   onApplyPalette: (colors: string[]) => void
+  activePaletteColors?: string[] | null
   confettiEnabled: boolean
   setConfettiEnabled: (v: boolean) => void
   soundEnabled: boolean
   setSoundEnabled: (v: boolean) => void
+  showStats: boolean
+  setShowStats: (v: boolean) => void
   onShuffle: () => void
   onReset: () => void
+  onHideInputs: () => void
   onViewHistory: () => void
   onOpenAchievements: () => void
   onOpenChallenges: () => void
   onOpenSettings?: () => void
+  onToggleFullscreen?: () => void
+  onOpenAI?: () => void
+  onOpenThemes?: () => void
   resultsCount: number
   historyCount: number
   totalPoints: number
+  activeCount: number
+  eliminatedCount?: number
 }
 
 function buildTextFromLabels(mode: YesNoWheelMode, labels: YesNoOptionLabels, sets: number) {
@@ -101,42 +130,68 @@ function parseLabelsFromText(text: string, mode: YesNoWheelMode): YesNoOptionLab
   }
 }
 
+function colorsMatch(a: string[] | null | undefined, b: readonly string[]) {
+  if (!a || a.length === 0) return false
+  const n = Math.min(a.length, b.length, 3)
+  for (let i = 0; i < n; i++) {
+    if (a[i]?.toLowerCase() !== b[i]?.toLowerCase()) return false
+  }
+  return true
+}
+
 export function YesNoPickerSidebar({
   controlMode,
   setControlMode,
   mode,
   setMode,
+  actionMode,
+  onActionModeChange,
   inputSets,
   setInputSets,
   userQuestion,
   setUserQuestion,
+  questionPlaceholder = "e.g., Should I take this new job offer?",
   onGenerateAdvice,
   isGeneratingAdvice,
   aiAdvice,
+  showTitle,
+  setShowTitle,
   wheelTitle,
   setWheelTitle,
   wheelDescription,
   setWheelDescription,
+  resultTitle,
+  setResultTitle,
   optionLabels,
   setOptionLabels,
   onApplyPalette,
+  activePaletteColors,
   confettiEnabled,
   setConfettiEnabled,
   soundEnabled,
   setSoundEnabled,
+  showStats,
+  setShowStats,
   onShuffle,
   onReset,
+  onHideInputs,
   onViewHistory,
   onOpenAchievements,
   onOpenChallenges,
   onOpenSettings,
+  onToggleFullscreen,
+  onOpenAI,
+  onOpenThemes,
   resultsCount,
   historyCount,
   totalPoints,
+  activeCount,
+  eliminatedCount = 0,
 }: YesNoPickerSidebarProps) {
   const { settings, updateSettings } = useSettingsStore()
   const [sidebarTab, setSidebarTab] = useState<YesNoSidebarTab>("inputs")
   const [textDraft, setTextDraft] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const getTextEditorValue = () => buildTextFromLabels(mode, optionLabels, inputSets)
   const textValue = textDraft ?? getTextEditorValue()
@@ -164,11 +219,33 @@ export function YesNoPickerSidebar({
     }))
   }, [mode, optionLabels])
 
+  const sortLabelsZA = () => {
+    const keys: YesNoOptionKey[] = mode === "yes-no" ? ["yes", "no"] : ["yes", "no", "maybe"]
+    const sorted = [...keys].sort((a, b) =>
+      optionLabels[b].localeCompare(optionLabels[a], undefined, { sensitivity: "base" }),
+    )
+    const next = { ...optionLabels }
+    keys.forEach((key, i) => {
+      next[key] = optionLabels[sorted[i]]
+    })
+    setOptionLabels(next)
+  }
+
   return (
     <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
-        <p className="text-sm font-semibold text-slate-800">Yes / No Controls</p>
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between gap-2 border-b bg-slate-50/80 px-3 py-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <p className="truncate text-sm font-semibold text-slate-800">Yes / No Controls</p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+            {activeCount} active
+          </span>
+          {eliminatedCount > 0 && (
+            <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+              {eliminatedCount} out
+            </span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-0.5">
           <Button
             type="button"
             variant="ghost"
@@ -209,6 +286,50 @@ export function YesNoPickerSidebar({
               </span>
             )}
           </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            title={showTitle ? "Hide title settings" : "Show title settings"}
+            onClick={() => setShowTitle(!showTitle)}
+          >
+            {showTitle ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            title="Shuffle"
+            onClick={onShuffle}
+          >
+            <Shuffle className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            title="Hide"
+            onClick={onHideInputs}
+          >
+            <EyeOff className="h-4 w-4" />
+          </Button>
+          <SlicesManageMenu
+            settings={settings as unknown as WheelSettings}
+            onUpdateSettings={(partial) => updateSettings(partial as any)}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSortZA={sortLabelsZA}
+            onShuffle={onShuffle}
+            onEqualize={() => {}}
+            onDeleteBlanks={() => {}}
+            onRemoveDuplicates={() =>
+              setOptionLabels({ yes: "YES", no: "NO", maybe: "MAYBE" })
+            }
+            onClearAll={onReset}
+          />
         </div>
       </div>
 
@@ -236,24 +357,54 @@ export function YesNoPickerSidebar({
       <div className="max-h-[70vh] overflow-y-auto p-3">
         {sidebarTab === "inputs" && (
           <div className="space-y-4">
-            <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Tool Title</Label>
-                <Input
-                  value={wheelTitle}
-                  onChange={(e) => setWheelTitle(e.target.value)}
-                  className="h-8"
-                />
+            {showTitle && (
+              <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Tool Title</Label>
+                  <Input
+                    value={wheelTitle}
+                    onChange={(e) => setWheelTitle(e.target.value)}
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Tool Description</Label>
+                  <Textarea
+                    value={wheelDescription}
+                    onChange={(e) => setWheelDescription(e.target.value)}
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Result Title</Label>
+                  <Input
+                    value={resultTitle}
+                    onChange={(e) => setResultTitle(e.target.value)}
+                    className="h-8"
+                    placeholder="Your decision"
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Tool Description</Label>
-                <Textarea
-                  value={wheelDescription}
-                  onChange={(e) => setWheelDescription(e.target.value)}
-                  rows={2}
-                  className="text-sm"
-                />
-              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-600">Action Mode</Label>
+              <Select
+                value={actionMode}
+                onValueChange={(value: YesNoActionMode) => onActionModeChange(value)}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal Mode</SelectItem>
+                  <SelectItem value="elimination">Elimination Mode</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-slate-400">
+                Synced with Manage → Remove winner (Header Settings)
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -329,7 +480,7 @@ export function YesNoPickerSidebar({
                   What decision are you facing?
                 </Label>
                 <Textarea
-                  placeholder="e.g., Should I take this new job offer?"
+                  placeholder={questionPlaceholder}
                   value={userQuestion}
                   onChange={(e) => setUserQuestion(e.target.value)}
                   className="min-h-[90px] resize-none bg-white"
@@ -353,14 +504,12 @@ export function YesNoPickerSidebar({
               </div>
             )}
 
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" className="flex-1 gap-1.5" onClick={onShuffle}>
-                <RotateCcw className="h-3.5 w-3.5" />
-                Shuffle
-              </Button>
-              <Button type="button" variant="outline" className="flex-1 gap-1.5" onClick={onReset}>
-                Reset
-              </Button>
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-slate-800">Show stats</p>
+                <p className="text-xs text-slate-500">Totals & percentages on the wheel</p>
+              </div>
+              <Switch checked={showStats} onCheckedChange={setShowStats} />
             </div>
           </div>
         )}
@@ -414,33 +563,25 @@ export function YesNoPickerSidebar({
           <div className="space-y-4">
             <div className="mb-1 flex items-center justify-between">
               <Label className="text-xs text-slate-500">Color palettes</Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => {
-                  const palette =
-                    LETTER_COLOR_PALETTES[Math.floor(Math.random() * LETTER_COLOR_PALETTES.length)]
-                  const colors = [...palette.colors]
-                  onApplyPalette(colors)
-                  updateSettings({
-                    appearance: {
-                      ...settings.appearance,
-                      toolColors: colors,
-                    },
-                  })
-                }}
-              >
-                Randomize
-              </Button>
-            </div>
-            <div className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto">
-              {LETTER_COLOR_PALETTES.map((palette) => (
-                <button
-                  key={palette.name}
-                  type="button"
+              <div className="flex items-center gap-1">
+                {onOpenThemes && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={onOpenThemes}
+                  >
+                    Themes
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs"
                   onClick={() => {
-                    const colors = [...palette.colors]
+                    const palette =
+                      LETTER_COLOR_PALETTES[Math.floor(Math.random() * LETTER_COLOR_PALETTES.length)]
+                    const colors = [...palette.colors] as string[]
                     onApplyPalette(colors)
                     updateSettings({
                       appearance: {
@@ -449,20 +590,47 @@ export function YesNoPickerSidebar({
                       },
                     })
                   }}
-                  className="flex flex-col gap-1.5 rounded-lg border border-slate-200 p-2 text-left transition-colors hover:border-emerald-400 hover:bg-emerald-50/40"
                 >
-                  <span className="text-xs font-medium text-slate-700">{palette.name}</span>
-                  <div className="flex gap-0.5">
-                    {palette.colors.slice(0, 6).map((c) => (
-                      <span
-                        key={c}
-                        className="h-3 flex-1 rounded-sm first:rounded-l last:rounded-r"
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
-                </button>
-              ))}
+                  Randomize
+                </Button>
+              </div>
+            </div>
+            <div className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto">
+              {LETTER_COLOR_PALETTES.map((palette) => {
+                const selected = colorsMatch(activePaletteColors, palette.colors)
+                return (
+                  <button
+                    key={palette.name}
+                    type="button"
+                    onClick={() => {
+                      const colors = [...palette.colors] as string[]
+                      onApplyPalette(colors)
+                      updateSettings({
+                        appearance: {
+                          ...settings.appearance,
+                          toolColors: colors,
+                        },
+                      })
+                    }}
+                    className={`flex flex-col gap-1.5 rounded-lg border p-2 text-left transition-colors ${
+                      selected
+                        ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-400"
+                        : "border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40"
+                    }`}
+                  >
+                    <span className="text-xs font-medium text-slate-700">{palette.name}</span>
+                    <div className="flex gap-0.5">
+                      {palette.colors.slice(0, 6).map((c) => (
+                        <span
+                          key={c}
+                          className="h-3 flex-1 rounded-sm first:rounded-l last:rounded-r"
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -484,6 +652,13 @@ export function YesNoPickerSidebar({
                 </div>
                 <Switch checked={soundEnabled} onCheckedChange={setSoundEnabled} />
               </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Show stats</p>
+                  <p className="text-xs text-slate-500">Totals & percentages on the wheel</p>
+                </div>
+                <Switch checked={showStats} onCheckedChange={setShowStats} />
+              </div>
             </div>
 
             <SidebarOtherOptions
@@ -496,6 +671,8 @@ export function YesNoPickerSidebar({
               onViewResults={onViewHistory}
               onOpenSettings={onOpenSettings}
               onOpenAnalytics={onViewHistory}
+              onToggleFullscreen={onToggleFullscreen}
+              onOpenAI={onOpenAI}
             />
           </div>
         )}

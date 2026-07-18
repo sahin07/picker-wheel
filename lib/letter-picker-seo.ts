@@ -64,22 +64,27 @@ export type LetterPickerLinkItem = {
   description: string
 }
 
-/** Deep links apply on this pillar page via ?preset= / ?style= until cluster routes exist */
+/** Cluster spokes use dedicated routes; A–M / N–Z stay query deep links on the pillar. */
 export const LETTER_PICKER_POPULAR_WHEELS: LetterPickerLinkItem[] = [
   {
     label: "A–Z Letter Wheel",
-    href: `${LETTER_PICKER_PATH}?preset=alphabet`,
+    href: "/alphabet-wheel",
     description: "Spin the full alphabet for general random letter picks.",
   },
   {
     label: "Vowel Picker",
-    href: `${LETTER_PICKER_PATH}?preset=vowels`,
+    href: "/vowel-picker",
     description: "A, E, I, O, U—ideal for phonics and vowel practice.",
   },
   {
     label: "Consonant Picker",
-    href: `${LETTER_PICKER_PATH}?preset=consonants`,
+    href: "/consonant-picker",
     description: "Spin consonants only for blending and word-building games.",
+  },
+  {
+    label: "Phonics Letter Wheel",
+    href: "/phonics-letter-wheel",
+    description: "Vowel spins with sound cues and classroom practice prompts.",
   },
   {
     label: "A–M Letter Wheel",
@@ -93,17 +98,17 @@ export const LETTER_PICKER_POPULAR_WHEELS: LetterPickerLinkItem[] = [
   },
   {
     label: "Uppercase Letter Wheel",
-    href: `${LETTER_PICKER_PATH}?preset=alphabet&style=uppercase`,
+    href: "/uppercase-letter-picker",
     description: "Capital letters for early learners and print practice.",
   },
   {
     label: "Lowercase Letter Wheel",
-    href: `${LETTER_PICKER_PATH}?preset=alphabet&style=lowercase`,
+    href: "/lowercase-letter-picker",
     description: "Lowercase letters for reading and handwriting warm-ups.",
   },
   {
     label: "Scrabble Letter Wheel",
-    href: `${LETTER_PICKER_PATH}?preset=scrabble`,
+    href: "/scrabble-letter-picker",
     description: "Letter tiles with Scrabble-style weights for word games.",
   },
 ]
@@ -278,7 +283,7 @@ export const LETTER_PICKER_RELATED_TOOLS: LetterPickerLinkItem[] = [
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-no-picker-wheel",
+    href: "/yes-or-no-wheel",
     description: "A simple decision wheel for binary choices.",
   },
   {
@@ -313,7 +318,7 @@ export const LETTER_PICKER_ARTICLE_TITLE = "Spin the Letter Wheel"
 export const LETTER_PICKER_ARTICLE_INTRO = [
   "A Random Letter Picker turns the alphabet into an interactive spinning wheel. Instead of generating a quiet character in a text box, you spin a letter spinner so students, friends, or viewers can see the selection happen live.",
   "This free alphabet wheel works as a random letter generator and letter picker in one visual tool. Start with A–Z, switch to vowels or consonants, customize colors, remove letters, and spin for a fair random letter—ideal when you want both randomness and a shared experience.",
-  "Common Uses modes go further than a basic A–Z spin: Phonics loads vowels with sound cues, Word games apply Scrabble points, Classroom and Quiz remove letters after each pick, and Creative writing or Icebreaker modes return activity prompts seeded by the letter. Use it for phonics, spelling, Scrabble practice, ESL lessons, and icebreakers—while names, numbers, and yes/no decisions stay on their dedicated pages.",
+  "Need a focused template? Open dedicated pages for the Alphabet Wheel, Vowel Picker, Consonant Picker, Scrabble-style weights, uppercase/lowercase practice, or the Phonics Letter Wheel—each with its own guide. On this pillar, Common Uses modes go further: Phonics loads vowels with sound cues, Word games apply Scrabble points, Classroom and Quiz remove letters after each pick, and Creative writing or Icebreaker modes return activity prompts seeded by the letter.",
 ] as const
 
 export const LETTER_PICKER_FAQ_ITEMS = [

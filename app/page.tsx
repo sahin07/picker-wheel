@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   keywords: [
     "random name wheel picker",
     "random name picker",
+    "wheel of names",
     "random wheel picker",
     "wheel picker",
     "picker wheel",
@@ -33,6 +34,8 @@ export const metadata: Metadata = {
     "lucky wheel",
     "wheel spinner",
     "name picker wheel",
+    "classroom name picker",
+    "giveaway name picker",
   ],
   alternates: {
     canonical: HOME_URL,

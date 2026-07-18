@@ -1,6 +1,11 @@
 export const HOME_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://spinifywheel.com"
 
+/** Pillar path for the Random Name Picker hub */
+export const HOME_PATH = "/"
+
+export const HOME_URL = `${HOME_SITE_URL}${HOME_PATH === "/" ? "/" : HOME_PATH}`
+
 export const HOME_PAGE_TITLE =
   "Random Name Wheel Picker | Spin the Wheel Online Free"
 
@@ -59,13 +64,8 @@ export type HomeLinkItem = {
 /** Live routes only — popular tool cards */
 export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   {
-    label: "Random Name Wheel Picker",
-    href: "/",
-    description: "Spin a wheel of names for classrooms, parties, and giveaways.",
-  },
-  {
     label: "Yes or No Wheel",
-    href: "/yes-no-picker-wheel",
+    href: "/yes-or-no-wheel",
     description: "A simple decision wheel when you need a quick yes or no.",
   },
   {
@@ -203,6 +203,145 @@ export const HOME_USE_CASES = [
   "Play family games with names, dares, or prompts on a spinning wheel",
 ] as const
 
+/** Grouped use cases — Classroom / Giveaways / Workplace / Home */
+export const HOME_USE_CASE_GROUPS = [
+  {
+    title: "Classroom",
+    items: [
+      "Pick a student to answer or lead",
+      "Set presentation order",
+      "Choose reading turns",
+      "Find quiz volunteers",
+      "Assign group activity partners",
+    ],
+  },
+  {
+    title: "Giveaways",
+    items: [
+      "Select contest winners",
+      "Run prize draws",
+      "Pick social media giveaway winners",
+      "Host lucky draws and raffles",
+    ],
+  },
+  {
+    title: "Workplace",
+    items: [
+      "Assign tasks fairly",
+      "Choose meeting speakers",
+      "Select team members for projects",
+      "Start icebreaker activities",
+    ],
+  },
+  {
+    title: "Home & Friends",
+    items: [
+      "Rotate chores",
+      "Pick movie night choices",
+      "Decide on a restaurant",
+      "Run family game turns",
+    ],
+  },
+] as const
+
+export const HOME_COMPARISON_INTRO =
+  "Many people search for both a random name picker and a “wheel of names.” This page is built for name-first lists—classrooms, giveaways, and teams—while still working as a general custom wheel when you need other entries."
+
+export const HOME_COMPARISON_ROWS = [
+  {
+    aspect: "Focus",
+    namePicker: "Focused on picking names",
+    wheelOfNames: "General-purpose wheel",
+  },
+  {
+    aspect: "Best for",
+    namePicker: "Great for classrooms",
+    wheelOfNames: "Works for any list",
+  },
+  {
+    aspect: "Setup",
+    namePicker: "Easy to paste names",
+    wheelOfNames: "Supports names and other entries",
+  },
+  {
+    aspect: "Outcome",
+    namePicker: "Optimized for winner selection",
+    wheelOfNames: "More customizable overall",
+  },
+] as const
+
+/** Product-type comparison — Random Name Picker vs general wheel spinner */
+export const HOME_SPINNER_COMPARISON_INTRO =
+  "A random name picker and a generic wheel spinner can look similar, but they solve different jobs. Use this page when the list is mostly people or entrants; use a broader spinner when the list is prizes, challenges, or mixed options."
+
+export const HOME_SPINNER_COMPARISON_ROWS = [
+  {
+    aspect: "Primary job",
+    namePicker: "Pick a person or entrant fairly",
+    wheelSpinner: "Spin any custom list of options",
+  },
+  {
+    aspect: "Typical inputs",
+    namePicker: "Student names, giveaway entrants, volunteers",
+    wheelSpinner: "Prizes, dares, tasks, yes/no, mixed labels",
+  },
+  {
+    aspect: "Templates",
+    namePicker: "Classroom, giveaway, Secret Santa, presentation order",
+    wheelSpinner: "General quick lists (numbers, colors, days)",
+  },
+  {
+    aspect: "When to choose it",
+    namePicker: "Winner selection and fair turns for people",
+    wheelSpinner: "Open-ended decisions and party games",
+  },
+] as const
+
+export const HOME_EEAT_SECTIONS = [
+  {
+    id: "home-eeat-randomness",
+    title: "How randomness works",
+    body: "Each unique name on the wheel has an equal chance of being selected when weights are equal. If the same name is added more than once, it naturally has a higher chance because it appears on multiple slices. Raise or lower weights when you need uneven odds—and check the probability percentages in the list view.",
+  },
+  {
+    id: "home-eeat-fairness",
+    title: "Best practices for fair drawings",
+    body: "Before spinning for a giveaway or classroom helper, scan for duplicate names if every person should have one equal chance. Remove blanks, disable anyone who already won when you need unique winners, and announce the result while everyone can see the wheel.",
+  },
+  {
+    id: "home-eeat-when-not",
+    title: "When not to use it",
+    body: "This tool is ideal for games, classroom activities, casual giveaways, and low-stakes decisions. Official contests should always follow applicable laws and platform rules—use this spinner as a transparent helper, not as legal advice or a regulated lottery system.",
+  },
+] as const
+
+export const HOME_WHY_BENEFITS = [
+  {
+    title: "Fair and unbiased",
+    description: "Visible spins make picks feel transparent to the whole group.",
+  },
+  {
+    title: "Fast selection",
+    description: "Add names and spin in seconds—no setup ceremony.",
+  },
+  {
+    title: "Easy to customize",
+    description: "Edit colors, weights, mystery mode, and remove-winner behavior.",
+  },
+  {
+    title: "Works on any device",
+    description: "Phone, tablet, or desktop—same random name picker in the browser.",
+  },
+  {
+    title: "No signup required",
+    description: "Open the page and spin without creating an account.",
+  },
+  {
+    title: "Unlimited spins",
+    description: "Spin as often as you need for class periods, parties, or prize rounds.",
+  },
+] as const
+
 /** Main article H2 under the intro */
 export const HOME_ARTICLE_TITLE = "Random Name Wheel Picker: Spin the Wheel Online for Any List"
 
@@ -217,7 +356,7 @@ export const HOME_WHATS_ON_WHEEL = [
   "Weighted slices — give some options a higher chance when you need tiered odds",
   "Hidden or disabled entries — keep someone out of the next spin without deleting the list",
   "Colors and style — match classroom, party, or brand vibes from the Style tab",
-  "Quick templates — load ready lists (Yes/No, numbers, days, colors, and more) then edit",
+  "Quick templates — load classroom, giveaway, Secret Santa, and other name lists from the strip under the title, then edit",
 ] as const
 
 export const HOME_FEATURES_REAL = [
@@ -316,7 +455,7 @@ export const HOME_CUSTOMIZE_STEPS = [
     step: 1,
     title: "Build the list",
     description:
-      "Use Manual Input to add options, paste a bulk list in the Text tab, or start from a Quick Template above.",
+      "Use Manual Input to add options, paste a bulk list in the Text tab, or start from a Popular Name Picker Template under the title.",
   },
   {
     step: 2,
@@ -338,12 +477,12 @@ export const HOME_CUSTOMIZE_STEPS = [
   },
 ] as const
 
-/** Live routes only — related tools for the article */
+/** Live routes only — related tools for the article (excludes this pillar page) */
 export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
   {
-    label: "Yes or No Wheel",
-    href: "/yes-no-picker-wheel",
-    description: "Binary decisions when you only need yes or no.",
+    label: "Number Picker Wheel",
+    href: "/number-picker-wheel",
+    description: "Draw a number from a range for raffles and games.",
   },
   {
     label: "Letter Picker",
@@ -351,19 +490,14 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
     description: "Random letters for word games and writing prompts.",
   },
   {
-    label: "Number Wheel",
-    href: "/number-picker-wheel",
-    description: "Draw a number from a range for raffles and games.",
+    label: "Yes or No Wheel",
+    href: "/yes-or-no-wheel",
+    description: "Binary decisions when you only need yes or no.",
   },
   {
-    label: "Team Picker",
+    label: "Team Picker Wheel",
     href: "/team-picker",
     description: "Split names into random teams for class or sports.",
-  },
-  {
-    label: "Country Wheel",
-    href: "/country-wheel",
-    description: "Random countries for travel ideas and quizzes.",
   },
   {
     label: "Color Wheel",
@@ -371,24 +505,43 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
     description: "Random colors for design and creative challenges.",
   },
   {
-    label: "NBA Teams Wheel",
-    href: "/nba-wheel",
-    description: "Ready-made NBA team picker for fantasy and parties.",
-  },
-  {
-    label: "MLB Teams Wheel",
-    href: "/mlb-wheel",
-    description: "Ready-made MLB team picker for drafts and watch nights.",
-  },
-  {
-    label: "Pokemon Wheel",
-    href: "/pokemon-wheel",
-    description: "Random Pokémon for challenges and game nights.",
+    label: "Image Picker",
+    href: "/image-picker-wheel",
+    description: "Spin photos and images for visual choices.",
   },
   {
     label: "Create Custom Wheel",
     href: "/create-custom-wheel-spinner",
     description: "Build a shareable custom spin wheel with its own link.",
+  },
+]
+
+/** First-batch name-picker cluster spokes (EEAT-safe launch set) */
+export const HOME_CLUSTER_LINKS: HomeLinkItem[] = [
+  {
+    label: "Classroom Name Picker",
+    href: "/classroom-name-picker",
+    description: "Fair student picks for questions, helpers, and turns.",
+  },
+  {
+    label: "Giveaway Name Picker",
+    href: "/giveaway-name-picker",
+    description: "Transparent winner draws for contests and raffles.",
+  },
+  {
+    label: "Secret Santa Name Picker",
+    href: "/secret-santa-name-picker",
+    description: "Random gift-exchange draws for holiday events.",
+  },
+  {
+    label: "Presentation Order Picker",
+    href: "/presentation-order-picker",
+    description: "Decide who presents first without debate.",
+  },
+  {
+    label: "Team Picker Wheel",
+    href: "/team-picker",
+    description: "Split names into random teams (existing tool).",
   },
 ]
 
@@ -415,7 +568,7 @@ export const HOME_POPULAR_CATEGORIES: HomeLinkItem[] = [
   },
   {
     label: "Decision Wheels",
-    href: "/yes-no-picker-wheel",
+    href: "/yes-or-no-wheel",
     description: "Yes/No and custom lists for everyday choices.",
   },
   {
@@ -439,7 +592,11 @@ export const HOME_ON_THIS_PAGE = [
   { id: "home-article-context", label: "What this Random Name Wheel Picker is for" },
   { id: "home-whats-on-wheel", label: "What you can put on the wheel" },
   { id: "home-features", label: "Features that work on this page" },
-  { id: "home-use-cases", label: "Best ways to use it" },
+  { id: "home-common-ways", label: "Common ways to use a name picker" },
+  { id: "home-comparison", label: "Random Name Picker vs Wheel of Names" },
+  { id: "home-spinner-comparison", label: "Random Name Picker vs Wheel Spinner" },
+  { id: "home-eeat", label: "Fairness tips and best practices" },
+  { id: "home-cluster", label: "Name picker cluster" },
   { id: "home-customize", label: "How to customize" },
   { id: "home-related-tools", label: "Related random picker wheels" },
   { id: "home-faq", label: "Common questions" },
@@ -452,53 +609,53 @@ export type HomeFaqItem = {
 
 export const HOME_FAQ_ITEMS: HomeFaqItem[] = [
   {
-    question: "What is a random name wheel picker?",
+    question: "What is a Random Name Picker?",
     answer:
-      "A random name wheel picker is an online spinning wheel that selects one option from your list—especially names for classrooms, parties, and giveaways. On this page you can also add numbers, prizes, or ideas, spin the wheel, and get a fair random winner.",
+      "A Random Name Picker is an online spinning wheel that selects one name (or option) from your list. On this page you can add classroom students, giveaway entrants, prizes, or ideas, spin the wheel, and get a fair random winner—no account required.",
   },
   {
-    question: "Is the wheel random?",
+    question: "Is every name equally likely to be selected?",
     answer:
-      "Yes. Each spin lands on one of your enabled slices. Equal weights mean equal chance; if you raise a weight, that slice becomes more likely—and the list view shows probability percentages.",
+      "Yes, when weights are equal. Each enabled slice has the same chance. If you add the same name more than once, or raise a weight, that entry becomes more likely—and the list view shows probability percentages.",
   },
   {
-    question: "How do I create a custom wheel?",
+    question: "Can I paste a list of names?",
     answer:
-      "Use the input panel above: add options, paste a bulk list in Text mode, or load a Quick Template. Adjust colors in Style, then spin. For a branded wheel with a shareable URL that includes your options, use Create Custom Wheel.",
-  },
-  {
-    question: "Can I save my wheel?",
-    answer:
-      "Yes. Use My Wheels in the header to create, rename, and switch wheels saved on this device (browser local storage).",
-  },
-  {
-    question: "Can I share my wheel?",
-    answer:
-      "You can send people to this Random Name Wheel Picker page to build the same kind of list. To share an exact option list via link, create a Custom Spin Wheel—those pages store the entries in a shareable URL.",
-  },
-  {
-    question: "Does every entry have an equal chance?",
-    answer:
-      "With default equal weights, yes. Change weights when you need uneven odds (for example, common vs rare prizes). Disabled slices are skipped.",
-  },
-  {
-    question: "Can I use it for giveaways?",
-    answer:
-      "Yes. Paste entrants, spin once, and announce the winner. Enable remove-winner / giveaway helpers for multi-prize draws so names do not repeat.",
+      "Yes. Open the Text tab in the input panel, paste one name per line (or use bulk/CSV import), then spin. You can also tap a Popular Name Picker Template under the title and replace the sample names.",
   },
   {
     question: "Can I remove winners after each spin?",
     answer:
-      "Yes. Use remove-winner / giveaway options so the winning slice leaves the wheel. That keeps classroom helpers and raffle prizes unique.",
+      "Yes. Turn on Remove Winner After Spin in Settings or Manage so the winning name leaves the wheel. That keeps classroom helpers and multi-prize giveaways unique.",
   },
   {
-    question: "How many entries can I add?",
+    question: "Can I save my name picker?",
     answer:
-      "You can add a large list—from a few choices to long classroom or giveaway lists—using the List or Text tabs, including CSV/text import.",
+      "Yes. Use My Wheels in the header to create, rename, and switch wheels saved on this device (browser local storage).",
+  },
+  {
+    question: "Can I share my custom wheel?",
+    answer:
+      "You can send people to this Random Name Picker page to build the same kind of list. To share an exact option list via link, create a Custom Spin Wheel—those pages store the entries in a shareable URL.",
+  },
+  {
+    question: "Is this useful for classrooms?",
+    answer:
+      "Yes. Teachers use it to pick students for questions, reading turns, presentation order, quiz volunteers, and group activities. Fullscreen mode helps when projecting for the whole class.",
+  },
+  {
+    question: "Can I use it for giveaways?",
+    answer:
+      "Yes. Paste entrants, spin once, and announce the winner. Enable remove-winner for multi-prize draws so names do not repeat. For official contests, follow applicable laws and platform rules.",
   },
   {
     question: "Does it work on mobile?",
     answer:
       "Yes. The spin wheel runs in mobile browsers, so you can use it in class, at a party, or during a live event from a phone or tablet.",
+  },
+  {
+    question: "Is the Random Name Picker free?",
+    answer:
+      "Yes. You can add names, spin unlimited times, and use templates without signup. No payment is required to use the wheel on this page.",
   },
 ]

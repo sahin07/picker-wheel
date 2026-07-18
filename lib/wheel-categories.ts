@@ -75,9 +75,9 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         bg: "rgba(96, 165, 250, 0.15)",
       },
       {
-        label: "Yes or No Picker Wheel",
-        href: "/yes-no-picker-wheel",
-        description: "Get a simple yes-or-no answer when you cannot decide.",
+        label: "Yes or No Wheel",
+        href: "/yes-or-no-wheel",
+        description: "Spin a free decision spinner for a random yes or no answer.",
         icon: HelpCircle,
         color: "#facc15",
         bg: "rgba(250, 204, 21, 0.15)",
@@ -272,6 +272,13 @@ export function getAvailableWheels(items: WheelItem[] = getAllWheels()): WheelIt
 /** Map route href → wheel-manager toolType key */
 export function hrefToToolType(href: string): string {
   if (href === "/") return "picker-wheel"
+  // Pillar SEO URLs that differ from internal toolType keys
+  if (href === "/random-letter-picker" || href === "/letter-picker-wheel") {
+    return "letter-picker-wheel"
+  }
+  if (href === "/yes-or-no-wheel" || href === "/yes-no-picker-wheel") {
+    return "yes-no-picker-wheel"
+  }
   return href.replace(/^\//, "")
 }
 

@@ -143,6 +143,36 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                           Mystery Spin <span className="text-sm text-gray-500">(Hide inputs on wheel)</span>
                         </Label>
                       </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="mysteryResult"
+                          checked={settings.spinBehavior.mysteryResult}
+                          onCheckedChange={(checked) =>
+                            updateSettings({
+                              spinBehavior: { ...settings.spinBehavior, mysteryResult: !!checked },
+                            })
+                          }
+                        />
+                        <Label htmlFor="mysteryResult">
+                          Mystery Result <span className="text-sm text-gray-500">(Hide winner until revealed)</span>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="removeWinnerAfterSpin"
+                          checked={settings.spinBehavior.removeWinnerAfterSpin}
+                          onCheckedChange={(checked) =>
+                            updateSettings({
+                              spinBehavior: { ...settings.spinBehavior, removeWinnerAfterSpin: !!checked },
+                            })
+                          }
+                        />
+                        <Label htmlFor="removeWinnerAfterSpin">
+                          Remove Winner After Spin
+                        </Label>
+                      </div>
                     </div>
                   </div>
                 )}

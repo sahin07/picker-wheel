@@ -39,6 +39,7 @@ import {
   lettersForSeoPreset,
   type LetterPickerSeoPreset,
 } from "@/lib/letter-picker-seo"
+import type { LetterPickerDeepLink } from "@/lib/letter-picker-spokes"
 import {
   getLetterPickerUseCase,
   type LetterPickerUseCaseId,
@@ -57,9 +58,18 @@ import type {
 type LetterPickerWheelAppProps = {
   seoIntro?: ReactNode
   seoSections?: ReactNode
+  deepLink?: LetterPickerDeepLink
+  shortTitle?: string
+  toolSubtitle?: string
 }
 
-function LetterPickerWheelAppInner({ seoIntro, seoSections }: LetterPickerWheelAppProps) {
+function LetterPickerWheelAppInner({
+  seoIntro,
+  seoSections,
+  deepLink,
+  shortTitle,
+  toolSubtitle,
+}: LetterPickerWheelAppProps) {
   const searchParams = useSearchParams()
   const [showSettings, setShowSettings] = useState(false)
   const [showTitleModal, setShowTitleModal] = useState(false)
@@ -175,6 +185,7 @@ function LetterPickerWheelAppInner({ seoIntro, seoSections }: LetterPickerWheelA
   activeSlicesRef.current = activeSlices
   const finishSpinRef = useRef<() => void>(() => {})
   const lastUrlKeyRef = useRef("")
+  const deepLinkAppliedRef = useRef(false)
 
   const applyCaseToLetters = (letters: string[], style: StyleOption) => {
     if (style === "lowercase") return letters.map((l) => l.toLowerCase())
@@ -231,6 +242,25 @@ function LetterPickerWheelAppInner({ seoIntro, seoSections }: LetterPickerWheelA
     setResults([])
     setShowResult(false)
   }
+
+  // Spoke pages: apply dedicated preset/mode once on mount
+  useEffect(() => {
+    if (!deepLink || deepLinkAppliedRef.current || isSpinningRef.current) return
+    deepLinkAppliedRef.current = true
+
+    if (deepLink.mode && getLetterPickerUseCase(deepLink.mode)) {
+      applyUseCasePreset(deepLink.mode)
+      if (deepLink.toolTitle) setWheelTitle(deepLink.toolTitle)
+      if (deepLink.toolDescription) setWheelDescription(deepLink.toolDescription)
+      return
+    }
+
+    const style = deepLink.style ?? "uppercase"
+    setActiveUseCaseId(null)
+    applyLetterSet(deepLink.preset, style)
+    if (deepLink.toolTitle) setWheelTitle(deepLink.toolTitle)
+    if (deepLink.toolDescription) setWheelDescription(deepLink.toolDescription)
+  }, [deepLink])
 
   // Popular Letter Wheels / deep links: ?preset=vowels&style=lowercase or ?mode=classroom
   useEffect(() => {
@@ -675,9 +705,12 @@ function LetterPickerWheelAppInner({ seoIntro, seoSections }: LetterPickerWheelA
         {!isFullscreen && (
           <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
             <div className="mb-4 text-center">
-              <ToolPageTitle title={LETTER_PICKER_SHORT_TITLE} toolType="letter-picker-wheel" />
+              <ToolPageTitle
+                title={shortTitle ?? LETTER_PICKER_SHORT_TITLE}
+                toolType="letter-picker-wheel"
+              />
               <p className="text-gray-600">
-                Spin the alphabet wheel to choose a random letter
+                {toolSubtitle ?? "Spin the alphabet wheel to choose a random letter"}
               </p>
             </div>
 

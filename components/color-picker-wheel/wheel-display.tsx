@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Trophy, Share2 } from "lucide-react"
+import { Volume2, VolumeX, Maximize, Minimize } from "lucide-react"
+import { useSettingsStore } from "@/stores/settings-store"
 
 interface WheelDisplayProps {
   segments: Array<{
@@ -20,13 +20,17 @@ interface WheelDisplayProps {
   onSpin: () => void
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
-  showStats: boolean
-  setShowStats: (show: boolean) => void
-  onShare: () => void
-  lastResult: any
-  wheelTheme: string
-  setWheelTheme: (theme: string) => void
   isFullScreen?: boolean
+  onToggleFullscreen?: () => void
+  wheelTheme?: string
+}
+
+const THEME_RING: Record<string, string> = {
+  classic: "ring-slate-200",
+  neon: "ring-fuchsia-400 shadow-[0_0_24px_rgba(232,121,249,0.45)]",
+  ocean: "ring-cyan-400 shadow-[0_0_24px_rgba(34,211,238,0.35)]",
+  sunset: "ring-orange-400 shadow-[0_0_24px_rgba(251,146,60,0.4)]",
+  forest: "ring-emerald-500 shadow-[0_0_24px_rgba(16,185,129,0.35)]",
 }
 
 export function WheelDisplay({
@@ -40,51 +44,53 @@ export function WheelDisplay({
   onSpin,
   soundEnabled,
   setSoundEnabled,
-  showStats,
-  setShowStats,
-  onShare,
-  lastResult,
-  wheelTheme,
-  setWheelTheme,
-  isFullScreen = false
+  isFullScreen = false,
+  onToggleFullscreen,
+  wheelTheme = "classic",
 }: WheelDisplayProps) {
-  const [showThemeSelector, setShowThemeSelector] = useState(false)
-
-  const themes = [
-    { name: "classic", label: "Classic" },
-    { name: "neon", label: "Neon" },
-    { name: "ocean", label: "Ocean" },
-    { name: "sunset", label: "Sunset" },
-    { name: "forest", label: "Forest" }
-  ]
+  const { settings } = useSettingsStore()
+  const soundGloballyOff = !settings.confettiSound.enableSound
+  const canClickSpin = !isSpinning
+  const ringClass = THEME_RING[wheelTheme] || THEME_RING.classic
 
   return (
-    <div className="relative">
-      {/* Main Wheel */}
-      <div className="relative">
+    <div className="relative w-full max-w-[680px]">
+      <div
+        className={`relative mx-auto cursor-pointer ${canClickSpin ? "" : "cursor-default"}`}
+        style={{ width: "min(100%, 680px)" }}
+        onClick={canClickSpin ? onSpin : undefined}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (canClickSpin && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault()
+            onSpin()
+          }
+        }}
+        aria-label={isSpinning ? "Wheel spinning" : "Spin the color wheel"}
+      >
         <div
-          className={`w-[600px] h-[600px] rounded-full transition-transform duration-300 ${
+          className={`relative aspect-square w-full rounded-full ring-4 transition-shadow duration-300 ${ringClass} ${
             wheelShake ? "animate-pulse" : ""
           }`}
           style={{
             background: wheelBackground,
             transform: `rotate(${rotation}deg)`,
-            transition: isSpinning ? "none" : "transform 0.3s ease-out"
+            transition: isSpinning ? "none" : "transform 0.3s ease-out",
           }}
         >
-          {/* Wheel segments for manual/image mode */}
           {segments.length > 0 && activeTab !== "color-wheel" && (
             <svg
-              className="w-full h-full absolute inset-0"
+              className="absolute inset-0 h-full w-full"
               viewBox="0 0 100 100"
               style={{ transform: "rotate(-90deg)" }}
             >
               {segments.map((segment, index) => {
-                const centerAngle = segment.startAngle + segment.angle / 2;
-                const textRadius = 42; // Increased radius for text positioning
-                const textX = 50 + textRadius * Math.cos((centerAngle * Math.PI) / 180);
-                const textY = 50 + textRadius * Math.sin((centerAngle * Math.PI) / 180);
-                
+                const centerAngle = segment.startAngle + segment.angle / 2
+                const textRadius = 42
+                const textX = 50 + textRadius * Math.cos((centerAngle * Math.PI) / 180)
+                const textY = 50 + textRadius * Math.sin((centerAngle * Math.PI) / 180)
+
                 return (
                   <g key={index}>
                     <path
@@ -93,39 +99,40 @@ export function WheelDisplay({
                       stroke="#fff"
                       strokeWidth="0.5"
                     />
-                    {/* Text label - Horizontal orientation */}
                     <text
                       x={textX}
                       y={textY}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      className="text-xs font-bold fill-white"
+                      className="fill-white text-xs font-bold"
                       style={{
                         fontSize: "2.5px",
                         textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
                         transform: `rotate(${centerAngle}deg)`,
-                        transformOrigin: `${textX}px ${textY}px`
+                        transformOrigin: `${textX}px ${textY}px`,
                       }}
                     >
                       {segment.label}
                     </text>
                   </g>
-                );
+                )
               })}
             </svg>
           )}
 
-          {/* Center Spin Button */}
           <div className="absolute inset-0 flex items-center justify-center">
             <Button
-              onClick={onSpin}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (canClickSpin) onSpin()
+              }}
               disabled={isSpinning}
-              className={`w-20 h-20 rounded-full bg-black text-white font-bold shadow-lg transform hover:scale-105 transition-all duration-200 ${
+              className={`h-20 w-20 rounded-full bg-black font-bold text-white shadow-lg transition-all duration-200 hover:scale-105 ${
                 isSpinning ? "animate-spin" : ""
               }`}
             >
               {isSpinning ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-white" />
               ) : (
                 "SPIN"
               )}
@@ -133,99 +140,75 @@ export function WheelDisplay({
           </div>
         </div>
 
-        {/* Fixed Pointer - Outside the rotating wheel */}
-        <svg 
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 z-50 drop-shadow-2xl" 
-          width="40" 
-          height="40" 
+        <svg
+          className="absolute left-1/2 top-0 z-50 -translate-x-1/2 -translate-y-1 drop-shadow-2xl"
+          width="40"
+          height="40"
           viewBox="0 0 40 40"
-          style={{filter: 'drop-shadow(0 0 4px white)'}}
+          style={{ filter: "drop-shadow(0 0 4px white)" }}
+          aria-hidden
         >
-          <polygon 
-            points="0,0 40,0 20,40" 
-            fill="#ffffff" 
-            stroke="#000000" 
-            strokeWidth="2"
-          />
+          <polygon points="0,0 40,0 20,40" fill="#ffffff" stroke="#000000" strokeWidth="2" />
         </svg>
 
-        {/* Particles effect */}
         {showParticles && (
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="pointer-events-none absolute inset-0">
             {Array.from({ length: 20 }).map((_, i) => (
               <div
                 key={i}
-                className="absolute w-2 h-2 bg-yellow-400 rounded-full animate-ping"
+                className="absolute h-2 w-2 animate-ping rounded-full bg-yellow-400"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${1 + Math.random()}s`
+                  animationDuration: `${1 + Math.random()}s`,
                 }}
               />
             ))}
           </div>
         )}
-      </div>
 
-      {/* Control buttons */}
-      <div className="flex justify-center space-x-4 mt-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="hover:scale-110 transition-transform"
-          title={soundEnabled ? "Mute Sound" : "Unmute Sound"}
-        >
-          {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-        </Button>
-
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setShowStats(!showStats)}
-          className="hover:scale-110 transition-transform"
-          title={showStats ? "Hide Stats" : "Show Stats"}
-        >
-          <Trophy className="h-4 w-4" />
-        </Button>
-
-        {lastResult && (
+        <div className="absolute bottom-4 left-4 z-20 flex flex-col space-y-2">
           <Button
-            variant="outline"
-            size="icon"
-            onClick={onShare}
-            className="hover:scale-110 transition-transform"
-            title="Share Result"
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSoundEnabled(!soundEnabled)
+            }}
+            className="h-10 w-10 bg-white/90 p-0 shadow-md hover:bg-white"
+            title={
+              soundGloballyOff ? "Global sound disabled" : soundEnabled ? "Mute" : "Unmute"
+            }
           >
-            <Share2 className="h-4 w-4" />
+            {soundGloballyOff || !soundEnabled ? (
+              <VolumeX className={`h-5 w-5 ${soundGloballyOff ? "text-gray-400" : ""}`} />
+            ) : (
+              <Volume2 className="h-5 w-5" />
+            )}
           </Button>
+          {onToggleFullscreen && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleFullscreen()
+              }}
+              className="h-10 w-10 bg-white/90 p-0 shadow-md hover:bg-white"
+              title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+            >
+              {isFullScreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            </Button>
+          )}
+        </div>
+
+        {isSpinning && (
+          <div className="absolute right-4 top-4 z-20 animate-pulse rounded-full bg-yellow-500 px-3 py-1 text-sm font-semibold text-white">
+            Spinning...
+          </div>
         )}
       </div>
-
-      {/* Theme selector */}
-      {showThemeSelector && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white border rounded-lg shadow-lg p-2 z-20">
-          <div className="grid grid-cols-1 gap-1">
-            {themes.map((theme) => (
-              <button
-                key={theme.name}
-                onClick={() => {
-                  setWheelTheme(theme.name)
-                  setShowThemeSelector(false)
-                }}
-                className={`px-3 py-1 text-sm rounded ${
-                  wheelTheme === theme.name
-                    ? "bg-blue-500 text-white"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {theme.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
-} 
+}

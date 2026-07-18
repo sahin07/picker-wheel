@@ -1,0 +1,72 @@
+import { Target, Grid3X3, Brain, Star, Zap } from "lucide-react"
+
+export const WHEEL_TOOLS = [
+  { id: "image", name: "Image Picker Wheel", description: "Pick random images by spinning" },
+  { id: "state", name: "State Wheel", description: "Pick random US states" },
+  { id: "name", name: "Name Picker", description: "Pick random names" },
+  { id: "number", name: "Number Picker", description: "Pick random numbers" },
+]
+
+export const GAME_MODES = [
+  { id: "normal", name: "Normal Spin", icon: Target, description: "Classic wheel spinning" },
+  { id: "bingo", name: "Spin Bingo", icon: Grid3X3, description: "Mark off images on your bingo card" },
+  { id: "memory", name: "Memory Challenge", icon: Brain, description: "Remember and match the sequence" },
+  { id: "collection", name: "Collection Race", icon: Star, description: "Collect all images as fast as possible" },
+  { id: "sequence", name: "Sequence Match", icon: Zap, description: "Spin images in the correct order" },
+]
+
+export const US_STATES = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+]
+
+export const SAMPLE_NAMES = [
+  "Alice",
+  "Bob",
+  "Charlie",
+  "Diana",
+  "Edward",
+  "Fiona",
+  "George",
+  "Hannah",
+  "Ian",
+  "Julia",
+  "Kevin",
+  "Laura",
+  "Michael",
+  "Nancy",
+  "Oliver",
+  "Patricia",
+  "Quinn",
+  "Rachel",
+  "Samuel",
+  "Teresa",
+]

@@ -1,0 +1,301 @@
+# Futures Scale — Product Roadmap & Competitor Gap Plan
+
+> **Status:** Planning only — no implementation yet.  
+> **Last updated:** 2026-07-06  
+> **Purpose:** Decide what to build first, then implement in phases.
+
+---
+
+## 1. Your priorities (fill this in first)
+
+Use this section to list what you want to tackle first. We will implement later based on your order.
+
+| Priority | Item | Why | Target phase | Notes |
+|----------|------|-----|--------------|-------|
+| P0 | _Add here_ | | | |
+| P1 | _Add here_ | | | |
+| P2 | _Add here_ | | | |
+| P3 | _Add here_ | | | |
+
+**Must-have for v1 launch:**
+
+- [ ] _Add here_
+
+**Nice-to-have (later):**
+
+- [ ] _Add here_
+
+**Explicitly out of scope for now:**
+
+- [ ] _Add here_
+
+---
+
+## 2. Current baseline (our app)
+
+### 2.1 Tool count: **15**
+
+| # | Route | Tool |
+|---|-------|------|
+| 1 | `/` | Main Picker Wheel |
+| 2 | `/team-picker` | Team Picker |
+| 3 | `/yes-no-picker-wheel` | Yes / No Picker |
+| 4 | `/number-picker-wheel` | Number Picker |
+| 5 | `/letter-picker-wheel` | Letter Picker |
+| 6 | `/country-wheel` | Country Picker |
+| 7 | `/state-wheel` | State Picker |
+| 8 | `/color-picker-wheel` | Color Picker |
+| 9 | `/image-picker-wheel` | Image Picker |
+| 10 | `/date-picker-wheel` | Date Picker |
+| 11 | `/mlb-wheel` | MLB Team Picker |
+| 12 | `/nba-wheel` | NBA Team Picker |
+| 13 | `/fortnite-wheel` | Fortnite Skin Picker |
+| 14 | `/pokemon-wheel` | Pokémon Picker |
+| 15 | `/lol-wheel` | League of Legends Champion Picker |
+
+### 2.2 Strengths today
+
+- 15 specialized tools — same count as PickerWheel.com
+- AI on homepage, MLB, NBA, Fortnite, Pokémon (real `/api/ai` where wired)
+- Game modes: bingo, memory, collection race, sequence match, roulette, speed, combo, precision
+- Gamification: achievements, themes, analytics, social hub (partial)
+- Multi-wheel manager (localStorage via Zustand)
+
+### 2.3 Known gaps today
+
+- Share button in header — no handler
+- API routes (`/api/settings`, `/api/wheel-manager`, `/api/tools/*`) — stubs only
+- Persistence — browser localStorage only, no accounts
+- No public wheel library / SEO template pages
+- No embed widget, no PWA install flow
+- Several “AI” tools are simulated (yes/no, date, country, state, letter, team chat, LoL)
+- Missing tools vs PickerWheel: Instagram Comment Picker, NFL, Flag Quiz
+- Missing action mode vs PickerWheel: **Accumulation** (count builds across spins)
+- Footer links (coin flip, dice, help, FAQ) — placeholder `#`
+
+---
+
+## 3. Competitor tool comparison
+
+### 3.1 Tool counts
+
+| Platform | Dedicated tools | Extra products |
+|----------|-----------------|----------------|
+| **Our app** | **15** | Game modes, AI hub |
+| **PickerWheel.com** | **15** | Embed widget, FlipSimu coin flipper |
+| **SpinTheWheel.app** | **1** (generic wheel) | Thousands of community wheels, Android/iOS apps, Discord bot |
+
+### 3.2 PickerWheel.com — full tool list (15)
+
+1. Main Picker Wheel  
+2. Team Picker Wheel  
+3. Yes No Picker Wheel  
+4. Number Picker Wheel  
+5. Letter Picker Wheel  
+6. Country Picker Wheel  
+7. State Picker Wheel  
+8. Color Picker Wheel  
+9. Image Picker Wheel  
+10. Date Picker Wheel  
+11. Instagram Comment Picker Wheel  
+12. MLB Picker Wheel  
+13. NBA Picker Wheel  
+14. NFL Picker Wheel  
+15. Flag Quiz Picker Wheel  
+
+### 3.3 Overlap matrix (us vs PickerWheel.com)
+
+| Tool | Us | PickerWheel | Notes |
+|------|:--:|:-----------:|-------|
+| Main picker | ✅ | ✅ | They lead on share/collect, CSV, weights/labels/colors |
+| Team picker | ✅ | ✅ | We have CSV + simulated Gemini chat |
+| Yes/No | ✅ | ✅ | |
+| Number | ✅ | ✅ | |
+| Letter | ✅ | ✅ | We have challenge modes |
+| Country | ✅ | ✅ | |
+| State | ✅ | ✅ | |
+| Color | ✅ | ✅ | |
+| Image | ✅ | ✅ | |
+| Date | ✅ | ✅ | |
+| MLB | ✅ | ✅ | We have deeper AI |
+| NBA | ✅ | ✅ | We have deeper AI |
+| Fortnite | ✅ | ❌ | **Our unique** |
+| Pokémon | ✅ | ❌ | **Our unique** |
+| LoL | ✅ | ❌ | **Our unique** |
+| Instagram Comment | ❌ | ✅ | **Their unique** — giveaway / influencer use case |
+| NFL | ❌ | ✅ | **Their unique** — easy clone from MLB/NBA |
+| Flag Quiz | ❌ | ✅ | **Their unique** — quiz, not just spin |
+
+**Net:** 15 vs 15 — 12 shared, 3 unique each.
+
+### 3.4 SpinTheWheel.app — strategy (not tool count)
+
+- Single wheel editor: labels, colors, sounds, share
+- Growth via **community wheel library** (trending, categories, SEO pages)
+- Mobile apps + Discord bot
+- Not competing on specialized tools — competing on discovery and distribution
+
+---
+
+## 4. Feature gap backlog (candidates — not prioritized until §1 is filled)
+
+### 4.1 Distribution & retention (high impact vs PickerWheel)
+
+| ID | Feature | Competitor reference | Effort | Impact |
+|----|---------|---------------------|--------|--------|
+| F-01 | Shareable wheel links (guest snapshot) | PickerWheel “Share as Guest” | M | High |
+| F-02 | Live-sync share from saved file | PickerWheel “Share from File” | L | High |
+| F-03 | Collect visitor spin results + dashboard | PickerWheel “Collect Results” | L | Very high |
+| F-04 | Public wheel / template gallery + SEO pages | SpinTheWheel trending wheels | L | Very high |
+| F-05 | Embeddable wheel widget | PickerWheel embed | M | Medium |
+| F-06 | PWA / “Install app” prompt | Both competitors | S | Medium |
+
+### 4.2 Accounts & persistence
+
+| ID | Feature | Competitor reference | Effort | Impact |
+|----|---------|---------------------|--------|--------|
+| F-10 | User accounts (free tier) | PickerWheel subscriber | L | High |
+| F-11 | Cloud save / open / delete files | PickerWheel File menu | L | High |
+| F-12 | Wire real `/api/wheel-manager` + `/api/settings` | Our stubs | M | High |
+| F-13 | Cross-device sync | PickerWheel cloud | L | High |
+
+### 4.3 Core wheel UX (parity with PickerWheel)
+
+| ID | Feature | Competitor reference | Effort | Impact |
+|----|---------|---------------------|--------|--------|
+| F-20 | CSV import on main wheel | PickerWheel Text Mode | M | Medium |
+| F-21 | Per-input weight, label, color columns | PickerWheel Main Mode | M | Medium |
+| F-22 | Accumulation action mode | PickerWheel “Add Count” | M | Medium |
+| F-23 | Mystery result (hide until reveal) | PickerWheel | S | Low |
+| F-24 | Multi-title result sequence (cycle per spin) | PickerWheel | S | Low |
+| F-25 | Results page share + download image | PickerWheel | M | Medium |
+| F-26 | Ctrl+Enter spin on homepage | PickerWheel | S | Low |
+| F-27 | Spreadsheet-style bulk input edit | PickerWheel | M | Medium |
+
+### 4.4 New tools
+
+| ID | Tool | Competitor reference | Effort | Impact |
+|----|------|---------------------|--------|--------|
+| T-01 | NFL Picker Wheel | PickerWheel | S | Medium — clone MLB/NBA |
+| T-02 | Instagram Comment Picker | PickerWheel | L | High — needs IG data/API |
+| T-03 | Flag Quiz Picker | PickerWheel | M | Medium — education/quiz |
+| T-04 | Coin flip / dice (footer placeholders) | FlipSimu / generic | S | Low |
+
+### 4.5 AI — consolidate & differentiate
+
+| ID | Feature | Current state | Effort | Impact |
+|----|---------|---------------|--------|--------|
+| A-01 | Wire simulated AI tools to `/api/ai` | yes/no, date, country, state, letter, team, LoL | M | High |
+| A-02 | AI-generated public template wheels | Neither competitor has this | L | Very high |
+| A-03 | Align NBA AI with MLB (full API) | Partial per `AI_FEATURES_COMPARISON.md` | M | Medium |
+
+### 4.6 Monetization (future)
+
+| ID | Feature | Competitor reference | Effort | Impact |
+|----|---------|---------------------|--------|--------|
+| M-01 | Free vs Premium tier | PickerWheel Premium | L | Revenue |
+| M-02 | Ad-free premium | Both | M | Revenue |
+| M-03 | Higher file limits for premium | PickerWheel (15 free / 120 premium) | S | Revenue |
+| M-04 | Custom logo/banner (premium) | PickerWheel | M | Revenue |
+| M-05 | HD image upload (premium) | PickerWheel | M | Revenue |
+
+### 4.7 Integrations (SpinTheWheel ecosystem)
+
+| ID | Feature | Competitor reference | Effort | Impact |
+|----|---------|---------------------|--------|--------|
+| I-01 | Discord bot for random picks | SpinTheWheel | L | Medium |
+| I-02 | Native mobile apps (or polished PWA) | Both | XL | High |
+
+---
+
+## 5. Suggested phases (draft — override in §1)
+
+> **Do not treat this as final.** Reorder after you fill §1.
+
+### Phase 0 — Quick wins
+- F-26 Ctrl+Enter on homepage  
+- F-23 Mystery result  
+- Header Share handler (minimum: copy link / export JSON)  
+- T-01 NFL wheel  
+
+### Phase 1 — Retention core
+- F-01 Shareable wheel links  
+- F-12 Real API persistence OR F-10 accounts + F-11 cloud save  
+- F-20 CSV import  
+- F-22 Accumulation mode  
+
+### Phase 2 — Growth
+- F-03 Collect results dashboard  
+- F-04 Public template gallery  
+- A-02 AI-generated template pages  
+- T-02 Instagram Comment Picker (if in scope)  
+
+### Phase 3 — Polish & monetize
+- F-05 Embed widget  
+- M-01 Premium tier  
+- I-01 Discord bot  
+- I-02 Mobile  
+
+---
+
+## 6. Use-case playbooks (for your classroom / giveaway / exercise ideas)
+
+### Classroom — random student picker
+- **Tool:** Main wheel or Team Picker  
+- **Mode:** Elimination (don’t repeat until everyone picked)  
+- **Competitor gap to close:** Share link for substitute teacher; Collect results optional  
+- **Our edge:** Game modes (bingo, memory) for engagement  
+
+### Giveaway — prize categories
+- **Tool:** Main wheel with weighted slices OR specialized categories  
+- **Competitor:** PickerWheel Collect Results + Instagram Comment Picker  
+- **Our gap:** F-03 collect dashboard, T-02 Instagram tool  
+- **Our edge:** AI to generate prize list from prompt  
+
+### Daily exercise routine
+- **Tool:** Main wheel or Date/Number tools  
+- **Mode:** Normal or Accumulation (PickerWheel style — spin multiple times, count wins)  
+- **Our gap:** F-22 Accumulation mode, F-04 save routine wheels publicly  
+- **Our edge:** AI suggests weekly rotation of exercises  
+
+---
+
+## 7. Implementation notes (for later)
+
+When we start building, track per item:
+
+- [ ] Design / UX spec  
+- [ ] API & data model  
+- [ ] Frontend  
+- [ ] Migration from localStorage  
+- [ ] SEO / marketing page (if public)  
+- [ ] Tests  
+- [ ] Launch checklist  
+
+**Key files today:**
+
+| Area | Path |
+|------|------|
+| Main wheel | `app/page.tsx`, `components/enhanced-wheel-section.tsx` |
+| Wheel manager store | `stores/wheel-manager-store.ts` |
+| Settings store | `stores/settings-store.ts` |
+| AI API | `app/api/ai/route.ts`, `lib/ai-service.ts` |
+| Stub persistence | `app/api/wheel-manager/`, `app/api/settings/`, `app/api/tools/` |
+| Header (Share) | `components/header.tsx` |
+
+---
+
+## 8. Decision log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-07-06 | Created `futures-scale.doc` | Plan before implement; user fills §1 priorities |
+| | | |
+
+---
+
+## 9. References
+
+- Competitor: https://pickerwheel.com/  
+- Competitor: https://spinthewheel.app/  
+- Internal: `AI_FEATURES_COMPARISON.md`, `AI_IMPLEMENTATION.md`, `NBA_AI_FEATURES_IMPLEMENTATION.md`

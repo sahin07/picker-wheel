@@ -46,6 +46,7 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         links: [
           { label: "Open the main picker", href: "/" },
           { label: "Browse all wheel categories", href: "/spin-wheels" },
+          { label: "Read our guides (Blogs)", href: "/articles" },
         ],
       },
       {
@@ -141,6 +142,14 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         links: [
           { label: "Yes or No wheel", href: "/yes-or-no-wheel" },
           { label: "Team picker", href: "/team-picker-wheel" },
+          {
+            label: "Teachers name-picker guide",
+            href: "/articles/education/random-name-picker-for-teachers",
+          },
+          {
+            label: "Random teams guide",
+            href: "/articles/teams/random-team-picker-guide",
+          },
         ],
       },
       {
@@ -891,7 +900,10 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
           "A spin wheel picker is an online decision helper that selects one item from your list at random. You load the options onto a colorful wheel, press Spin, and the pointer lands on a single result.",
           "People rely on it for classroom draws, giveaways, team picks, party games, workout challenges, chore rotation, and everyday choices like where to eat—anytime a fair random pick is easier than arguing or guessing.",
         ],
-        links: [{ label: "Try Picker Wheel", href: "/" }],
+        links: [
+          { label: "Try Picker Wheel", href: "/" },
+          { label: "Read guides & blogs", href: "/articles" },
+        ],
       },
       {
         id: "is-the-spin-wheel-really-random",
@@ -899,6 +911,14 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         answer: [
           "Yes. Each spin starts fresh and uses random selection in the browser. The wheel does not “remember” earlier winners or quietly push a favorite name toward the pointer.",
           "Whether you have five options or fifty, every unique entry gets the same chance on that spin. Seeing the same result twice in a short stretch can still happen—the same way a fair coin can land on heads more than once.",
+        ],
+        links: [
+          {
+            label: "Full guide: Is a spin wheel really random?",
+            href: "/articles/how-it-works/is-spin-wheel-really-random",
+          },
+          { label: "Weighted Wheel Spinner", href: "/weighted-wheel-spinner" },
+          { label: "Browse all guides", href: "/articles" },
         ],
       },
       {
@@ -1041,7 +1061,14 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
           "Yes—as long as your giveaway follows the laws and platform rules that apply where you run it. Many hosts like a visible spin because the audience can watch the selection happen in real time.",
           "Keep the screen shared, remove winners after each draw when needed, and keep a clear record of results for your own notes.",
         ],
-        links: [{ label: "Open Results history tip", href: "/help#analytics-and-results" }],
+        links: [
+          { label: "Open Results history tip", href: "/help#analytics-and-results" },
+          { label: "Prize Wheel Spinner", href: "/prize-wheel-spinner" },
+          {
+            label: "Fair online prize wheel guide",
+            href: "/articles/giveaways/fair-online-prize-wheel",
+          },
+        ],
       },
       {
         id: "is-my-information-private",

@@ -45,13 +45,31 @@ export default function PrizeInputPanel({
   const [mounted, setMounted] = useState(false)
   const { settings, updateSettings } = useSettingsStore()
   const { showToast } = useToast()
-  const wheel = useWheelManagerStore((state) =>
-    (state.wheelsByTool[state.currentTool] || []).find((item) => item.id === state.currentWheelId) || null)
-  const data = (wheel?.data as PrizeWheelData | undefined) ?? {
-    entries: [], viewMode: "wheel", isSpinning: false, spinRotation: 0,
-    selectedResult: null, totalSpins: 0, recentResults: [],
+  const wheel = useWheelManagerStore((state) => {
+    const prizeWheels = state.wheelsByTool["prize-wheel"] || []
+    return (
+      prizeWheels.find((item) => item.id === state.currentWheelId) ||
+      prizeWheels[0] ||
+      null
+    )
+  })
+  const rawData = (wheel?.data as PrizeWheelData | undefined) ?? null
+  const data: PrizeWheelData = {
+    viewMode: rawData?.viewMode || "wheel",
+    actionMode: rawData?.actionMode || "normal",
+    isSpinning: rawData?.isSpinning || false,
+    spinRotation: rawData?.spinRotation || 0,
+    selectedResult: rawData?.selectedResult ?? null,
+    totalSpins: rawData?.totalSpins || 0,
+    currentTheme: rawData?.currentTheme,
+    currentRotation: rawData?.currentRotation,
+    achievements: rawData?.achievements,
+    themes: rawData?.themes,
+    entries: Array.isArray(rawData?.entries) ? rawData.entries : [],
+    recentResults: Array.isArray(rawData?.recentResults) ? rawData.recentResults : [],
+    spinHistory: Array.isArray(rawData?.spinHistory) ? rawData.spinHistory : [],
   }
-  const entries = data.entries || []
+  const entries = data.entries
   const exportText = entries.map((entry) => entry.winMessage ? `${entry.name} | ${entry.winMessage}` : entry.name).join("\n")
   const filtered = searchQuery.trim()
     ? entries.filter((entry) => entry.name.toLowerCase().includes(searchQuery.trim().toLowerCase())) : entries

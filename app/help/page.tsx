@@ -174,6 +174,9 @@ export default function HelpPage() {
             <Link href="/spin-wheels" className="hover:text-gray-900">
               Wheels
             </Link>
+            <Link href="/articles" className="hover:text-gray-900">
+              Blogs
+            </Link>
             <Link href="/help" className="text-green-700">
               Help
             </Link>
@@ -251,7 +254,8 @@ export default function HelpPage() {
               If your question is about a specific tool, open that wheel and
               check Settings first—many spin, sound, and color controls live
               there. You can also browse the full category list for ready-made
-              pickers.
+              pickers, or read our how-to articles for classroom, giveaway, and
+              game-night tips.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <Link
@@ -261,10 +265,22 @@ export default function HelpPage() {
                 Open Picker Wheel
               </Link>
               <Link
+                href="/articles"
+                className="rounded-full border border-slate-300 bg-white px-5 py-2.5 font-spin-display text-sm font-semibold text-slate-700 transition-colors hover:border-green-400 hover:text-green-700"
+              >
+                Read articles
+              </Link>
+              <Link
                 href="/spin-wheels"
                 className="rounded-full border border-slate-300 bg-white px-5 py-2.5 font-spin-display text-sm font-semibold text-slate-700 transition-colors hover:border-green-400 hover:text-green-700"
               >
                 Browse wheels
+              </Link>
+              <Link
+                href="/contact-us"
+                className="rounded-full border border-slate-300 bg-white px-5 py-2.5 font-spin-display text-sm font-semibold text-slate-700 transition-colors hover:border-green-400 hover:text-green-700"
+              >
+                Contact Us
               </Link>
               <Link
                 href="/help#people-also-ask"

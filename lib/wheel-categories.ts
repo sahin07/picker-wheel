@@ -286,6 +286,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         color: "#a78bfa",
         bg: "rgba(167, 139, 250, 0.15)",
       },
+      {
+        label: "Demon Slayer Spin Wheel",
+        href: "/demon-slayer-spin-wheel",
+        description: "Pick a random Demon Slayer character, Hashira, demon, or breathing style.",
+        icon: Sparkles,
+        color: "#f87171",
+        bg: "rgba(248, 113, 113, 0.15)",
+      },
     ],
   },
   {
@@ -439,6 +447,20 @@ export function hrefToToolType(href: string): string {
     return "jjk-wheel"
   }
   if (
+    href === "/demon-slayer-spin-wheel" ||
+    href === "/demon-slayer-wheel" ||
+    href === "/hashira-wheel" ||
+    href === "/hashira-picker" ||
+    href === "/nichirin-color-wheel" ||
+    href === "/upper-rank-demon-wheel" ||
+    href === "/lower-rank-demon-wheel" ||
+    href === "/favorite-demon-slayer-character" ||
+    href === "/random-demon-slayer-character" ||
+    href.startsWith("/demon-slayer-")
+  ) {
+    return "demon-slayer-wheel"
+  }
+  if (
     href === "/team-picker-wheel" ||
     href === "/team-picker" ||
     href === "/random-team-picker" ||
@@ -469,4 +491,120 @@ export function getToolLabel(toolType: string): string {
 
 export function getToolHref(toolType: string): string {
   return getToolByType(toolType)?.href || `/${toolType}`
+}
+
+function normalizeToolPath(pathname: string): string {
+  if (!pathname || pathname === "/") return "/"
+  const trimmed = pathname.replace(/\/+$/, "")
+  return trimmed || "/"
+}
+
+function humanizePathLabel(pathname: string): string {
+  const slug = normalizeToolPath(pathname).replace(/^\//, "")
+  if (!slug) return "Picker Wheel"
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
+}
+
+/** Category that owns this tool or spoke URL. */
+export function getCategoryForPath(pathname: string): WheelCategory | undefined {
+  const path = normalizeToolPath(pathname)
+  const exact = WHEEL_CATEGORIES.find((category) =>
+    category.items.some((item) => item.href === path),
+  )
+  if (exact) return exact
+
+  const toolType = hrefToToolType(path)
+  return WHEEL_CATEGORIES.find((category) =>
+    category.items.some(
+      (item) => item.href && hrefToToolType(item.href) === toolType,
+    ),
+  )
+}
+
+export type ToolBreadcrumbCrumb = {
+  label: string
+  /** Omit href for the current page crumb. */
+  href?: string
+}
+
+/**
+ * Visible trail for tool pages: Home → Category → Tool
+ * (and Hub → Spoke when the URL is a spoke of a catalog hub).
+ */
+export function getToolBreadcrumbTrail(pathname: string): ToolBreadcrumbCrumb[] {
+  const path = normalizeToolPath(pathname)
+
+  if (path === "/create-custom-wheel-spinner") {
+    return [
+      { label: "Home", href: "/" },
+      { label: "Create Custom Wheel" },
+    ]
+  }
+
+  if (path.startsWith("/w/")) {
+    return [
+      { label: "Home", href: "/" },
+      { label: "Create Custom Wheel", href: "/create-custom-wheel-spinner" },
+      { label: humanizePathLabel(path.slice(2)) },
+    ]
+  }
+
+  if (path === SPIN_WHEELS_BASE_PATH || path.startsWith(`${SPIN_WHEELS_BASE_PATH}/`)) {
+    const crumbs: ToolBreadcrumbCrumb[] = [
+      { label: "Home", href: "/" },
+      { label: "All Wheels", href: SPIN_WHEELS_BASE_PATH },
+    ]
+    if (path !== SPIN_WHEELS_BASE_PATH) {
+      const categoryId = path.slice(SPIN_WHEELS_BASE_PATH.length + 1)
+      const category = getCategoryById(categoryId)
+      crumbs.push({
+        label: category?.title || ALL_WHEELS_ENTRY.title,
+      })
+    }
+    return crumbs
+  }
+
+  const category = getCategoryForPath(path)
+  const exactItem = getAvailableWheels().find((item) => item.href === path)
+  const toolType = hrefToToolType(path)
+  const hub = getToolByType(toolType)
+
+  const crumbs: ToolBreadcrumbCrumb[] = [{ label: "Home", href: "/" }]
+
+  if (category) {
+    crumbs.push({
+      label: category.title,
+      href: `${SPIN_WHEELS_BASE_PATH}/${category.id}`,
+    })
+  } else {
+    crumbs.push({
+      label: "All Wheels",
+      href: SPIN_WHEELS_BASE_PATH,
+    })
+  }
+
+  const isSpoke = Boolean(hub?.href && hub.href !== path && !exactItem)
+
+  if (isSpoke && hub?.href) {
+    crumbs.push({ label: hub.label, href: hub.href })
+    crumbs.push({ label: humanizePathLabel(path) })
+    return crumbs
+  }
+
+  if (exactItem) {
+    crumbs.push({ label: exactItem.label })
+    return crumbs
+  }
+
+  if (hub) {
+    crumbs.push({ label: hub.label })
+    return crumbs
+  }
+
+  crumbs.push({ label: humanizePathLabel(path) })
+  return crumbs
 }

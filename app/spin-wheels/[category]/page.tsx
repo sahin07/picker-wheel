@@ -3,11 +3,13 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Footer from "@/components/footer"
+import { ToolBreadcrumbNav } from "@/components/tool-breadcrumb-nav"
 import {
   ALL_WHEELS_ENTRY,
   getAllWheels,
   getAvailableWheels,
   getCategoryById,
+  getToolBreadcrumbTrail,
   SPIN_WHEELS_BASE_PATH,
   WHEEL_CATEGORIES,
 } from "@/lib/wheel-categories"
@@ -62,6 +64,7 @@ export default async function SpinWheelCategoryPage({ params }: PageProps) {
   const color = isAll ? ALL_WHEELS_ENTRY.color : category!.color
   const bg = isAll ? ALL_WHEELS_ENTRY.bg : category!.bg
   const wheels = getAvailableWheels(isAll ? getAllWheels() : category!.items)
+  const categoryPath = `${SPIN_WHEELS_BASE_PATH}/${categoryId}`
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white via-slate-50 to-slate-100">
@@ -85,6 +88,11 @@ export default async function SpinWheelCategoryPage({ params }: PageProps) {
           </nav>
         </div>
       </header>
+
+      <ToolBreadcrumbNav
+        pathname={categoryPath}
+        crumbs={getToolBreadcrumbTrail(categoryPath)}
+      />
 
       <main className="flex-1 py-10 md:py-14">
         <div className="container mx-auto max-w-5xl px-4">

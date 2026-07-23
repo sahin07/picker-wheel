@@ -25,9 +25,22 @@ export default function PrizeWheelSection({
   currentTheme = "classic", onSpinCompleted, isFullscreen = false,
   onToggleFullscreen, removeWinnerAfterSpin = false, showResultsButton = true,
 }: Props) {
-  const wheel = useWheelManagerStore((state) =>
-    (state.wheelsByTool[state.currentTool] || []).find((item) => item.id === state.currentWheelId) || null)
-  const data = (wheel?.data as PrizeWheelData | undefined) ?? EMPTY
+  const wheel = useWheelManagerStore((state) => {
+    const prizeWheels = state.wheelsByTool["prize-wheel"] || []
+    return (
+      prizeWheels.find((item) => item.id === state.currentWheelId) ||
+      prizeWheels[0] ||
+      null
+    )
+  })
+  const rawData = (wheel?.data as PrizeWheelData | undefined) ?? EMPTY
+  const data: PrizeWheelData = {
+    ...EMPTY,
+    ...rawData,
+    entries: Array.isArray(rawData.entries) ? rawData.entries : [],
+    recentResults: Array.isArray(rawData.recentResults) ? rawData.recentResults : [],
+    spinHistory: Array.isArray(rawData.spinHistory) ? rawData.spinHistory : [],
+  }
   const { settings } = useSettingsStore()
   const [rotation, setRotation] = useState(data.currentRotation || 0)
   const [isSpinning, setIsSpinning] = useState(false)
@@ -40,7 +53,9 @@ export default function PrizeWheelSection({
   const finalRotation = useRef(rotation)
   const audio = useRef<SpinAudioController | null>(null)
   const activeEntries = useMemo(
-    () => data.entries.filter((entry) => entry.enabled !== false && entry.name.trim()), [data.entries])
+    () => data.entries.filter((entry) => entry.enabled !== false && entry.name.trim()),
+    [data.entries],
+  )
   const canvasItems = useMemo(() => activeEntries.map((entry) => ({
     value: entry.name, weight: 1, color: entry.color, id: entry.id,
   })), [activeEntries])
@@ -48,7 +63,14 @@ export default function PrizeWheelSection({
   const updateData = useCallback((partial: Partial<PrizeWheelData>) => {
     if (!wheel) return
     const latest = useWheelManagerStore.getState().getCurrentWheel()
-    const latestData = (latest?.data as PrizeWheelData | undefined) ?? data
+    const latestRaw = (latest?.data as PrizeWheelData | undefined) ?? data
+    const latestData: PrizeWheelData = {
+      ...EMPTY,
+      ...latestRaw,
+      entries: Array.isArray(latestRaw.entries) ? latestRaw.entries : [],
+      recentResults: Array.isArray(latestRaw.recentResults) ? latestRaw.recentResults : [],
+      spinHistory: Array.isArray(latestRaw.spinHistory) ? latestRaw.spinHistory : [],
+    }
     useWheelManagerStore.getState().updateWheelData("prize-wheel", wheel.id, { ...latestData, ...partial })
   }, [data, wheel])
 
@@ -82,6 +104,7 @@ export default function PrizeWheelSection({
     if (!result || !wheel) return
     setSelectedResult(result)
     const latest = (useWheelManagerStore.getState().getCurrentWheel()?.data as PrizeWheelData | undefined) ?? data
+    const latestEntries = Array.isArray(latest.entries) ? latest.entries : data.entries
     const spinRecord = {
       id: `spin-${Date.now()}`, timestamp: new Date(), result: result.name,
       options: activeEntries.map((entry) => entry.name), mode: "manual" as const,
@@ -89,8 +112,8 @@ export default function PrizeWheelSection({
     }
     updateData({
       entries: removeWinnerAfterSpin
-        ? latest.entries.map((entry) => entry.id === result.id ? { ...entry, enabled: false } : entry)
-        : latest.entries,
+        ? latestEntries.map((entry) => entry.id === result.id ? { ...entry, enabled: false } : entry)
+        : latestEntries,
       selectedResult: result, totalSpins: (latest.totalSpins || 0) + 1,
       recentResults: [...(latest.recentResults || []), result].slice(-10),
       spinHistory: [...(latest.spinHistory || []), spinRecord].slice(-50),

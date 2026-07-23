@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function MemoryMatchInstructionsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">

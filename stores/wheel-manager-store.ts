@@ -11,7 +11,14 @@ import {
 import { pokemonData } from "@/data/pokemon-data";
 import { lolChampions } from "@/data/lol-champions";
 import { jjkCharacters } from "@/data/jjk-characters";
+import { demonSlayerCharacters } from "@/data/demon-slayer-characters";
 import type { ActionMode, DisplayMode, JjkEntry, SpinResult } from "@/types/jjk-types";
+import type {
+  ActionMode as DemonSlayerActionMode,
+  DisplayMode as DemonSlayerDisplayMode,
+  DemonSlayerEntry,
+  SpinResult as DemonSlayerSpinResult,
+} from "@/types/demon-slayer-types";
 import { ACHIEVEMENTS } from "@/lib/letter-picker-constants";
 import { PICKER_WHEEL_ACHIEVEMENTS } from "@/lib/picker-wheel-achievements";
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes";
@@ -540,6 +547,28 @@ export interface JjkWheelData {
   comparisonCharacters?: JjkEntry[];
 }
 
+export interface DemonSlayerWheelData {
+  selectedCharacters: string[];
+  characterOrder: string[];
+  customCharacters: DemonSlayerEntry[];
+  displayMode: DemonSlayerDisplayMode;
+  actionMode: DemonSlayerActionMode;
+  isSpinning: boolean;
+  selectedResult: DemonSlayerSpinResult | null;
+  totalSpins: number;
+  recentResults: DemonSlayerEntry[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+  spinHistory?: any[];
+  viewMode?: "wheel" | "list";
+  rotation?: number;
+  paletteColors?: string[];
+  showTitle?: boolean;
+  favoriteCharacters?: DemonSlayerEntry[];
+  comparisonCharacters?: DemonSlayerEntry[];
+}
+
 export interface YesNoWheelData {
   activeTab: string;
   mode: "yes-no" | "yes-no-maybe";
@@ -627,6 +656,7 @@ export interface WheelInstance {
     | PokemonWheelData
     | LoLWheelData
     | JjkWheelData
+    | DemonSlayerWheelData
     | ImageWheelData
     | DateWheelData
     | LetterWheelData
@@ -790,7 +820,10 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           | FortniteWheelData
           | PokemonWheelData
           | LoLWheelData
-          | JjkWheelData;
+          | JjkWheelData
+          | DemonSlayerWheelData
+          | MLBWheelData
+          | NBAWheelData;
         if (toolType === "fortune-wheel") {
           data = {
             entries: [
@@ -1331,6 +1364,28 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             favoriteCharacters: [],
             comparisonCharacters: [],
           } as JjkWheelData;
+        } else if (toolType === "demon-slayer-wheel") {
+          const characterIds = demonSlayerCharacters.map((character) => character.id);
+          data = {
+            selectedCharacters: characterIds,
+            characterOrder: characterIds,
+            customCharacters: [],
+            displayMode: "emoji-name",
+            actionMode: "normal",
+            isSpinning: false,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+            viewMode: "wheel",
+            rotation: 0,
+            showTitle: true,
+            favoriteCharacters: [],
+            comparisonCharacters: [],
+          } as DemonSlayerWheelData;
         } else if (toolType === "number-picker-wheel") {
           data = {
             resultMode: "random-number",

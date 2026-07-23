@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Footer from "@/components/footer"
+import { ToolBreadcrumbNav } from "@/components/tool-breadcrumb-nav"
 import {
   CATEGORY_DIRECTORY,
+  getToolBreadcrumbTrail,
   SPIN_WHEELS_BASE_PATH,
 } from "@/lib/wheel-categories"
 
@@ -35,6 +37,11 @@ export default function SpinWheelsCategoriesPage() {
           </nav>
         </div>
       </header>
+
+      <ToolBreadcrumbNav
+        pathname={SPIN_WHEELS_BASE_PATH}
+        crumbs={getToolBreadcrumbTrail(SPIN_WHEELS_BASE_PATH)}
+      />
 
       <main className="flex-1 py-12 md:py-16">
         <div className="container mx-auto max-w-5xl px-4">

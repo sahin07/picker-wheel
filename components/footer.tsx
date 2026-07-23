@@ -119,6 +119,14 @@ export default function Footer() {
                   JJK Spin Wheel picker
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/demon-slayer-spin-wheel"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Demon Slayer Spin Wheel
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -128,6 +136,43 @@ export default function Footer() {
               <li>
                 <Link href="/help" className="text-gray-300 hover:text-white">
                   Help Center
+                </Link>
+              </li>
+              <li>
+                <Link href="/articles" className="text-gray-300 hover:text-white">
+                  Blogs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/articles/board-games/spin-wheel-for-board-game-nights"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Board Game Night Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/articles/education/random-name-picker-for-teachers"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Teachers Name Picker Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/articles/giveaways/fair-online-prize-wheel"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Fair Giveaway Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/articles/how-it-works/is-spin-wheel-really-random"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Is a Spin Wheel Random?
                 </Link>
               </li>
               <li>
@@ -214,18 +259,35 @@ export default function Footer() {
             <h4 className="mb-4 font-spin-display font-semibold">Legal</h4>
             <ul className="space-y-2 text-sm font-medium">
               <li>
-                <Link href="#" className="text-gray-300 hover:text-white">
+                <Link
+                  href="/privacy-policy"
+                  className="text-gray-300 hover:text-white"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-300 hover:text-white">
+                <Link
+                  href="/terms-of-service"
+                  className="text-gray-300 hover:text-white"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-300 hover:text-white">
+                <Link
+                  href="/cookie-policy"
+                  className="text-gray-300 hover:text-white"
+                >
                   Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact-us"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Contact Us
                 </Link>
               </li>
             </ul>
@@ -233,7 +295,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm font-medium text-gray-300">
-          <p>&copy; 2024 Picker Wheel. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Picker Wheel. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -124,6 +124,11 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random Jujutsu Kaisen character for fan challenges and team drafts.",
   },
   {
+    label: "Demon Slayer Spin Wheel",
+    href: "/demon-slayer-spin-wheel",
+    description: "Pick a random Demon Slayer character, Hashira, or breathing style.",
+  },
+  {
     label: "NBA Picker Wheel",
     href: "/nba-team-picker-wheel",
     description: "Spin for a random NBA team for fantasy and watch parties.",

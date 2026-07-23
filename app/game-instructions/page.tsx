@@ -103,7 +103,7 @@ const ADVANCED_GAME_MODES = [
 
 export default function GameInstructionsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="py-12">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Game Instructions</h1>

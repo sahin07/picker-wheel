@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Maximize2, Trophy, Palette, BarChart3, Users, Gamepad2 } from "lucide-react"
+import { Volume2, VolumeX, Maximize2, Minimize2, Trophy, Palette, BarChart3, Users, Gamepad2 } from "lucide-react"
 import { useWheelManagerStore, StateWheelData } from "@/stores/wheel-manager-store"
 import { useSettingsStore } from "@/stores/settings-store"
 import StateResultsModal from "./state-results-modal";
 import Confetti from "react-confetti";
 import { createPortal } from "react-dom"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
+import { drawStateWheelLabel } from "@/lib/state-wheel-canvas"
 
 const WHEEL_SIZE = 680
 
@@ -26,6 +27,11 @@ interface StateWheelSectionProps {
   isGameActive?: boolean
   currentGameMode?: string
   onSpinCompleted?: () => void
+  isFullscreen?: boolean
+  onToggleFullscreen?: () => void
+  removeWinnerAfterSpin?: boolean
+  /** When false, Results is rendered by the parent column. */
+  showResultsButton?: boolean
 }
 
 export default function StateWheelSection({
@@ -41,7 +47,11 @@ export default function StateWheelSection({
   currentUser,
   isGameActive = false,
   currentGameMode,
-  onSpinCompleted
+  onSpinCompleted,
+  isFullscreen = false,
+  onToggleFullscreen,
+  removeWinnerAfterSpin = false,
+  showResultsButton = true,
 }: StateWheelSectionProps) {
   // Subscribe to the current wheel using a Zustand selector
   const wheel = useWheelManagerStore(state => {
@@ -119,6 +129,12 @@ export default function StateWheelSection({
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  useEffect(() => {
+    const openResults = () => setShowResultsModal(true)
+    window.addEventListener("open-state-results", openResults)
+    return () => window.removeEventListener("open-state-results", openResults)
   }, []);
 
   // Sync selectedResult with wheel's selectedResult when wheel changes
@@ -203,21 +219,45 @@ export default function StateWheelSection({
       ctx.textBaseline = "middle";
       ctx.fillText("Select states to start", 0, 0);
     } else {
-      // Draw wheel with states
+      // Draw wheel with states — two passes like country wheel (fill, then clipped labels)
       const segmentAngle = (2 * Math.PI) / (selectedStates || []).length;
+      const mysteryNames = !!(settings.spinBehavior?.mysterySpin && isSpinning);
 
-      // Get current theme colors
       const currentThemeData = themes.find(t => t.id === currentTheme) || themes[0];
-      const themeColors = currentThemeData?.colors || ["#22c55e", "#eab308"]; // fallback to green/yellow
+      const themeColors = currentThemeData?.colors || ["#22c55e", "#eab308"];
 
-      (selectedStates || []).forEach((state: any, index: number) => {
+      const labelMeta: Array<{
+        state: any
+        startAngle: number
+        endAngle: number
+        textColor: string
+        strokeColor: string
+      }> = []
+
+      ;(selectedStates || []).forEach((state: any, index: number) => {
         const startAngle = index * segmentAngle - Math.PI / 2;
         const endAngle = startAngle + segmentAngle;
-
-        // Use theme colors, cycling through the array
         const segmentColor = themeColors[index % themeColors.length];
 
-        // Draw segment
+        let textColor = "#000000"
+        let strokeColor = "#ffffff"
+        // Light segments → dark text; dark segments → light text
+        try {
+          const hex = String(segmentColor).replace("#", "")
+          if (hex.length >= 6) {
+            const r = parseInt(hex.slice(0, 2), 16)
+            const g = parseInt(hex.slice(2, 4), 16)
+            const b = parseInt(hex.slice(4, 6), 16)
+            const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+            if (lum < 0.45) {
+              textColor = "#ffffff"
+              strokeColor = "#111827"
+            }
+          }
+        } catch {
+          /* keep defaults */
+        }
+
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.arc(0, 0, radius, startAngle, endAngle);
@@ -228,36 +268,24 @@ export default function StateWheelSection({
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Draw labels along the center line of each wheel segment.
-        ctx.save();
-        const segmentCenterAngle = startAngle + segmentAngle / 2;
-        ctx.rotate(segmentCenterAngle);
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        
-        if (displayMode === "flag" || displayMode === "both") {
-          ctx.font = "16px Arial";
-          ctx.fillStyle = "#ffffff";
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 2;
-          const flagToShow = state.flag || "🏛️";
-          ctx.strokeText(flagToShow, radius * 0.7, displayMode === "both" ? -8 : 5);
-          ctx.fillText(flagToShow, radius * 0.7, displayMode === "both" ? -8 : 5);
-        }
-
-        if (displayMode === "name" || displayMode === "both") {
-          ctx.font = "bold 16px Arial";
-          ctx.fillStyle = "#000000";
-          ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 3;
-          const displayName = state.name.length > 12 ? state.name.substring(0, 12) + "..." : state.name;
-          ctx.strokeText(displayName, radius * 0.7, displayMode === "both" ? 16 : 5);
-          ctx.fillText(displayName, radius * 0.7, displayMode === "both" ? 16 : 5);
-        }
-
-        ctx.restore();
+        labelMeta.push({ state, startAngle, endAngle, textColor, strokeColor })
       });
+
+      labelMeta.forEach(({ state, startAngle, endAngle, textColor, strokeColor }) => {
+        ctx.save()
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.arc(0, 0, radius, startAngle, endAngle)
+        ctx.closePath()
+        ctx.clip()
+        ctx.rotate(startAngle + segmentAngle / 2)
+        drawStateWheelLabel(ctx, state, displayMode || "both", radius * 0.72, {
+          textColor,
+          strokeColor,
+          mysteryNames,
+        })
+        ctx.restore()
+      })
     }
 
     ctx.restore();
@@ -287,7 +315,7 @@ export default function StateWheelSection({
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 3;
     ctx.stroke();
-  }, [currentRotation, selectedStates, displayMode, currentTheme, themes]);
+  }, [currentRotation, selectedStates, displayMode, currentTheme, themes, settings, isSpinning]);
 
   const handleSpin = () => {
     if ((selectedStates || []).length === 0 || isSpinning) return;
@@ -323,14 +351,6 @@ export default function StateWheelSection({
       setIsSpinning(false);
       incrementSpinCount();
 
-      // Record spin for game session if active - DELAYED to ensure data is updated
-      if (isGameActive && onSpinCompleted) {
-        // Small delay to ensure wheel data is updated before calling onSpinCompleted
-        setTimeout(() => {
-          onSpinCompleted();
-        }, 100);
-      }
-
       // Create analytics spin record
       const spinRecord = {
         id: `spin-${Date.now()}`,
@@ -348,28 +368,23 @@ export default function StateWheelSection({
         const prevSpinHistory = (data.spinHistory || []);
         const newResults = [...prevResults, result].slice(-5);
         const newSpinHistory = [...prevSpinHistory, spinRecord].slice(-50); // Keep last 50 spins for analytics
-        
+        const latest = useWheelManagerStore.getState().getCurrentWheel()?.data as StateWheelData | undefined
+        let nextSelected = latest?.selectedStates || selectedStates || []
+        if (removeWinnerAfterSpin && result) {
+          nextSelected = nextSelected.filter((s) => s.id !== result.id)
+        }
+
         useWheelManagerStore.getState().updateWheelData("state-wheel", wheel.id, {
           ...data,
           selectedResult: result,
           totalSpins: data.totalSpins + 1,
           recentResults: newResults,
           spinHistory: newSpinHistory,
+          selectedStates: nextSelected,
         });
       }
+      onSpinCompleted?.();
     }, settings.spinBehavior.spinningDuration * 1000);
-  };
-
-  const toggleMute = () => {
-    setMuted(!muted);
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
   };
 
   // Show confetti when a spin finishes and a result is selected
@@ -436,31 +451,63 @@ export default function StateWheelSection({
             onClick={!isSpinning ? handleSpin : undefined}
           />
 
-          {/* Results Button */}
-          <div className="absolute top-4 left-4">
-            <Button variant="outline" size="sm" onClick={() => setShowResultsModal(true)}>
-              Results
-            </Button>
-          </div>
-        </div>
+          {/* Results Button — only when parent does not own column-level Results */}
+          {showResultsButton && (
+            <div className="absolute top-4 left-4 z-10">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowResultsModal(true)}
+                className="border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:px-3"
+              >
+                Results
+                {(data.recentResults?.length || 0) > 0 && (
+                  <span className="ml-2 rounded-full bg-slate-100 px-1.5 text-[10px] text-slate-700">
+                    {data.recentResults!.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+          )}
 
-        {/* Controls */}
-        <div className="flex items-center gap-4 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleMute}
-          >
-            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleFullscreen}
-          >
-            <Maximize2 className="h-4 w-4" />
-          </Button>
+          {/* Controls — mute + fullscreen bottom-left */}
+          <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                setMuted((m) => !m)
+              }}
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+              title={muted ? "Unmute" : "Mute"}
+            >
+              {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            </Button>
+            {onToggleFullscreen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleFullscreen()
+                }}
+                className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </Button>
+            )}
+          </div>
+
+          {isSpinning && (
+            <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
+              Spinning...
+            </div>
+          )}
         </div>
 
         {/* Spin Button */}
@@ -497,10 +544,15 @@ export default function StateWheelSection({
           <div className="text-center p-6 bg-gradient-to-r from-green-100 to-blue-100 rounded-xl border-2 border-green-300 shadow-lg mb-4">
             <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Selected State!</h3>
             <div className="flex items-center justify-center space-x-3">
-              <span className="text-4xl">{selectedResult.flag}</span>
-              <div>
+              <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-md border border-slate-300 bg-white px-2 text-lg font-bold text-slate-800 shadow-sm">
+                {selectedResult.abbreviation || selectedResult.name.slice(0, 2).toUpperCase()}
+              </span>
+              <div className="text-left">
                 <p className="text-2xl font-bold text-green-900">{selectedResult.name}</p>
-                <p className="text-sm text-green-700">{selectedResult.country}</p>
+                <p className="text-sm text-green-700">
+                  {selectedResult.capital ? `${selectedResult.capital} • ` : ""}
+                  {selectedResult.country}
+                </p>
               </div>
             </div>
           </div>

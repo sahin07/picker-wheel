@@ -62,6 +62,11 @@ export type NumberPickerLinkItem = {
 /** Popular ranges / modes — phase-1 spokes use dedicated routes; others stay query deep links */
 export const NUMBER_PICKER_POPULAR_WHEELS: NumberPickerLinkItem[] = [
   {
+    label: "Pick a Number 1 or 2",
+    href: `${NUMBER_PICKER_PATH}?min=1&max=2`,
+    description: "A fair heads-or-tails style spin—choose 1 or 2 in one click.",
+  },
+  {
     label: "1–10 Number Wheel",
     href: "/number-wheel-1-to-10",
     description: "Quick spins for small groups, board games, and classroom picks.",
@@ -283,7 +288,7 @@ export const NUMBER_PICKER_RELATED_TOOLS: NumberPickerLinkItem[] = [
   },
   {
     label: "Team Picker",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Split people into random teams for sports and class.",
   },
   {

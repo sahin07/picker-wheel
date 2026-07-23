@@ -2,13 +2,16 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Maximize2, Trophy, Palette, BarChart3, Users, Gamepad2 } from "lucide-react"
+import { Volume2, VolumeX, Maximize2, Trophy, Palette, BarChart3, Users, Gamepad2, Minimize2 } from "lucide-react"
 import { useWheelManagerStore, CountryWheelData } from "@/stores/wheel-manager-store"
 import { useSettingsStore } from "@/stores/settings-store"
-import CountryResultsModal from "./country-results-modal";
+import PickerResultsModal from "./picker-results-modal";
 import Confetti from "react-confetti";
 import { createPortal } from "react-dom"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
+import { getSpinDurationMs } from "@/lib/wheel-spin-animation"
+import { drawCountryWheelLabel } from "@/lib/country-wheel-canvas"
+import { CountryFlagImage } from "@/components/country-flag-image"
 
 const WHEEL_SIZE = 680
 
@@ -26,6 +29,11 @@ interface CountryWheelSectionProps {
   isGameActive?: boolean;
   currentGameMode?: string;
   onSpinCompleted?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+  removeWinnerAfterSpin?: boolean;
+  /** When false, Results is rendered by the parent column (NBA/Pokemon placement). */
+  showResultsButton?: boolean;
 }
 
 export default function CountryWheelSection({
@@ -41,7 +49,11 @@ export default function CountryWheelSection({
   currentUser,
   isGameActive = false,
   currentGameMode,
-  onSpinCompleted
+  onSpinCompleted,
+  isFullscreen = false,
+  onToggleFullscreen,
+  removeWinnerAfterSpin = false,
+  showResultsButton = true,
 }: CountryWheelSectionProps) {
   // Subscribe to the current wheel using a Zustand selector
   const wheel = useWheelManagerStore(state => {
@@ -80,6 +92,7 @@ export default function CountryWheelSection({
   const animationRef = useRef<number>();
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [flagTick, setFlagTick] = useState(0);
   const [windowDimensions, setWindowDimensions] = useState({ width: 800, height: 600 });
 
   const getSpinAudio = () => {
@@ -116,12 +129,18 @@ export default function CountryWheelSection({
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  useEffect(() => {
+    const openResults = () => setShowResultsModal(true)
+    window.addEventListener("open-country-results", openResults)
+    return () => window.removeEventListener("open-country-results", openResults)
+  }, []);
+
   // Animation loop for spinning (match home page audio + easing)
   useEffect(() => {
     if (!isSpinning) return;
     const startRotation = currentRotation;
     const startTime = Date.now();
-    const duration = settings.spinBehavior.spinningDuration * 1000;
+    const duration = getSpinDurationMs(settings.spinBehavior?.spinningDuration)
     const targetRotation = spinRotation;
     const speedMultiplier = settings.spinBehavior.spinningSpeedLevel / 5;
     const soundEnabled = settings.confettiSound.enableSound && !muted;
@@ -161,144 +180,20 @@ export default function CountryWheelSection({
     }
   }, [isSpinning]);
 
-  // Redraw canvas on every currentRotation change
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-    const radius = WHEEL_SIZE / 2 - 20
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.save()
-    ctx.translate(centerX, centerY)
-    ctx.rotate((currentRotation * Math.PI) / 180)
-
-    if (selectedCountriesSafe.length === 0) {
-      // Draw empty wheel
-      ctx.beginPath()
-      ctx.arc(0, 0, radius, 0, 2 * Math.PI)
-      ctx.fillStyle = "#e5e7eb"
-      ctx.fill()
-      ctx.strokeStyle = "#9ca3af"
-      ctx.lineWidth = 2
-      ctx.stroke()
-      ctx.restore()
-      return
-    }
-
-    const anglePerSegment = (2 * Math.PI) / selectedCountriesSafe.length
-    const displayOptions = settings.spinBehavior.mysterySpin
-      ? selectedCountriesSafe.map((opt) => ({ ...opt, name: "?" }))
-      : selectedCountriesSafe
-
-    displayOptions.forEach((country, index) => {
-      const startAngle = index * anglePerSegment - Math.PI / 2;
-      const endAngle = startAngle + anglePerSegment;
-
-      // Alternate between green and yellow colors like in the screenshot
-      const segmentColor = index % 2 === 0 ? "#22c55e" : "#eab308";
-
-      // Determine text color for contrast
-      let textColor = "#000000";
-      let strokeColor = "#ffffff";
-      if (segmentColor === "#22c55e") { // green
-        textColor = "#ffffff";
-        strokeColor = "#000000";
-      } else if (segmentColor === "#eab308") { // yellow
-        textColor = "#000000";
-        strokeColor = "#ffffff";
-      }
-
-      // Draw segment
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, startAngle, endAngle);
-      ctx.closePath();
-      ctx.fillStyle = segmentColor;
-      ctx.fill();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Draw content
-      ctx.save();
-      ctx.rotate(startAngle + anglePerSegment / 2);
-
-      const textRadius = radius * 0.8; // Moved text further out
-
-      if (displayMode === "flag") {
-        ctx.font = "20px Arial";
-        ctx.textAlign = "center";
-        ctx.fillStyle = textColor;
-        ctx.strokeStyle = textColor;
-        const flagToShow = typeof country.flag === 'string' && country.flag.trim().length > 0 ? country.flag : "🌎";
-        ctx.fillText(flagToShow, textRadius, -8);
-      } else if (displayMode === "both") {
-        ctx.font = "20px Arial";
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#000000";
-        ctx.strokeStyle = "#ffffff";
-        const flagToShow = typeof country.flag === 'string' && country.flag.trim().length > 0 ? country.flag : "🌎";
-        ctx.fillText(flagToShow, textRadius, -8);
-        // Draw country name below flag - use textColor for fill, opposite for stroke
-        ctx.font = "14px Arial";
-        ctx.fillStyle = textColor;
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 4;
-        ctx.textAlign = "center";
-        const displayName = country.name.length > 12 ? country.name.substring(0, 12) + "..." : country.name;
-        ctx.strokeText(displayName, textRadius, 20);
-        ctx.fillText(displayName, textRadius, 20);
-      } else if (displayMode === "name") {
-        ctx.font = "14px Arial";
-        ctx.fillStyle = textColor;
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 4;
-        ctx.textAlign = "center";
-        const displayName = country.name.length > 14 ? country.name.substring(0, 14) + "..." : country.name;
-        ctx.strokeText(displayName, textRadius, 5);
-        ctx.fillText(displayName, textRadius, 5);
-      }
-
-      ctx.restore();
-    });
-
-    ctx.restore()
-
-    // Draw center circle - larger
-    const centerSize = settings.display.spinButtonAnimation && isSpinning ? 50 : 45
-    ctx.beginPath()
-    ctx.arc(centerX, centerY, centerSize, 0, 2 * Math.PI)
-    ctx.fillStyle = settings.display.spinButtonAnimation && isSpinning ? "#059669" : "#1f2937"
-    ctx.fill()
-    ctx.strokeStyle = "#ffffff"
-    ctx.lineWidth = 4
-    ctx.stroke()
-
-    ctx.fillStyle = "#ffffff"
-    ctx.font = "18px Arial"
-    ctx.textAlign = "center"
-    ctx.fillText("SPIN", centerX, centerY + 6)
-
-    // Draw pointer - larger
-    ctx.beginPath()
-    ctx.moveTo(centerX + radius - 35, centerY)
-    ctx.lineTo(centerX + radius - 8, centerY - 18)
-    ctx.lineTo(centerX + radius - 8, centerY + 18)
-    ctx.closePath()
-    ctx.fillStyle = "#dc2626"
-    ctx.fill()
-    ctx.strokeStyle = "#ffffff"
-    ctx.lineWidth = 4
-    ctx.stroke()
-  }, [currentRotation, selectedCountriesSafe, displayMode, settings, isSpinning]);
-
+  // Redraw when wheel data / display mode changes
   useEffect(() => {
     drawWheel()
-  }, [selectedCountriesSafe, currentRotation, displayMode, settings, isSpinning, currentTheme, themes])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedCountriesSafe,
+    currentRotation,
+    displayMode,
+    settings,
+    isSpinning,
+    currentTheme,
+    themes,
+    flagTick,
+  ])
 
   const drawWheel = () => {
     const canvas = canvasRef.current
@@ -310,6 +205,7 @@ export default function CountryWheelSection({
     const centerX = canvas.width / 2
     const centerY = canvas.height / 2
     const radius = WHEEL_SIZE / 2 - 20
+    const redraw = () => setFlagTick((t) => t + 1)
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.save()
@@ -317,7 +213,6 @@ export default function CountryWheelSection({
     ctx.rotate((currentRotation * Math.PI) / 180)
 
     if (selectedCountriesSafe.length === 0) {
-      // Draw empty wheel
       ctx.beginPath()
       ctx.arc(0, 0, radius, 0, 2 * Math.PI)
       ctx.fillStyle = "#e5e7eb"
@@ -330,51 +225,40 @@ export default function CountryWheelSection({
     }
 
     const anglePerSegment = (2 * Math.PI) / selectedCountriesSafe.length
-    const displayOptions = settings.spinBehavior.mysterySpin
-      ? selectedCountriesSafe.map((opt) => ({ ...opt, name: "?" }))
-      : selectedCountriesSafe
+    // Only hide names while spinning — idle wheel honors Flag / Name / Flag & Name
+    const mysteryNames = !!(settings.spinBehavior?.mysterySpin && isSpinning)
 
-    // Get current theme colors
-    const currentThemeData = themes.find(t => t.id === currentTheme) || themes[0];
-    const themeColors = currentThemeData?.colors || ["#22c55e", "#eab308"]; // fallback to green/yellow
-    
-    // Debug theme application
-    console.log('Manual Wheel Theme Debug:', {
-      currentTheme,
-      selectedTheme: currentThemeData?.name,
-      themeColors: themeColors.length,
-      themesCount: themes.length
-    });
+    const currentThemeData = themes.find((t) => t.id === currentTheme) || themes[0]
+    const themeColors = currentThemeData?.colors || ["#22c55e", "#eab308"]
 
-    displayOptions.forEach((country, index) => {
+    // Pass 1: fill segments only — labels drawn after so later fills don't cover names
+    const labelMeta: Array<{
+      country: (typeof selectedCountriesSafe)[number]
+      startAngle: number
+      endAngle: number
+      textColor: string
+      strokeColor: string
+    }> = []
+
+    selectedCountriesSafe.forEach((country, index) => {
       const startAngle = index * anglePerSegment - Math.PI / 2
       const endAngle = startAngle + anglePerSegment
+      const segmentColor = themeColors[index % themeColors.length]
 
-      // Use theme colors, cycling through the array
-      const segmentColor = themeColors[index % themeColors.length];
-
-      // Determine text color for contrast
-      let textColor = "#000000"; // default black
-      let strokeColor = "#ffffff"; // default white
-      
-      // Simple contrast calculation - if color is dark, use white text, otherwise black
-      const isDarkColor = segmentColor && (
-        segmentColor.toLowerCase() === '#000000' ||
-        segmentColor.toLowerCase() === '#000' ||
-        segmentColor.toLowerCase() === '#1f2937' ||
-        segmentColor.toLowerCase() === '#374151' ||
-        segmentColor.toLowerCase() === '#4b5563'
-      );
-      
-      if (isDarkColor) {
-        textColor = "#ffffff"; // white text for dark colors
-        strokeColor = "#000000"; // black stroke for dark colors
-      } else {
-        textColor = "#000000"; // black text for light colors
-        strokeColor = "#ffffff"; // white stroke for light colors
+      let textColor = "#000000"
+      let strokeColor = "#ffffff"
+      const dark =
+        segmentColor &&
+        (segmentColor.toLowerCase() === "#000000" ||
+          segmentColor.toLowerCase() === "#000" ||
+          segmentColor.toLowerCase() === "#1f2937" ||
+          segmentColor.toLowerCase() === "#374151" ||
+          segmentColor.toLowerCase() === "#4b5563")
+      if (dark) {
+        textColor = "#ffffff"
+        strokeColor = "#000000"
       }
 
-      // Draw segment
       ctx.beginPath()
       ctx.moveTo(0, 0)
       ctx.arc(0, 0, radius, startAngle, endAngle)
@@ -385,42 +269,24 @@ export default function CountryWheelSection({
       ctx.lineWidth = 4
       ctx.stroke()
 
-      // Draw content
+      labelMeta.push({ country, startAngle, endAngle, textColor, strokeColor })
+    })
+
+    // Pass 2: labels on top (clipped to each wedge so dense wheels stay readable)
+    labelMeta.forEach(({ country, startAngle, endAngle, textColor, strokeColor }) => {
       ctx.save()
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.arc(0, 0, radius, startAngle, endAngle)
+      ctx.closePath()
+      ctx.clip()
       ctx.rotate(startAngle + anglePerSegment / 2)
-
-      const textRadius = radius * 0.8 // Moved text further out
-
-      if (displayMode === "flag" || displayMode === "both") {
-        // Draw flag emoji - larger size
-        ctx.font = "28px Arial";
-        ctx.textAlign = "center";
-        ctx.fillStyle = textColor;
-        ctx.strokeStyle = textColor;
-        const flagToShow = typeof country.flag === 'string' && country.flag.trim().length > 0 ? country.flag : "🌎";
-        ctx.fillText(flagToShow, textRadius, -8);
-        if (displayMode === "both") {
-          // Draw country name below flag - larger font
-          ctx.font = "14px Arial";
-          ctx.fillStyle = textColor;
-          ctx.strokeStyle = strokeColor;
-          ctx.lineWidth = 3;
-          const displayName = country.name.length > 12 ? country.name.substring(0, 12) + "..." : country.name;
-          ctx.strokeText(displayName, textRadius, 20);
-          ctx.fillText(displayName, textRadius, 20);
-        }
-      } else if (displayMode === "name") {
-        // Draw only country name - larger font
-        ctx.font = "16px Arial";
-        ctx.fillStyle = textColor;
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 3;
-        ctx.textAlign = "center";
-        const displayName = country.name.length > 14 ? country.name.substring(0, 14) + "..." : country.name;
-        ctx.strokeText(displayName, textRadius, 5);
-        ctx.fillText(displayName, textRadius, 5);
-      }
-
+      drawCountryWheelLabel(ctx, country, displayMode || "both", radius * 0.72, {
+        textColor,
+        strokeColor,
+        mysteryNames,
+        onFlagReady: redraw,
+      })
       ctx.restore()
     })
 
@@ -451,6 +317,7 @@ export default function CountryWheelSection({
     ctx.lineWidth = 3
     ctx.stroke()
   }
+
 
   const handleSpin = () => {
     if (selectedCountriesSafe.length === 0 || isSpinning) return
@@ -490,7 +357,7 @@ export default function CountryWheelSection({
         options: options.map(country => country.name),
         mode: 'manual' as const,
         theme: currentTheme,
-        spinDuration: settings.spinBehavior.spinningDuration * 1000,
+        spinDuration: getSpinDurationMs(settings.spinBehavior?.spinningDuration),
       };
       
       // Update recentResults and spinHistory in the wheel data
@@ -500,22 +367,30 @@ export default function CountryWheelSection({
         const newResults = [...prevResults, result].slice(-5);
         const newSpinHistory = [...prevSpinHistory, spinRecord].slice(-50); // Keep last 50 spins for analytics
         
+        let nextSelected = latestData?.selectedCountries || options;
+        if (removeWinnerAfterSpin && result) {
+          nextSelected = nextSelected.filter((c) => c.id !== result.id);
+        }
+
         useWheelManagerStore.getState().updateWheelData("country-wheel", wheel.id, {
           ...data,
           selectedResult: result,
           totalSpins: data.totalSpins + 1,
           recentResults: newResults,
           spinHistory: newSpinHistory,
+          selectedCountries: nextSelected,
         });
       }
       onSpinCompleted?.();
-    }, settings.spinBehavior.spinningDuration * 1000);
+    }, getSpinDurationMs(settings.spinBehavior?.spinningDuration));
   }
 
   // Show confetti when a spin finishes and a result is selected
   useEffect(() => {
     if (selectedResult && !isSpinning) {
-      setShowConfetti(true);
+      if (settings.confettiSound?.enableConfetti !== false) {
+        setShowConfetti(true);
+      }
       // Play custom win sound if global sound is enabled and not locally muted
       if (settings.confettiSound?.enableSound && !muted) {
         console.log('Playing sound - Global enabled:', settings.confettiSound.enableSound, 'Local muted:', muted, 'Volume:', settings.confettiSound.soundVolume);
@@ -573,47 +448,72 @@ export default function CountryWheelSection({
           style={{ width: WHEEL_SIZE, height: WHEEL_SIZE }}
           onClick={!isSpinning ? handleSpin : undefined}
         />
-        {/* Results Button */}
-        <div className="absolute top-4 left-4">
-          <Button variant="outline" size="sm" onClick={() => setShowResultsModal(true)}>
-            Results
-          </Button>
-        </div>
-        {/* Controls */}
-        <div className="absolute bottom-4 left-4 flex flex-col space-y-2">
+        {/* Results Button — only when parent does not own column-level Results */}
+        {showResultsButton && (
+          <div className="absolute top-4 left-4 z-10">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowResultsModal(true)}
+              className="border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:px-3"
+            >
+              Results
+              {(data.recentResults?.length || 0) > 0 && (
+                <span className="ml-2 rounded-full bg-slate-100 px-1.5 text-[10px] text-slate-700">
+                  {data.recentResults!.length}
+                </span>
+              )}
+            </Button>
+          </div>
+        )}
+        {/* Controls — mute + fullscreen bottom-left (NBA/Pokemon placement) */}
+        <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
-            onClick={() => setMuted((m) => !m)}
-            className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md"
+            onClick={(e) => {
+              e.stopPropagation()
+              setMuted((m) => !m)
+            }}
+            className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
             title={settings.confettiSound?.enableSound ? (muted ? "Unmute" : "Mute") : "Global sound disabled"}
           >
             {!settings.confettiSound?.enableSound ? (
-              <VolumeX className="w-5 h-5 text-gray-400" />
+              <VolumeX className="h-5 w-5 text-gray-400" />
             ) : muted ? (
-              <VolumeX className="w-5 h-5" />
+              <VolumeX className="h-5 w-5" />
             ) : (
-              <Volume2 className="w-5 h-5" />
+              <Volume2 className="h-5 w-5" />
             )}
           </Button>
-        </div>
-
-        <div className="absolute bottom-4 right-4">
-          <Button variant="ghost" size="sm" className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md">
-            <Maximize2 className="w-5 h-5" />
-          </Button>
+          {onToggleFullscreen && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleFullscreen()
+              }}
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            >
+              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            </Button>
+          )}
         </div>
 
         {/* Spinning indicator */}
         {isSpinning && (
-          <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+          <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
             Spinning...
           </div>
         )}
-        <CountryResultsModal 
-          isOpen={showResultsModal} 
-          onClose={() => setShowResultsModal(false)} 
-          result={selectedResult}
+        <PickerResultsModal
+          isOpen={showResultsModal}
+          onClose={() => setShowResultsModal(false)}
           results={data.recentResults || []}
         />
       </div>
@@ -622,11 +522,24 @@ export default function CountryWheelSection({
       {selectedResult && !isSpinning && (
         <div className="text-center p-6 bg-gradient-to-r from-green-100 to-blue-100 rounded-xl border-2 border-green-300 shadow-lg mb-4">
           <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Selected Country!</h3>
-          <div className="flex items-center justify-center space-x-3">
-            <span className="text-4xl">{selectedResult.flag}</span>
-            <div>
+          <div className="flex items-center justify-center space-x-4">
+            <CountryFlagImage
+              country={selectedResult}
+              width={160}
+              className="drop-shadow-md"
+              imgClassName="h-16 w-auto rounded-md border border-white/80 object-cover shadow-md"
+            />
+            <div className="text-left">
               <p className="text-2xl font-bold text-green-900">{selectedResult.name}</p>
-              <p className="text-sm text-green-700">{selectedResult.region}</p>
+              <p className="text-sm text-green-700">
+                {[
+                  selectedResult.capital && `Capital: ${selectedResult.capital}`,
+                  selectedResult.region,
+                  selectedResult.language,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
             </div>
           </div>
         </div>

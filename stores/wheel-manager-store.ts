@@ -4,9 +4,14 @@ import { getStatesByCountry, State } from "@/data/states";
 import { Country, getCountriesByRegion } from "@/data/countries";
 import { mlbTeams } from "@/data/mlb-teams";
 import { nbaTeams } from "@/data/nba-teams";
-import { fortniteSkins } from "@/data/fortnite-skins";
+import {
+  getAllFortniteSkins,
+  getFortniteSkinCountsByRarity,
+} from "@/data/fortnite-skins";
 import { pokemonData } from "@/data/pokemon-data";
 import { lolChampions } from "@/data/lol-champions";
+import { jjkCharacters } from "@/data/jjk-characters";
+import type { ActionMode, DisplayMode, JjkEntry, SpinResult } from "@/types/jjk-types";
 import { ACHIEVEMENTS } from "@/lib/letter-picker-constants";
 import { PICKER_WHEEL_ACHIEVEMENTS } from "@/lib/picker-wheel-achievements";
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes";
@@ -28,9 +33,87 @@ export interface PickerWheelData {
   spinHistory?: any[];
 }
 
+export interface WeightedWheelEntry {
+  id: string;
+  name: string;
+  weight: number;
+  color?: string;
+  enabled?: boolean;
+}
+
+export interface WeightedWheelData {
+  entries: WeightedWheelEntry[];
+  viewMode: "wheel" | "list" | "text";
+  actionMode?: "normal" | "elimination" | "manual";
+  isSpinning: boolean;
+  spinRotation: number;
+  selectedResult: WeightedWheelEntry | null;
+  totalSpins: number;
+  currentRotation?: number;
+  recentResults: any[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+  spinHistory?: any[];
+}
+
+export interface PrizeWheelEntry {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  color?: string;
+  enabled?: boolean;
+  winMessage?: string;
+}
+
+export interface PrizeWheelData {
+  entries: PrizeWheelEntry[];
+  viewMode: "wheel" | "list" | "text";
+  actionMode?: "normal" | "elimination" | "manual";
+  isSpinning: boolean;
+  spinRotation: number;
+  selectedResult: PrizeWheelEntry | null;
+  totalSpins: number;
+  currentRotation?: number;
+  recentResults: any[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+  spinHistory?: any[];
+}
+
+export type FortuneWheelEntryKind = "cash" | "prize" | "bankrupt" | "lose_turn" | "special";
+
+export interface FortuneWheelEntry {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  color?: string;
+  enabled?: boolean;
+  kind?: FortuneWheelEntryKind;
+  winMessage?: string;
+}
+
+export interface FortuneWheelData {
+  entries: FortuneWheelEntry[];
+  viewMode: "wheel" | "list" | "text";
+  actionMode?: "normal" | "elimination" | "manual";
+  isSpinning: boolean;
+  spinRotation: number;
+  selectedResult: FortuneWheelEntry | null;
+  totalSpins: number;
+  currentRotation?: number;
+  recentResults: any[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+  spinHistory?: any[];
+}
+
 export interface StateWheelData {
   selectedCountry: string;
   selectedStates: State[];
+  actionMode?: "normal" | "elimination" | "manual";
   displayMode: "flag" | "name" | "both";
   viewMode: "wheel" | "list" | "text";
   favoriteStates: State[];
@@ -54,6 +137,7 @@ export interface StateWheelData {
 export interface CountryWheelData {
   selectedRegion: string;
   selectedCountries: Country[];
+  actionMode?: "normal" | "elimination" | "manual";
   displayMode: "flag" | "name" | "both";
   viewMode: "wheel" | "list" | "text";
   favoriteCountries: Country[];
@@ -130,6 +214,8 @@ export interface FortniteWheelData {
     | "legendary"
     | "mythic";
   selectedSkins: string[]; // Changed from any[] to string[] to match our usage
+  skinOrder?: string[];
+  customSkins?: any[];
   displayMode: "emoji-name" | "emoji" | "name";
   actionMode: "normal" | "elimination" | "manual";
   totalSpins: number;
@@ -432,6 +518,28 @@ export interface LoLWheelData {
   };
 }
 
+export interface JjkWheelData {
+  selectedCharacters: string[];
+  characterOrder: string[];
+  customCharacters: JjkEntry[];
+  displayMode: DisplayMode;
+  actionMode: ActionMode;
+  isSpinning: boolean;
+  selectedResult: SpinResult | null;
+  totalSpins: number;
+  recentResults: JjkEntry[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+  spinHistory?: any[];
+  viewMode?: "wheel" | "list";
+  rotation?: number;
+  paletteColors?: string[];
+  showTitle?: boolean;
+  favoriteCharacters?: JjkEntry[];
+  comparisonCharacters?: JjkEntry[];
+}
+
 export interface YesNoWheelData {
   activeTab: string;
   mode: "yes-no" | "yes-no-maybe";
@@ -508,6 +616,9 @@ export interface WheelInstance {
   toolType: string;
   data:
     | PickerWheelData
+    | WeightedWheelData
+    | PrizeWheelData
+    | FortuneWheelData
     | StateWheelData
     | CountryWheelData
     | MLBWheelData
@@ -515,6 +626,7 @@ export interface WheelInstance {
     | FortniteWheelData
     | PokemonWheelData
     | LoLWheelData
+    | JjkWheelData
     | ImageWheelData
     | DateWheelData
     | LetterWheelData
@@ -665,6 +777,9 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
 
         let data:
           | PickerWheelData
+          | WeightedWheelData
+          | PrizeWheelData
+          | FortuneWheelData
           | StateWheelData
           | CountryWheelData
           | ImageWheelData
@@ -674,8 +789,72 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           | ColorWheelData
           | FortniteWheelData
           | PokemonWheelData
-          | LoLWheelData;
-        if (toolType === "state-wheel") {
+          | LoLWheelData
+          | JjkWheelData;
+        if (toolType === "fortune-wheel") {
+          data = {
+            entries: [
+              { id: "fortune-1", name: "Yes", color: "#7c3aed", enabled: true },
+              { id: "fortune-2", name: "Try Again", color: "#2563eb", enabled: true },
+              { id: "fortune-3", name: "New Idea", color: "#0891b2", enabled: true },
+              { id: "fortune-4", name: "Ask a Friend", color: "#16a34a", enabled: true },
+              { id: "fortune-5", name: "Surprise", color: "#ca8a04", enabled: true },
+              { id: "fortune-6", name: "Skip", color: "#ea580c", enabled: true },
+              { id: "fortune-7", name: "Go For It", color: "#e11d48", enabled: true },
+              { id: "fortune-8", name: "Mystery Pick", color: "#9333ea", enabled: true },
+            ],
+            viewMode: "wheel",
+            actionMode: "normal",
+            isSpinning: false,
+            spinRotation: 0,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+          };
+        } else if (toolType === "prize-wheel") {
+          data = {
+            entries: [
+              { id: "prize-1", name: "Grand Prize", color: "#eab308", enabled: true, winMessage: "Congratulations!" },
+              { id: "prize-2", name: "Free Stickers", color: "#22c55e", enabled: true },
+              { id: "prize-3", name: "Extra Spin", color: "#3b82f6", enabled: true },
+              { id: "prize-4", name: "Mystery Gift", color: "#a855f7", enabled: true },
+            ],
+            viewMode: "wheel",
+            actionMode: "normal",
+            isSpinning: false,
+            spinRotation: 0,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+          };
+        } else if (toolType === "weighted-wheel") {
+          data = {
+            entries: [
+              { id: "opt-1", name: "Option A", weight: 1, color: "#22c55e", enabled: true },
+              { id: "opt-2", name: "Option B", weight: 1, color: "#3b82f6", enabled: true },
+              { id: "opt-3", name: "Option C", weight: 1, color: "#eab308", enabled: true },
+            ],
+            viewMode: "wheel",
+            actionMode: "normal",
+            isSpinning: false,
+            spinRotation: 0,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+          };
+        } else if (toolType === "state-wheel") {
           data = {
             selectedCountry: "US",
             selectedStates: getStatesByCountry("US").slice(),
@@ -879,7 +1058,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           data = {
             selectedConference: "all",
             selectedTeams: nbaTeams,
-            mode: "normal",
+            actionMode: "normal",
             displayMode: "name",
             viewMode: "wheel",
             favoriteTeams: [],
@@ -898,13 +1077,11 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             spinHistory: [],
           } as NBAWheelData;
         } else if (toolType === "fortnite-wheel") {
-          const allSkins = Object.values(fortniteSkins).flat();
+          const allSkins = getAllFortniteSkins();
           const allSkinIds = allSkins.map((skin) => skin.id);
-          const stats: Record<string, number> = {};
-          Object.keys(fortniteSkins).forEach((rarity) => {
-            stats[rarity] =
-              fortniteSkins[rarity as keyof typeof fortniteSkins].length;
-          });
+          const stats: Record<string, number> = {
+            ...getFortniteSkinCountsByRarity(),
+          };
 
           data = {
             selectedRarity: "all",
@@ -1075,7 +1252,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             showInputs: true,
             isFullscreen: false,
             showTitle: false,
-            title: "LoL Champions Picker Wheel",
+            title: "LoL Wheel",
             description: "Pick a random League of Legends champion by wheel",
             // Favorites and Comparison
             favoriteChampions: [],
@@ -1132,6 +1309,28 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
               spinResultsByRole: {},
             },
           } as LoLWheelData;
+        } else if (toolType === "jjk-wheel") {
+          const characterIds = jjkCharacters.map((character) => character.id);
+          data = {
+            selectedCharacters: characterIds,
+            characterOrder: characterIds,
+            customCharacters: [],
+            displayMode: "emoji-name",
+            actionMode: "normal",
+            isSpinning: false,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+            viewMode: "wheel",
+            rotation: 0,
+            showTitle: true,
+            favoriteCharacters: [],
+            comparisonCharacters: [],
+          } as JjkWheelData;
         } else if (toolType === "number-picker-wheel") {
           data = {
             resultMode: "random-number",
@@ -1151,6 +1350,31 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             toolDescription: "Pick a random number by spinning the wheel",
             resultTitle: "Your Lucky Number",
             activeUseCaseId: null,
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+          } as any;
+        } else if (toolType === "team-picker") {
+          data = {
+            participants: [],
+            teams: [],
+            distributionMode: "default",
+            numberOfGroups: 2,
+            maxPeoplePerGroup: 1,
+            pickRepresentatives: true,
+            customTeamNames: [],
+            toolTitle: "Team Picker Wheel",
+            toolDescription: "Randomize people into groups",
+            resultTitle: "RESULT",
+            pickQuantity: undefined,
+            showGenderInResult: true,
+            showLabelInResult: true,
+            presetGroups: [],
+            viewMode: "input",
+            actionMode: "normal",
+            eliminatedTeams: [],
+            selectedTeam: null,
             achievements: PICKER_WHEEL_ACHIEVEMENTS,
             themes: PICKER_WHEEL_THEMES,
             currentTheme: "classic",
@@ -1503,6 +1727,27 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           },
         }
       }),
+      // Never restore mid-spin UI state across reloads — it sticks the Spin button
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState || {}) as Partial<WheelManagerStore>
+        const wheelsByTool = {
+          ...(persisted.wheelsByTool || {}),
+        } as WheelManagerStore["wheelsByTool"]
+        for (const toolType of Object.keys(wheelsByTool)) {
+          wheelsByTool[toolType] = (wheelsByTool[toolType] || []).map((wheel) => ({
+            ...wheel,
+            data: {
+              ...wheel.data,
+              isSpinning: false,
+            },
+          }))
+        }
+        return {
+          ...currentState,
+          ...persisted,
+          wheelsByTool,
+        }
+      },
     }
   )
 );

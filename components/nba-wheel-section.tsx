@@ -1,16 +1,38 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import React from "react"
 import { Button } from "@/components/ui/button"
+import {
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  Trophy,
+  Palette,
+  BarChart3,
+  Users,
+  Gamepad2,
+} from "lucide-react"
 import { useWheelManagerStore, NBAWheelData } from "@/stores/wheel-manager-store"
 import { useSettingsStore } from "@/stores/settings-store"
-import PickerResultsModal from "@/components/picker-results-modal"
-import NBATeamDetailsModal from "@/components/nba-team-details-modal"
+import PickerResultsModal from "./picker-results-modal"
+import NBATeamDetailsModal from "./nba-team-details-modal"
 import Confetti from "react-confetti"
 import { createPortal } from "react-dom"
-import { Volume2, VolumeX, Maximize2, Trophy, Palette, BarChart3, Users, Gamepad2, X } from "lucide-react"
 import { type NBATeam } from "@/data/nba-teams"
+import {
+  createSpinAudioController,
+  type SpinAudioController,
+} from "@/lib/wheel-spin-audio"
+import {
+  computeSpinEndRotation,
+  computeSpinFrame,
+  getSpinDurationMs,
+  pickSegmentIndex,
+} from "@/lib/wheel-spin-animation"
+
+const WHEEL_SIZE = 680
 
 interface NBAWheelSectionProps {
   onOpenAchievements?: () => void
@@ -30,6 +52,9 @@ interface NBAWheelSectionProps {
   onEliminationMode?: (selectedTeam: NBATeam) => void
   onActionModeChange?: (mode: "normal" | "elimination" | "manual") => void
   onAddManualTeam?: (teamName: string) => void
+  isFullscreen?: boolean
+  onToggleFullscreen?: () => void
+  showResultsButton?: boolean
 }
 
 const NBAWheelSection = React.memo(({ 
@@ -49,7 +74,10 @@ const NBAWheelSection = React.memo(({
   actionMode = "normal",
   onEliminationMode,
   onActionModeChange,
-  onAddManualTeam
+  onAddManualTeam,
+  isFullscreen = false,
+  onToggleFullscreen,
+  showResultsButton = false,
 }: NBAWheelSectionProps) => {
   // Subscribe to the current wheel using a Zustand selector - optimized
   const wheel = useWheelManagerStore(useCallback(state => {
@@ -78,20 +106,90 @@ const NBAWheelSection = React.memo(({
   const data = (wheel?.data as NBAWheelData) ?? defaultData
 
   const { updateWheelData } = useWheelManagerStore()
+  
+  // Memoize helper function to prevent recreation
+  const adjustBrightness = useCallback((color: string, percent: number) => {
+    const num = parseInt(color.replace("#", ""), 16)
+    const amt = Math.round(2.55 * percent)
+    const R = (num >> 16) + amt
+    const G = (num >> 8 & 0x00FF) + amt
+    const B = (num & 0x0000FF) + amt
+    return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)
+  }, []);
+  
+  // Clear recent results when component mounts (to avoid showing old results)
+  useEffect(() => {
+    if (data.recentResults.length > 0 && data.totalSpins === 0) {
+      // Clear recent results if we have results but no spins (fresh session)
+      updateWheelData("nba-wheel", wheel?.id || "", {
+        ...data,
+        recentResults: []
+      })
+    }
+  }, [data.recentResults.length, data.totalSpins, updateWheelData, wheel?.id, data])
+  
   const { settings } = useSettingsStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const spinAudioRef = useRef<SpinAudioController | null>(null)
+  const mutedRef = useRef(false)
   const [currentRotation, setCurrentRotation] = useState(data.currentRotation || 0)
+  const animationRef = useRef<number | null>(null)
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [showTeamDetailsModal, setShowTeamDetailsModal] = useState(false)
-  const [muted, setMuted] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [muted, setMuted] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [windowDimensions, setWindowDimensions] = useState({ width: 800, height: 600 })
   const [manualTeamName, setManualTeamName] = useState("")
 
+  mutedRef.current = muted
+  const soundGloballyOff = settings.confettiSound?.enableSound === false
+
   // Client-side only rendering
   useEffect(() => {
     setIsClient(true)
+  }, [])
+
+  // Clear stuck Spinning… after hydration / aborted spins
+  useEffect(() => {
+    if (!data.isSpinning || !wheel?.id) return
+    if (animationRef.current != null) return
+
+    const t = window.setTimeout(() => {
+      if (animationRef.current != null) return
+      const state = useWheelManagerStore.getState()
+      const nbaWheels = state.wheelsByTool["nba-wheel"] || []
+      const target = nbaWheels.find((w) => w.id === wheel.id)
+      if (!target || !(target.data as NBAWheelData)?.isSpinning) return
+      state.updateWheelData("nba-wheel", target.id, {
+        ...target.data,
+        isSpinning: false,
+      })
+    }, 50)
+
+    return () => window.clearTimeout(t)
+  }, [data.isSpinning, wheel?.id])
+
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+        animationRef.current = null
+      }
+      spinAudioRef.current?.stop()
+      const state = useWheelManagerStore.getState()
+      const nbaWheels = state.wheelsByTool["nba-wheel"] || []
+      for (const w of nbaWheels) {
+        if ((w.data as NBAWheelData)?.isSpinning) {
+          state.updateWheelData("nba-wheel", w.id, {
+            ...w.data,
+            isSpinning: false,
+          })
+        }
+      }
+    }
   }, [])
 
   // Get window dimensions safely - optimized with debouncing
@@ -128,69 +226,95 @@ const NBAWheelSection = React.memo(({
     setCurrentRotation(data.currentRotation || 0)
   }, [data.currentRotation])
 
-  // Memoize helper function to prevent recreation
-  const adjustBrightness = useCallback((color: string, percent: number) => {
-    const num = parseInt(color.replace("#", ""), 16)
-    const amt = Math.round(2.55 * percent)
-    const R = (num >> 16) + amt
-    const G = (num >> 8 & 0x00FF) + amt
-    const B = (num & 0x0000FF) + amt
-    return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-      (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)
-  }, []);
-
-  // Memoize sound play function
-  const playSpinSound = useCallback(() => {
-    try {
-      const audio = new Audio('/sound-win.mp3')
-      audio.volume = settings.confettiSound?.soundVolume || 0.5
-      audio.play()
-    } catch (error) {
-      console.log('Sound play failed:', error)
-    }
-  }, [settings.confettiSound?.soundVolume])
-
   // Memoize spin animation function
-  const spin = useCallback(() => {
-    if (data.isSpinning || totalTeams === 0) return
-    const start = currentRotation
-    const end = start + 1440 + Math.random() * 720
-    const duration = (settings.spinBehavior?.spinningDuration || 3) * 1000
+  const slowSpin = useCallback(() => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+    }
+
     const startTime = Date.now()
+    const duration = getSpinDurationMs(settings.spinBehavior?.spinningDuration)
+    const speedLevel = settings.spinBehavior?.spinningSpeedLevel
+    const startRotation = currentRotation
+    const endRotation = computeSpinEndRotation(startRotation, {
+      randomInitialAngle: settings.display?.randomInitialAngle,
+    })
+    const soundVolume = settings.confettiSound?.soundVolume || 0.5
+    const soundOn =
+      settings.confettiSound?.enableSound !== false && !mutedRef.current
+
+    if (soundOn) {
+      try {
+        if (!spinAudioRef.current) spinAudioRef.current = createSpinAudioController()
+        spinAudioRef.current.startWhoosh("/wheel-sound.mp3", soundVolume)
+      } catch {
+        // ignore
+      }
+    }
 
     const animate = () => {
       const elapsed = Date.now() - startTime
-      const p = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - p, 3)
-      const rot = start + (end - start) * eased
-      setCurrentRotation(rot)
-      updateWheelData("nba-wheel", wheel?.id || "", { ...data, isSpinning: true, currentRotation: rot, spinRotation: rot })
-      if (p < 1) {
-        requestAnimationFrame(animate)
-      } else {
-        const finalAngle = rot % 360
-        const seg = 360 / totalTeams
-        const index = Math.floor(((360 - finalAngle) % 360) / seg) % totalTeams
-        const result = teams[index]
+      const { rotation: newRotation, done } = computeSpinFrame(
+        startRotation,
+        endRotation,
+        elapsed,
+        duration,
+        speedLevel,
+      )
+      
+      setCurrentRotation(newRotation)
 
-        // Handle elimination mode
-        const updatedTeams = actionMode === 'elimination' ? teams.filter((t: any) => t.id !== result.id) : teams
-
-        const updatedData = {
-          ...data,
-          isSpinning: false,
-          selectedResult: result,
-          totalSpins: (data.totalSpins || 0) + 1,
-          recentResults: [result, ...(data.recentResults || [])].slice(0, 10),
-          currentRotation: rot,
-          selectedTeams: updatedTeams
+      if (soundOn && totalTeams > 0) {
+        try {
+          if (!spinAudioRef.current) spinAudioRef.current = createSpinAudioController()
+          spinAudioRef.current.syncFrame(newRotation, totalTeams, soundVolume, null)
+        } catch {
+          // ignore
         }
-        updateWheelData("nba-wheel", wheel?.id || "", updatedData)
+      }
 
-        if (settings.confettiSound?.enableSound) setShowConfetti(true)
-        if (settings.confettiSound?.enableSound && !muted) playSpinSound()
-        setTimeout(() => setShowConfetti(false), 5000)
+      if (!done) {
+        animationRef.current = requestAnimationFrame(animate)
+      } else {
+        spinAudioRef.current?.stop()
+        animationRef.current = null
+
+        const selectedIndex = pickSegmentIndex(newRotation, totalTeams)
+        const selectedTeam = teams[selectedIndex]
+
+        const fresh = useWheelManagerStore.getState().getCurrentWheel()
+        const freshData = (fresh?.data as NBAWheelData) || data
+        
+        const updatedData = {
+          ...freshData,
+          selectedResult: selectedTeam,
+          isSpinning: false,
+          totalSpins: (freshData.totalSpins || 0) + 1,
+          recentResults: [selectedTeam, ...(freshData.recentResults || [])].slice(0, 10),
+          currentRotation: newRotation,
+          spinRotation: newRotation,
+        }
+        
+        updateWheelData("nba-wheel", wheel?.id || "", updatedData)
+        
+        // Show confetti (only on live spin completion — not on page reload)
+        if (settings.confettiSound?.enableConfetti !== false) {
+          setShowConfetti(true)
+          window.setTimeout(() => setShowConfetti(false), 5000)
+        }
+        
+        // Play win sound
+        if (soundOn) {
+          try {
+            const audio = new Audio("/sound-win.mp3")
+            audio.volume = soundVolume
+            void audio.play()
+          } catch {
+            // ignore
+          }
+        }
+        
+        // Show results modal
         setShowResultsModal(true)
         
         // Call spin completed callback
@@ -199,35 +323,50 @@ const NBAWheelSection = React.memo(({
         }
         
         // Handle elimination mode
-        if (actionMode === "elimination" && onEliminationMode && result) {
-          onEliminationMode(result)
+        if (actionMode === "elimination" && onEliminationMode && selectedTeam) {
+          onEliminationMode(selectedTeam)
         }
       }
     }
+
     animate()
-  }, [currentRotation, settings.spinBehavior?.spinningDuration, totalTeams, teams, data, updateWheelData, wheel?.id, settings.confettiSound?.enableSound, muted, playSpinSound, onSpinCompleted, actionMode, onEliminationMode])
+  }, [currentRotation, settings.spinBehavior?.spinningDuration, settings.spinBehavior?.spinningSpeedLevel, settings.display?.randomInitialAngle, settings.confettiSound?.enableSound, settings.confettiSound?.enableConfetti, settings.confettiSound?.soundVolume, totalTeams, teams, data, updateWheelData, wheel?.id, onSpinCompleted, actionMode, onEliminationMode])
 
   // Memoize wheel drawing function
   const drawWheel = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || !isClient) return
+
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const cx = canvas.width / 2
-    const cy = canvas.height / 2
-    const r = Math.min(cx, cy) - 20
+    const centerX = canvas.width / 2
+    const centerY = canvas.height / 2
+    const radius = Math.min(centerX, centerY) - 20
+
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     if (totalTeams === 0) {
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.stroke()
-      ctx.fillStyle = '#f9fafb'; ctx.fill(); ctx.fillStyle = '#9ca3af'; ctx.font = '16px Arial'; ctx.textAlign = 'center'
-      ctx.fillText('No teams selected', cx, cy)
+      // Draw empty wheel
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+      ctx.strokeStyle = '#e5e7eb'
+      ctx.lineWidth = 2
+      ctx.stroke()
+      
+      ctx.fillStyle = '#f9fafb'
+      ctx.fill()
+      
+      ctx.fillStyle = '#9ca3af'
+      ctx.font = '16px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText('No teams selected', centerX, centerY)
       return
     }
 
     const segmentAngle = (2 * Math.PI) / totalTeams
-    
+
     // Get current theme colors and effects
     const currentThemeData = themes.find(t => t.id === currentTheme)
     const themeColors = currentThemeData?.colors || ['#4ade80', '#fbbf24', '#f97316', '#84cc16', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6']
@@ -238,77 +377,140 @@ const NBAWheelSection = React.memo(({
       rainbow: false,
       gradient: false
     }
+    
+    teams.forEach((team, index) => {
+      const startAngle = index * segmentAngle + currentRotation * (Math.PI / 180)
+      const endAngle = startAngle + segmentAngle
 
-    teams.forEach((team: any, i: number) => {
-      const start = i * segmentAngle + currentRotation * (Math.PI / 180)
-      const end = start + segmentAngle
-      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, start, end); ctx.closePath()
-      
-      // Use theme colors instead of team colors
-      const colorIndex = i % themeColors.length
-      let fillStyle = themeColors[colorIndex]
+      // Draw segment
+      ctx.beginPath()
+      ctx.moveTo(centerX, centerY)
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle)
+      ctx.closePath()
+
+      // Prefer team colors (Style tab palettes); fall back to active theme
+      const colorIndex = index % themeColors.length
+      let fillStyle = team.primaryColor || themeColors[colorIndex]
       
       // Apply theme effects
       if (themeEffects.gradient) {
         // Create gradient effect
-        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius)
         gradient.addColorStop(0, fillStyle)
         gradient.addColorStop(1, adjustBrightness(fillStyle, -20))
         fillStyle = gradient
       }
       
-      ctx.fillStyle = fillStyle; ctx.fill()
+      ctx.fillStyle = fillStyle
+      ctx.fill()
       
       // Add glow effect
       if (themeEffects.glow) {
-        ctx.shadowColor = fillStyle
+        ctx.shadowColor = fillStyle as string
         ctx.shadowBlur = 15
+        ctx.strokeStyle = fillStyle as string
+        ctx.lineWidth = 1
         ctx.stroke()
         ctx.shadowBlur = 0
       }
-      
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke()
 
+      // Draw text horizontally within each segment
       ctx.save()
-      const mid = start + segmentAngle / 2
-      const tx = cx + Math.cos(mid) * (r * 0.7)
-      const ty = cy + Math.sin(mid) * (r * 0.7)
-      ctx.translate(tx, ty)
-      ctx.rotate(mid)
-      ctx.fillStyle = '#fff'
+      
+      // Calculate the center angle of this segment
+      const segmentCenterAngle = startAngle + segmentAngle / 2
+      
+      // Calculate text position on the wheel (moved slightly outward for longer names)
+      const textRadius = radius * 0.7
+      const textX = centerX + Math.cos(segmentCenterAngle) * textRadius
+      const textY = centerY + Math.sin(segmentCenterAngle) * textRadius
+      
+      // Move to text position
+      ctx.translate(textX, textY)
+      
+      // Rotate to make text horizontal (counter-rotate the segment angle)
+      ctx.rotate(segmentCenterAngle)
+      
+      ctx.fillStyle = '#ffffff'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      let display = ''
+      
+      let displayText = ''
       let fontSize = 14
-      if (data.displayMode === 'both') { display = `${team.logo} ${team.name}`; fontSize = 12 }
-      else if (data.displayMode === 'logo') { display = team.logo; fontSize = 18 }
-      else { display = team.name; fontSize = 14 }
+      
+      if (data.displayMode === 'both') {
+        // Show logo and full name
+        displayText = `${team.logo} ${team.name}`
+        fontSize = 12
+      } else if (data.displayMode === 'logo') {
+        displayText = team.logo
+        fontSize = 18
+      } else {
+        // Use full team name
+        displayText = team.name
+        fontSize = 14
+      }
+      
+      // Set font size
       ctx.font = `bold ${fontSize}px Arial`
-      ctx.fillText(display, 0, 0)
+      
+      // Add text shadow for better readability
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+      ctx.shadowBlur = 2
+      ctx.shadowOffsetX = 1
+      ctx.shadowOffsetY = 1
+      
+      // Draw text at origin (0,0) since we've already translated
+      ctx.fillText(displayText, 0, 0)
+      
+      // Reset shadow
+      ctx.shadowColor = 'transparent'
+      ctx.shadowBlur = 0
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+      
       ctx.restore()
     })
 
-    // Center button with gradient effect
-    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40)
+    // Draw center button with gradient effect
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40)
     gradient.addColorStop(0, '#2d3748')
     gradient.addColorStop(1, '#1a202c')
     
-    ctx.beginPath(); ctx.arc(cx, cy, 40, 0, Math.PI * 2)
-    ctx.fillStyle = gradient; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke()
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText('🏀', cx, cy - 6)
-    ctx.font = 'bold 10px Arial'; ctx.fillText('SPIN', cx, cy + 10)
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI)
+    ctx.fillStyle = gradient
+    ctx.fill()
+    
+    // Outer rim (no white stripe)
+    ctx.strokeStyle = '#111827'
+    ctx.lineWidth = 2
+    ctx.stroke()
 
-    // Pointer at right with gradient
-    ctx.beginPath(); ctx.moveTo(cx + r - 20, cy); ctx.lineTo(cx + r, cy - 15); ctx.lineTo(cx + r, cy + 15); ctx.closePath()
+    // Draw NBA logo and SPIN text with better styling
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 18px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('🏀', centerX, centerY - 6)
+    ctx.font = 'bold 10px Arial'
+    ctx.fillText('SPIN', centerX, centerY + 10)
+
+    // Draw pointer at 3 o'clock position (right side)
+    ctx.beginPath()
+    ctx.moveTo(centerX + radius - 20, centerY)
+    ctx.lineTo(centerX + radius, centerY - 15)
+    ctx.lineTo(centerX + radius, centerY + 15)
+    ctx.closePath()
     
     // Add gradient to pointer
-    const pointerGradient = ctx.createLinearGradient(cx + r - 20, cy - 15, cx + r, cy + 15)
+    const pointerGradient = ctx.createLinearGradient(centerX + radius - 20, centerY - 15, centerX + radius, centerY + 15)
     pointerGradient.addColorStop(0, '#dc2626')
     pointerGradient.addColorStop(0.5, '#ef4444')
     pointerGradient.addColorStop(1, '#dc2626')
     
-    ctx.fillStyle = pointerGradient; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke()
+    ctx.fillStyle = pointerGradient
+    ctx.fill()
   }, [teams, data.displayMode, currentRotation, isClient, currentTheme, themes, totalTeams, adjustBrightness])
 
   // Draw wheel on mount and when dependencies change - optimized
@@ -316,17 +518,14 @@ const NBAWheelSection = React.memo(({
     drawWheel()
   }, [drawWheel])
 
-  // Handle canvas resize - optimized
+  // Keep a fixed square drawing buffer (680); CSS scales it responsively like other tools
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-
-    const container = canvas.parentElement
-    if (!container) return
-
-    const rect = container.getBoundingClientRect()
-    canvas.width = rect.width
-    canvas.height = rect.height
+    if (canvas.width !== WHEEL_SIZE || canvas.height !== WHEEL_SIZE) {
+      canvas.width = WHEEL_SIZE
+      canvas.height = WHEEL_SIZE
+    }
     drawWheel()
   }, [drawWheel])
   
@@ -350,8 +549,66 @@ const NBAWheelSection = React.memo(({
   // Memoize spin handler
   const handleSpin = useCallback(() => {
     if (data.isSpinning || totalTeams === 0) return
-    spin()
-  }, [data.isSpinning, totalTeams, spin])
+    
+    // Update wheel data to start spinning
+    updateWheelData("nba-wheel", wheel?.id || "", {
+      ...data,
+      isSpinning: true,
+      selectedResult: null
+    })
+    
+    slowSpin()
+  }, [data.isSpinning, totalTeams, updateWheelData, wheel?.id, data, slowSpin])
+
+  // Memoize manual stop handler
+  const handleManualStop = useCallback(() => {
+    if (!data.isSpinning) return
+    
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+    }
+    spinAudioRef.current?.stop()
+    
+    const selectedIndex = pickSegmentIndex(currentRotation, totalTeams)
+    const selectedTeam = teams[selectedIndex]
+    
+    const fresh = useWheelManagerStore.getState().getCurrentWheel()
+    const freshData = (fresh?.data as NBAWheelData) || data
+
+    // Update wheel data with result
+    const updatedData = {
+      ...freshData,
+      selectedResult: selectedTeam,
+      isSpinning: false,
+      totalSpins: (freshData.totalSpins || 0) + 1,
+      recentResults: [selectedTeam, ...(freshData.recentResults || [])].slice(0, 10), // Keep last 10
+      currentRotation: currentRotation,
+      spinRotation: currentRotation,
+    }
+    
+    updateWheelData("nba-wheel", wheel?.id || "", updatedData)
+    
+    if (settings.confettiSound?.enableConfetti !== false) {
+      setShowConfetti(true)
+      window.setTimeout(() => setShowConfetti(false), 5000)
+    }
+    
+    if (settings.confettiSound?.enableSound !== false && !muted) {
+      try {
+        const audio = new Audio("/sound-win.mp3")
+        audio.volume = settings.confettiSound?.soundVolume || 0.5
+        void audio.play()
+      } catch {
+        // ignore
+      }
+    }
+    
+    setShowResultsModal(true)
+    
+    if (onSpinCompleted) {
+      onSpinCompleted()
+    }
+  }, [data.isSpinning, currentRotation, totalTeams, teams, data, updateWheelData, wheel?.id, settings.confettiSound?.enableConfetti, settings.confettiSound?.enableSound, settings.confettiSound?.soundVolume, muted, onSpinCompleted])
 
   // Memoize mute toggle
   const toggleMute = useCallback(() => {
@@ -371,6 +628,12 @@ const NBAWheelSection = React.memo(({
   const handleCloseResultsModal = useCallback(() => setShowResultsModal(false), [])
   const handleOpenTeamDetailsModal = useCallback(() => setShowTeamDetailsModal(true), [])
   const handleCloseTeamDetailsModal = useCallback(() => setShowTeamDetailsModal(false), [])
+
+  useEffect(() => {
+    const openResults = () => setShowResultsModal(true)
+    window.addEventListener("open-nba-results", openResults)
+    return () => window.removeEventListener("open-nba-results", openResults)
+  }, [])
 
   // Memoize action mode change handler
   const handleActionModeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -412,7 +675,13 @@ const NBAWheelSection = React.memo(({
   )
 
   return (
-    <div className="flex flex-col items-center">
+    <div
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-50 flex flex-col items-center justify-center space-y-4 overflow-auto bg-white p-3 sm:space-y-6 sm:p-4"
+          : "relative flex w-full min-w-0 max-w-full flex-col items-center space-y-4 sm:space-y-6"
+      }
+    >
       {showConfetti && typeof window !== 'undefined' && createPortal(
         <div style={{ 
           position: 'fixed', 
@@ -444,25 +713,150 @@ const NBAWheelSection = React.memo(({
         document.body
       )}
 
-      <div className="relative mb-4">
-        <canvas ref={canvasRef} width={600} height={600} className="cursor-pointer drop-shadow-lg bg-white rounded-full" onClick={!data.isSpinning ? handleSpin : undefined} />
+      {showResultsButton && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleOpenResultsModal}
+          className="absolute left-2 top-2 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:left-4 sm:top-4 sm:px-3"
+        >
+          Results
+          {data.recentResults.length > 0 && (
+            <span className="ml-2 rounded-full bg-slate-100 px-1.5 text-[10px] text-slate-700">
+              {data.recentResults.length}
+            </span>
+          )}
+        </Button>
+      )}
+      
+      <div className="relative mx-auto flex w-full max-w-[680px] flex-col items-center">
+        <div
+          className={`relative w-full max-w-[680px] overflow-visible ${
+            !data.isSpinning && totalTeams > 0 ? "cursor-pointer" : ""
+          }`}
+          onClick={!data.isSpinning && totalTeams > 0 ? handleSpin : undefined}
+        >
+          <canvas
+            ref={canvasRef}
+            width={WHEEL_SIZE}
+            height={WHEEL_SIZE}
+            className="aspect-square h-auto w-full max-w-full drop-shadow-lg rounded-full"
+          />
 
-        <div className="absolute top-4 left-4">
-          <Button variant="outline" size="sm" onClick={handleOpenResultsModal}>Results</Button>
-        </div>
+          <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleMute()
+              }}
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+              title={
+                soundGloballyOff
+                  ? "Global sound disabled"
+                  : muted
+                    ? "Unmute"
+                    : "Mute"
+              }
+            >
+              {soundGloballyOff || muted ? (
+                <VolumeX className={`h-5 w-5 ${soundGloballyOff ? "text-gray-400" : ""}`} />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
+            {onToggleFullscreen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleFullscreen()
+                }}
+                className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              </Button>
+            )}
+          </div>
 
-        <div className="absolute bottom-4 left-4 flex flex-col space-y-2">
-          <Button variant="ghost" size="sm" onClick={toggleMute} className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md" title={settings.confettiSound?.enableSound ? (muted ? "Unmute" : "Mute") : "Global sound disabled"}>
-            {!settings.confettiSound?.enableSound ? <VolumeX className="w-5 h-5 text-gray-400" /> : muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-          </Button>
-        </div>
+          {data.isSpinning && (
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleManualStop()
+              }}
+              className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white hover:bg-red-600"
+              size="sm"
+            >
+              STOP
+            </Button>
+          )}
 
-        <div className="absolute bottom-4 right-4">
-          <Button variant="ghost" size="sm" className="w-10 h-10 p-0 bg-white/90 hover:bg-white shadow-md"><Maximize2 className="w-5 h-5" /></Button>
+          {data.isSpinning && (
+            <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
+              Spinning...
+            </div>
+          )}
         </div>
+        
+        <PickerResultsModal
+          isOpen={showResultsModal}
+          onClose={handleCloseResultsModal}
+          results={modalResults}
+        />
+        
+        <NBATeamDetailsModal
+          isOpen={showTeamDetailsModal}
+          onClose={handleCloseTeamDetailsModal}
+          team={data.selectedResult}
+        />
       </div>
 
-      <Button onClick={handleSpin} disabled={data.isSpinning || totalTeams === 0} className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+      {/* Result Display */}
+      {data.selectedResult && !data.isSpinning && (
+        <div className="mb-2 w-full max-w-md rounded-xl border-2 border-blue-300 bg-gradient-to-r from-blue-100 to-purple-100 p-4 text-center shadow-lg sm:mb-4 sm:p-6">
+          <h3 className="mb-2 text-base font-semibold text-blue-800 sm:text-lg">🏀 Selected Team!</h3>
+          <div className="mb-3 flex items-center justify-center gap-2 sm:mb-4 sm:gap-3">
+            <span className="text-3xl sm:text-4xl">{data.selectedResult.logo}</span>
+            <div className="min-w-0 text-left">
+              <p className="truncate text-xl font-bold text-blue-900 sm:text-2xl">{data.selectedResult.name}</p>
+              <p className="text-xs text-blue-700 sm:text-sm">{data.selectedResult.city} • {data.selectedResult.league} Conference</p>
+              <p className="text-[11px] text-blue-600 sm:text-xs">{data.selectedResult.championships} championships • Founded {data.selectedResult.founded}</p>
+            </div>
+          </div>
+          <Button
+            onClick={handleOpenTeamDetailsModal}
+            variant="outline"
+            size="sm"
+            className="border-blue-300 bg-white text-blue-700 hover:bg-gray-50"
+          >
+            📊 View Team Details
+          </Button>
+        </div>
+      )}
+
+      {/* Game Mode Indicator */}
+      {isGameActive && currentGameMode && (
+        <div className="mb-2 w-full max-w-md rounded-lg border-2 border-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 p-2.5 sm:mb-4 sm:p-3">
+          <p className="text-xs font-semibold text-purple-800 sm:text-sm">
+            🎮 Playing: {currentGameMode}
+          </p>
+        </div>
+      )}
+
+      {/* Spin Button */}
+      <Button
+        onClick={handleSpin}
+        disabled={data.isSpinning || totalTeams === 0}
+        className="w-full max-w-sm bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700 hover:shadow-xl sm:px-12 sm:text-lg"
+      >
         {data.isSpinning ? (
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -473,73 +867,43 @@ const NBAWheelSection = React.memo(({
         )}
       </Button>
 
-      {totalTeams === 0 && <p className="mt-4 text-gray-500 text-center">Select some teams to start spinning!</p>}
-
-      {/* Selected Result Display */}
-      {data.selectedResult && !data.isSpinning && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-orange-100 to-red-100 border-2 border-orange-300 rounded-xl shadow-lg text-center">
-          <h3 className="text-lg font-semibold text-orange-800 mb-2">🏀 Selected Team!</h3>
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <span className="text-4xl">{data.selectedResult.logo}</span>
-            <div>
-              <p className="text-2xl font-bold text-orange-900">{data.selectedResult.name}</p>
-              <p className="text-sm text-orange-700">{data.selectedResult.city} • {data.selectedResult.league} Conference</p>
-              <p className="text-xs text-orange-600">{data.selectedResult.championships} championships • Founded {data.selectedResult.founded}</p>
-            </div>
-          </div>
-          <Button
-            onClick={handleOpenTeamDetailsModal}
-            variant="outline"
-            size="sm"
-            className="bg-white hover:bg-gray-50 border-orange-300 text-orange-700"
-          >
-            📊 View Team Details
-          </Button>
-        </div>
-      )}
-
-      {/* Game Mode Indicator */}
-      {isGameActive && currentGameMode && (
-        <div className="mb-4 p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg border-2 border-purple-300">
-          <p className="text-sm font-semibold text-purple-800">
-            🎮 Playing: {currentGameMode}
-          </p>
-        </div>
+      {totalTeams === 0 && (
+        <p className="mt-4 text-gray-500 text-center">Select some teams to start spinning!</p>
       )}
 
       {/* Game Mode Section */}
-      <div className="mt-6 p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200">
-        <label className="block text-sm font-semibold text-orange-800 mb-3 flex items-center">
-          <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+      <div className="mt-4 w-full max-w-md rounded-xl border border-red-200 bg-gradient-to-br from-red-50 to-pink-50 p-3 sm:mt-6 sm:p-4">
+        <label className="mb-2 flex items-center text-sm font-semibold text-red-800 sm:mb-3">
+          <span className="mr-2 h-2 w-2 rounded-full bg-red-500"></span>
           Game Mode
         </label>
         
         {/* Quick Input Field for Manual Mode */}
         {actionMode === "manual" && (
-          <div className="flex items-center space-x-2 mb-3">
+          <div className="mb-3 flex min-w-0 items-center gap-2">
             <input
               value={manualTeamName}
               onChange={handleManualTeamNameChange}
               placeholder="Type team name..."
-              className="flex-1 px-3 py-2 border border-orange-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="min-w-0 flex-1 rounded-lg border border-red-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-red-500"
               onKeyDown={handleManualTeamNameKeyDown}
             />
             <Button
               onClick={handleAddManualTeam}
               disabled={!manualTeamName.trim()}
               size="sm"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="shrink-0 rounded-lg bg-red-500 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add
             </Button>
           </div>
         )}
         
-        <div className="grid grid-cols-3 gap-2">
-          <label className={`flex flex-col items-center space-y-2 p-3 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-3 ${
             actionMode === "normal" 
-              ? "bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25" 
-              : "bg-white hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 border border-orange-200 hover:border-orange-300"
+              ? "bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
+              : "border border-red-200 bg-white hover:border-red-300 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50"
           }`}>
             <input
               type="radio"
@@ -549,20 +913,20 @@ const NBAWheelSection = React.memo(({
               onChange={handleActionModeChange}
               className="sr-only"
             />
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              actionMode === "normal" ? "bg-white/20" : "bg-orange-100"
+            <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+              actionMode === "normal" ? "bg-white/20" : "bg-red-100"
             }`}>
               <span className="text-sm">🎯</span>
             </div>
-            <span className={`text-xs font-semibold ${actionMode === "normal" ? "text-white" : "text-orange-700"}`}>
+            <span className={`text-[10px] font-semibold sm:text-xs ${actionMode === "normal" ? "text-white" : "text-red-700"}`}>
               Normal
             </span>
           </label>
           
-          <label className={`flex flex-col items-center space-y-2 p-3 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+          <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-3 ${
             actionMode === "elimination" 
-              ? "bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25" 
-              : "bg-white hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 border border-orange-200 hover:border-orange-300"
+              ? "bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
+              : "border border-red-200 bg-white hover:border-red-300 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50"
           }`}>
             <input
               type="radio"
@@ -572,20 +936,20 @@ const NBAWheelSection = React.memo(({
               onChange={handleActionModeChange}
               className="sr-only"
             />
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              actionMode === "elimination" ? "bg-white/20" : "bg-orange-100"
+            <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+              actionMode === "elimination" ? "bg-white/20" : "bg-red-100"
             }`}>
               <span className="text-sm">❌</span>
             </div>
-            <span className={`text-xs font-semibold ${actionMode === "elimination" ? "text-white" : "text-orange-700"}`}>
+            <span className={`text-[10px] font-semibold sm:text-xs ${actionMode === "elimination" ? "text-white" : "text-red-700"}`}>
               Elimination
             </span>
           </label>
           
-          <label className={`flex flex-col items-center space-y-2 p-3 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+          <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-3 ${
             actionMode === "manual" 
-              ? "bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25" 
-              : "bg-white hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 border border-orange-200 hover:border-orange-300"
+              ? "bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
+              : "border border-red-200 bg-white hover:border-red-300 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50"
           }`}>
             <input
               type="radio"
@@ -595,48 +959,80 @@ const NBAWheelSection = React.memo(({
               onChange={handleActionModeChange}
               className="sr-only"
             />
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              actionMode === "manual" ? "bg-white/20" : "bg-orange-100"
+            <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+              actionMode === "manual" ? "bg-white/20" : "bg-red-100"
             }`}>
               <span className="text-sm">📝</span>
             </div>
-            <span className={`text-xs font-semibold ${actionMode === "manual" ? "text-white" : "text-orange-700"}`}>
+            <span className={`text-[10px] font-semibold sm:text-xs ${actionMode === "manual" ? "text-white" : "text-red-700"}`}>
               Manual
             </span>
           </label>
         </div>
         
         {/* Mode Description */}
-        <div className="text-xs text-orange-600 text-center mt-3 p-2 bg-orange-50 rounded-lg">
+        <div className="mt-2 rounded-lg bg-red-50 p-2 text-center text-[11px] text-red-600 sm:mt-3 sm:text-xs">
           {actionMode === "normal" && "🎯 All teams available for each spin"}
           {actionMode === "elimination" && "❌ Selected team is removed after each spin"}
           {actionMode === "manual" && "📝 Add custom teams by typing names"}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 justify-center mt-6 mb-4">
-        <Button variant="outline" size="sm" onClick={onOpenAchievements} className="text-xs px-3 py-1 bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"><Trophy className="w-3 h-3 mr-1" />Achievements ({totalPoints})</Button>
-        <Button variant="outline" size="sm" onClick={onOpenThemeSelector} className="text-xs px-3 py-1 bg-purple-50 border-purple-300 text-purple-700 hover:bg-purple-100"><Palette className="w-3 h-3 mr-1" />Themes</Button>
-        <Button variant="outline" size="sm" onClick={onOpenAnalytics} className="text-xs px-3 py-1 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"><BarChart3 className="w-3 h-3 mr-1" />Analytics</Button>
-        <Button variant="outline" size="sm" onClick={onOpenSocialHub} className="text-xs px-3 py-1 bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100"><Users className="w-3 h-3 mr-1" />Social</Button>
-        <Button variant="outline" size="sm" onClick={onOpenGameModes} className="text-xs px-3 py-1 bg-red-50 border-red-300 text-red-700 hover:bg-red-100"><Gamepad2 className="w-3 h-3 mr-1" />Games</Button>
+      {/* Feature Buttons */}
+      <div className="mb-2 mt-4 grid w-full grid-cols-5 gap-1.5 sm:mb-4 sm:mt-6 sm:gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenAchievements}
+          className="h-auto min-w-0 border-yellow-300 bg-yellow-50 px-1.5 py-1.5 text-[10px] text-yellow-700 hover:bg-yellow-100 sm:px-2 sm:text-xs"
+        >
+          <Trophy className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+          <span className="truncate">Achievements ({totalPoints})</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenThemeSelector}
+          className="h-auto min-w-0 border-purple-300 bg-purple-50 px-1.5 py-1.5 text-[10px] text-purple-700 hover:bg-purple-100 sm:px-2 sm:text-xs"
+        >
+          <Palette className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+          <span className="truncate">Themes</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenAnalytics}
+          className="h-auto min-w-0 border-green-300 bg-green-50 px-1.5 py-1.5 text-[10px] text-green-700 hover:bg-green-100 sm:px-2 sm:text-xs"
+        >
+          <BarChart3 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+          <span className="truncate">Analytics</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenSocialHub}
+          className="h-auto min-w-0 border-orange-300 bg-orange-50 px-1.5 py-1.5 text-[10px] text-orange-700 hover:bg-orange-100 sm:px-2 sm:text-xs"
+        >
+          <Users className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+          <span className="truncate">Social</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenGameModes}
+          className="h-auto min-w-0 border-red-300 bg-red-50 px-1.5 py-1.5 text-[10px] text-red-700 hover:bg-red-100 sm:px-2 sm:text-xs"
+        >
+          <Gamepad2 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+          <span className="truncate">Games</span>
+        </Button>
       </div>
 
-      <PickerResultsModal
-        isOpen={showResultsModal}
-        onClose={handleCloseResultsModal}
-        results={modalResults}
-      />
-
-      <NBATeamDetailsModal
-        isOpen={showTeamDetailsModal}
-        onClose={handleCloseTeamDetailsModal}
-        team={data.selectedResult}
-      />
+      {/* Total Spins Counter */}
+      <div className="mt-4 text-sm text-gray-500">
+        <span>Total spins: {data.totalSpins}</span>
+      </div>
     </div>
   )
 })
 
-export default NBAWheelSection
-
-
+export default NBAWheelSection 

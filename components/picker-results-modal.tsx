@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X, Trophy, MapPin, Calendar, Building } from "lucide-react";
+import { CountryFlagImage } from "@/components/country-flag-image";
+import { countryFlagImageUrl } from "@/lib/country-wheel-canvas";
 
 interface PickerResultsModalProps {
   isOpen: boolean;
@@ -69,9 +71,16 @@ export default function PickerResultsModal({ isOpen, onClose, results }: PickerR
                  <li key={result.id || `result-${idx}-${result.name || result.text || 'unknown'}`} className="p-5 bg-gradient-to-r from-white to-purple-50 rounded-xl border-2 border-purple-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 hover:scale-102">
                    <div className="flex items-start space-x-5">
                                          {/* Result Image/Icon */}
-                     {(result.image || result.flag || result.emoji) && (
-                       result.image && result.image.startsWith('http') ? (
+                     {(result.image || result.flag || result.emoji || result.code || result.id) && (
+                       result.image && String(result.image).startsWith('http') ? (
                          <img src={result.image} alt={result.name || result.text} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border-3 border-purple-200 shadow-md" />
+                       ) : countryFlagImageUrl(result) ? (
+                         <CountryFlagImage
+                           country={result}
+                           width={80}
+                           className="flex-shrink-0"
+                           imgClassName="w-14 h-10 rounded-xl object-cover border-3 border-purple-200 shadow-md"
+                         />
                        ) : result.flag ? (
                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center text-2xl flex-shrink-0 text-white shadow-md">
                            {result.flag}
@@ -156,6 +165,17 @@ export default function PickerResultsModal({ isOpen, onClose, results }: PickerR
                          {!result.league && !result.championships && !result.city && !result.manager && (
                            <div className="text-sm text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border-2 border-purple-200 shadow-sm space-y-1">
                              <div><span className="font-bold">✨ Result:</span> {result.name || result.text || 'Unknown'}</div>
+                             {(result.capital || result.region || result.language) && (
+                               <div className="text-xs text-slate-600">
+                                 {[
+                                   result.capital && `Capital: ${result.capital}`,
+                                   result.region,
+                                   result.language,
+                                 ]
+                                   .filter(Boolean)
+                                   .join(" · ")}
+                               </div>
+                             )}
                              {result.timestamp && (
                                <div className="text-xs text-gray-500">
                                  {new Date(result.timestamp).toLocaleString()}

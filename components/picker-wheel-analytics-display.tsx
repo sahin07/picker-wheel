@@ -239,7 +239,7 @@ export default function PickerWheelAnalyticsDisplay({
   }
 
   return (
-    <Dialog open={isVisible} onOpenChange={onClose}>
+    <Dialog open={isVisible} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">

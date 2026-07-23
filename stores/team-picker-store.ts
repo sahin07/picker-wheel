@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { nanoid } from "nanoid";
+import { useSettingsStore } from "@/stores/settings-store";
 
 export type Gender = "male" | "female" | undefined;
 export interface TeamParticipant {
@@ -66,6 +67,7 @@ export interface TeamPickerState {
   actionMode: ActionMode;
   eliminatedTeams: string[];
   setActionMode: (mode: ActionMode) => void;
+  getAvailableTeams: () => Team[];
   eliminateTeam: (teamId: string) => void;
   restoreAllTeams: () => void;
 }
@@ -110,6 +112,7 @@ export const useTeamPickerStore = create<TeamPickerState>((set, get) => ({
   resultTitle: "RESULT",
   isGenerating: false,
   viewMode: "input",
+  selectedTeam: null,
   pickQuantity: undefined,
   setPickQuantity: (n) => set({ pickQuantity: n }),
   showGenderInResult: true,
@@ -211,10 +214,14 @@ export const useTeamPickerStore = create<TeamPickerState>((set, get) => ({
     const assignedIds = new Set<string>();
     // Assign mascots randomly to each team
     const mascots = shuffle(TEAM_MASCOTS).slice(0, numGroups);
+    const toolColors = useSettingsStore.getState().settings?.appearance?.toolColors as
+      | string[]
+      | undefined;
+    const palette = toolColors?.length ? toolColors : TEAM_COLORS;
     teams = Array.from({ length: numGroups }, (_, i) => ({
       id: nanoid(),
       name: state.customTeamNames[i] || `Team ${i + 1}`,
-      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      color: palette[i % palette.length],
       members: [],
       mascot: mascots[i % mascots.length], // Assign mascot
     }));

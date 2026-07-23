@@ -50,6 +50,7 @@ export const YES_NO_PICKER_ON_THIS_PAGE = [
   { id: "yn-popular-wheels", label: "Popular yes or no wheels" },
   { id: "yn-spin-wheel", label: "Spin the Yes or No Wheel" },
   { id: "yn-customize", label: "Customize your decision wheel" },
+  { id: "yn-options", label: "How this tool's options work" },
   { id: "yn-when-to-use", label: "When to use a Yes or No Wheel" },
   { id: "yn-vs-coin", label: "Wheel vs coin flip" },
   { id: "yn-why", label: "Why choose our Yes or No Wheel" },
@@ -149,6 +150,55 @@ export const YES_NO_PICKER_CUSTOMIZE_POINTS = [
     title: "Share it with others",
     description:
       "Use Social tools and share links so friends, classmates, or teammates can spin the same yes or no wheel picker.",
+  },
+] as const
+
+/** Explains each Yes / No Controls option for the complete guide. */
+export const YES_NO_PICKER_OPTIONS_GUIDE = [
+  {
+    title: "Action Mode",
+    description:
+      "Normal Mode keeps every option on the wheel after a spin. Elimination Mode removes the winner (synced with Manage → Remove winner) so follow-up spins choose from what’s left—useful for multi-round party games.",
+  },
+  {
+    title: "Manual vs AI",
+    description:
+      "Manual lets you build the decision yourself. AI Mode asks what decision you are facing and can suggest advice or slice wording so you spend less time setting up the wheel.",
+  },
+  {
+    title: "Mode (YES or NO / MAYBE)",
+    description:
+      "Start with a classic YES or NO binary, or switch to YES / NO / MAYBE when you want a third outcome. Popular templates (Decision, Should I, Truth or Dare) load matching modes automatically.",
+  },
+  {
+    title: "Input sets",
+    description:
+      "Choose 1–5 input sets to add more slices beyond a simple pair. Higher sets give you more options on the wheel for either/or lists, pros and cons, or party prompts.",
+  },
+  {
+    title: "Tool Title, Description & Result Title",
+    description:
+      "Rename the tool header and result card so the spin matches your question—“Should we order pizza?” reads clearer than a generic Yes or No label when you share or project the page.",
+  },
+  {
+    title: "Show stats",
+    description:
+      "Toggle totals and percentages on the wheel so viewers can see relative odds at a glance. Pair with Style palettes when you stream or present in class.",
+  },
+  {
+    title: "Text tab & CSV",
+    description:
+      "Paste one option per line and Apply text, or import/export CSV when you already have a list of choices from a spreadsheet.",
+  },
+  {
+    title: "Style, Themes, Confetti & Sound",
+    description:
+      "Apply color palettes and Themes under Style. Confetti and Sound (also under Other Options) control celebration feedback after a spin—turn them off for quieter classrooms.",
+  },
+  {
+    title: "Other Options & Share",
+    description:
+      "Import, Export, Share, Embed, QR Code, Fullscreen, and OBS Overlay help you reuse or broadcast the same decision wheel. My Wheels saves setups on this device for later.",
   },
 ] as const
 

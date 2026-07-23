@@ -1,126 +1,266 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Heart, GitCompare, Eye, List, Type, Shuffle, RotateCcw, Brain, BarChart3, Plus, X } from "lucide-react"
-import { getStatesByCountry, availableCountries, type State } from "@/data/states"
-import { useStateWheelStore } from "@/stores/state-wheel-store"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  ChevronDown,
+  List,
+  Type,
+  Heart,
+  GitCompare,
+  BarChart3,
+  Plus,
+  X,
+  Brain,
+  MoreVertical,
+  Palette,
+  Trophy,
+  History,
+  Shuffle,
+  EyeOff,
+} from "lucide-react"
 import { useWheelManagerStore, type StateWheelData } from "@/stores/wheel-manager-store"
+import { getStatesByCountry, availableCountries, type State } from "@/data/states"
+import { useState, useEffect, type ReactNode } from "react"
 import StateStatisticsModal from "./state-statistics-modal"
 import StateComparisonModal from "./state-comparison-modal"
 import StateFavoritesModal from "./state-favorites-modal"
+import StateResultsModal from "./state-results-modal"
+import { useSettingsStore } from "@/stores/settings-store"
+import { SidebarOtherOptions } from "@/components/sidebar-other-options"
+import { SlicesManageMenu } from "@/components/slices-manage-menu"
+import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes"
+import { LETTER_COLOR_PALETTES } from "@/lib/letter-picker-constants"
+import { useToast } from "@/contexts/toast-context"
+import { Checkbox } from "@/components/ui/checkbox"
+import type { WheelSettings } from "@/types/settings"
+
+type ActionMode = "normal" | "elimination" | "manual"
+
+type SidebarTab = "inputs" | "text" | "style" | "other"
+
+const SIDEBAR_TABS: { id: SidebarTab; label: string; icon: ReactNode }[] = [
+  { id: "inputs", label: "Inputs", icon: <List className="h-4 w-4" /> },
+  { id: "text", label: "Text", icon: <Type className="h-4 w-4" /> },
+  { id: "style", label: "Style", icon: <Palette className="h-4 w-4" /> },
+  { id: "other", label: "Other Options", icon: <MoreVertical className="h-4 w-4" /> },
+]
 
 interface StateInputPanelProps {
-  activeTab?: 'manual' | 'ai'
-  onTabChange?: (tab: 'manual' | 'ai') => void
+  activeTab?: "manual" | "ai"
+  onTabChange?: (tab: "manual" | "ai") => void
+  onOpenSettings?: () => void
+  onToggleFullscreen?: () => void
+  onOpenAnalytics?: () => void
+  onOpenAchievements?: () => void
+  onViewHistory?: () => void
+  onHideInputs?: () => void
+  actionMode?: ActionMode
+  onActionModeChange?: (mode: ActionMode) => void
+  onThemeChange?: (themeId: string) => void
+  onApplyPalette?: (colors: readonly string[]) => void
+  currentTheme?: string
+  themes?: typeof PICKER_WHEEL_THEMES
 }
 
-export default function StateInputPanel({ activeTab: externalActiveTab, onTabChange }: StateInputPanelProps) {
-  const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'manual' | 'ai'>(externalActiveTab || 'manual')
-  const [showStateList, setShowStateList] = useState(true)
-  const [selectedState, setSelectedState] = useState<State | null>(null)
-  const [aiSuggestions, setAiSuggestions] = useState<State[]>([])
-  const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false)
-  const getCurrentWheel = useWheelManagerStore((state) => state.getCurrentWheel)
-  const updateWheelData = useWheelManagerStore((state) => state.updateWheelData)
+export default function StateInputPanel({
+  activeTab: externalActiveTab,
+  onTabChange,
+  onOpenSettings,
+  onToggleFullscreen,
+  onOpenAnalytics,
+  onOpenAchievements,
+  onViewHistory,
+  onHideInputs,
+  actionMode: externalActionMode,
+  onActionModeChange,
+  onThemeChange,
+  onApplyPalette,
+  currentTheme = "classic",
+  themes = PICKER_WHEEL_THEMES,
+}: StateInputPanelProps) {
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("inputs")
+  const [bulkText, setBulkText] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const { settings, updateSettings } = useSettingsStore()
+  const { showToast } = useToast()
+  const [hasMounted, setHasMounted] = useState(false)
+  const wheelManager = useWheelManagerStore()
+  const wheel = wheelManager.getCurrentWheel()
+  const actionMode: ActionMode = externalActionMode || "normal"
 
-  // Client-side only rendering to prevent hydration errors
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const data = (wheel?.data as StateWheelData) ?? {
+    selectedCountry: "us",
+    selectedStates: [],
+    displayMode: "name" as const,
+    viewMode: "wheel" as const,
+    favoriteStates: [],
+    comparisonStates: [],
+    isSpinning: false,
+    spinRotation: 0,
+    selectedResult: null,
+    totalSpins: 0,
+    showStatistics: false,
+    showComparison: false,
+    showFavorites: false,
+    recentResults: [],
+  }
+
+  const setData = (partial: Partial<StateWheelData>) => {
+    if (!wheel) return
+    wheelManager.updateWheelData("state-wheel", wheel.id, { ...data, ...partial })
+  }
 
   const {
     selectedCountry,
-    selectedStates,
+    selectedStates: rawSelectedStates,
     displayMode,
     viewMode,
-    favoriteStates,
-    comparisonStates,
-    showStatistics,
-    showComparison,
-    showFavorites,
-    setSelectedCountry,
-    setDisplayMode,
-    setViewMode,
-    setSelectedStates,
-    toggleState,
-    addToFavorites,
-    removeFromFavorites,
-    isFavorite,
-    addToComparison,
-    removeFromComparison,
-    isInComparison,
-    setShowStatistics,
-    setShowComparison,
-    setShowFavorites
-  } = useStateWheelStore()
+    favoriteStates: rawFavoriteStates,
+    comparisonStates: rawComparisonStates,
+  } = data
 
   // Ensure arrays are always defined with fallbacks
-  const allStatesForCountry = getStatesByCountry(selectedCountry)
-  const selectedStatesArray = selectedStates ?? []
-  const favoriteStatesArray = favoriteStates ?? []
-  const comparisonStatesArray = comparisonStates ?? []
+  const selectedStates = rawSelectedStates ?? []
+  const favoriteStates = rawFavoriteStates ?? []
+  const comparisonStates = rawComparisonStates ?? []
 
-  // Tab management
-  const handleTabChange = (tab: 'manual' | 'ai') => {
-    setActiveTab(tab)
-    if (onTabChange) {
-      onTabChange(tab)
+  // All states for the current country
+  const allStatesForCountry = getStatesByCountry(selectedCountry)
+
+  // Actions
+  const setSelectedCountry = (country: string) => {
+    const newStates = getStatesByCountry(country)
+    setData({ selectedCountry: country, selectedStates: newStates })
+  }
+  const setDisplayMode = (mode: "flag" | "name" | "both") => setData({ displayMode: mode })
+  const setViewMode = (mode: "wheel" | "list" | "text") => setData({ viewMode: mode })
+  const setSelectedStates = (states: State[]) => setData({ selectedStates: states })
+
+  const toggleState = (state: State) => {
+    const isSelected = selectedStates.some((s) => s.id === state.id)
+    if (isSelected) {
+      setSelectedStates(selectedStates.filter((s) => s.id !== state.id))
+    } else {
+      setSelectedStates([...selectedStates, state])
     }
   }
 
-  // Initialize with all states selected for the current country
-  useEffect(() => {
-    if (selectedStatesArray.length === 0) {
-      const allStatesForCountry = getStatesByCountry(selectedCountry)
-      setSelectedStates(allStatesForCountry)
-    }
-  }, [selectedCountry, selectedStatesArray.length])
+  const shuffleStates = () => {
+    const shuffled = [...selectedStates].sort(() => Math.random() - 0.5)
+    setSelectedStates(shuffled)
+  }
 
-  useEffect(() => {
-    if (!mounted) return
+  const sortStatesZA = () => {
+    const sorted = [...selectedStates].sort((a, b) => b.name.localeCompare(a.name))
+    setSelectedStates(sorted)
+  }
 
-    const wheel = getCurrentWheel()
-    if (!wheel || wheel.toolType !== "state-wheel") return
+  const clearAllStates = () => {
+    setSelectedStates([])
+    showToast("Cleared all states", "success")
+  }
 
-    const data = wheel.data as StateWheelData
-    const wheelStates = data.selectedStates ?? []
-    const hasSameStates =
-      wheelStates.length === selectedStatesArray.length &&
-      wheelStates.every((state, index) => state.id === selectedStatesArray[index]?.id)
-
-    if (
-      data.selectedCountry === selectedCountry &&
-      data.displayMode === displayMode &&
-      data.viewMode === viewMode &&
-      hasSameStates
-    ) {
-      return
-    }
-
-    updateWheelData("state-wheel", wheel.id, {
-      ...data,
-      selectedCountry,
-      selectedStates: selectedStatesArray,
-      displayMode,
-      viewMode,
+  const removeDuplicateStates = () => {
+    const seen = new Set<string>()
+    const unique = selectedStates.filter((s) => {
+      const key = s.name.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
     })
-  }, [
-    mounted,
-    selectedCountry,
-    selectedStatesArray,
-    displayMode,
-    viewMode,
-    getCurrentWheel,
-    updateWheelData,
-  ])
+    setSelectedStates(unique)
+    showToast("Duplicates removed", "success")
+  }
 
-  const handleCountrySelect = (countryCode: string) => {
-    setSelectedCountry(countryCode)
-  };
+  const deleteBlankStates = () => {
+    const cleaned = selectedStates.filter((s) => s.name?.trim())
+    setSelectedStates(cleaned)
+    showToast("Blank entries removed", "success")
+  }
+
+  const setActionModeSynced = (mode: ActionMode) => {
+    onActionModeChange?.(mode)
+    if (mode === "elimination" || mode === "normal") {
+      const latest = useSettingsStore.getState().settings
+      updateSettings({
+        spinBehavior: {
+          ...latest.spinBehavior,
+          removeWinnerAfterSpin: mode === "elimination",
+        },
+      } as any)
+    }
+  }
+
+  // Favorites
+  const addToFavorites = (state: State) => {
+    if (!favoriteStates.some((s) => s.id === state.id)) {
+      setData({ favoriteStates: [...favoriteStates, state] })
+    }
+  }
+  const removeFromFavorites = (stateId: string) => {
+    setData({ favoriteStates: favoriteStates.filter((s) => s.id !== stateId) })
+  }
+  const isFavorite = (stateId: string) => favoriteStates.some((s) => s.id === stateId)
+
+  // Comparison
+  const addToComparison = (state: State) => {
+    if (comparisonStates.length < 4 && !comparisonStates.some((s) => s.id === state.id)) {
+      setData({ comparisonStates: [...comparisonStates, state] })
+    }
+  }
+  const removeFromComparison = (stateId: string) => {
+    setData({ comparisonStates: comparisonStates.filter((s) => s.id !== stateId) })
+  }
+  const isInComparison = (stateId: string) => comparisonStates.some((s) => s.id === stateId)
+
+  const [showStateList, setShowStateList] = useState(true)
+  const [selectedState, setSelectedState] = useState<State | null>(null)
+  const [showStatistics, setShowStatistics] = useState(false)
+  const [showComparison, setShowComparison] = useState(false)
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const [internalActiveTab, setInternalActiveTab] = useState<"manual" | "ai">("manual")
+
+  // Use external tab if provided, otherwise use internal state
+  const activeTab = externalActiveTab !== undefined ? externalActiveTab : internalActiveTab
+
+  const handleTabChange = (tab: "manual" | "ai") => {
+    if (onTabChange) {
+      onTabChange(tab)
+    } else {
+      setInternalActiveTab(tab)
+    }
+  }
+
+  // Backfill states when empty (first visit / old persisted wheel)
+  useEffect(() => {
+    if (!wheel || wheel.toolType !== "state-wheel") return
+    const d = wheel.data as StateWheelData
+    const country = d.selectedCountry || "us"
+    const current = d.selectedStates ?? []
+    if (current.length === 0) {
+      wheelManager.updateWheelData("state-wheel", wheel.id, {
+        ...d,
+        selectedCountry: country,
+        selectedStates: getStatesByCountry(country),
+      })
+    }
+  }, [wheel, wheelManager])
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+  if (!hasMounted) return null
+
+  const handleShowStatistics = (state: State) => {
+    setSelectedState(state)
+    setShowStatistics(true)
+  }
 
   const handleToggleFavorite = (state: State) => {
     if (isFavorite(state.id)) {
@@ -138,612 +278,874 @@ export default function StateInputPanel({ activeTab: externalActiveTab, onTabCha
     }
   }
 
-  const handleShowStatistics = (state: State) => {
-    setShowStatistics(true)
+  const recentResultsCount = (data as any).recentResults?.length || 0
+  const filteredSelectedStates = searchQuery.trim()
+    ? selectedStates.filter(
+        (s) =>
+          s.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          s.capital?.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          s.abbreviation?.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+      )
+    : selectedStates
+
+  const exportText = selectedStates.map((s) => s.name).join("\n")
+
+  const openHistory = () => {
+    if (onViewHistory) onViewHistory()
+    else setShowResults(true)
+  }
+
+  const applyBulkText = () => {
+    const names = bulkText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+    if (names.length === 0) {
+      showToast("Add at least one state name", "error")
+      return
+    }
+    // Search across all available countries
+    const allStates = availableCountries.flatMap((c) => getStatesByCountry(c.id))
+    const matched: State[] = []
+    const unmatched: string[] = []
+    for (const name of names) {
+      const found = allStates.find((s) => s.name.toLowerCase() === name.toLowerCase())
+      if (found) {
+        if (!matched.some((m) => m.id === found.id)) matched.push(found)
+      } else {
+        unmatched.push(name)
+      }
+    }
+    if (matched.length === 0) {
+      showToast("No matching states found", "error")
+      return
+    }
+    setSelectedStates(matched)
+    if (unmatched.length > 0) {
+      showToast(`Applied ${matched.length}; skipped ${unmatched.length} unknown`, "info")
+    } else {
+      showToast(`Applied ${matched.length} states`, "success")
+    }
   }
 
   const selectedCountryData = availableCountries.find((c) => c.id === selectedCountry)
 
-  // AI Suggestions Logic
-  const generateAISuggestions = () => {
-    setIsGeneratingSuggestions(true)
-    
-    // Simulate AI processing delay
-    setTimeout(() => {
-      const allStatesForCountry = getStatesByCountry(selectedCountry)
-      
-      // AI logic: Generate suggestions based on various criteria
-      const suggestions: State[] = []
-      
-      // 1. Popular states (high population)
-      const popularStates = allStatesForCountry
-        .filter(state => state.population && state.population > 5000000)
-        .sort((a, b) => (b.population || 0) - (a.population || 0))
-        .slice(0, 5)
-      
-      // 2. Large states (high area)
-      const largeStates = allStatesForCountry
-        .filter(state => state.area && state.area > 200000)
-        .sort((a, b) => (b.area || 0) - (a.area || 0))
-        .slice(0, 3)
-      
-      // 3. States with interesting capitals
-      const interestingCapitals = allStatesForCountry
-        .filter(state => state.capital && state.capital.length > 0)
-        .slice(0, 4)
-      
-      // 4. Random selection for variety
-      const randomStates = allStatesForCountry
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
-      
-      // Combine and deduplicate suggestions
-      const allSuggestions = [...popularStates, ...largeStates, ...interestingCapitals, ...randomStates]
-      const uniqueSuggestions = allSuggestions.filter((state, index, self) => 
-        index === self.findIndex(s => s.id === state.id)
-      ).slice(0, 8) // Limit to 8 suggestions
-      
-      setAiSuggestions(uniqueSuggestions)
-      setIsGeneratingSuggestions(false)
-      
-      // Auto-select AI suggestions
-      setSelectedStates(uniqueSuggestions)
-      
-    }, 2000) // 2 second delay to simulate AI processing
-  }
-
   return (
     <>
-      <div className="bg-gray-50 rounded-lg p-4">
-        {/* Tab Navigation */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-semibold text-gray-800">INPUTS</h3>
-            <div className="flex items-center space-x-1">
+      <div className="flex h-full min-h-[28rem] flex-col overflow-hidden rounded-lg border bg-white shadow-sm">
+        {/* Header toolbar */}
+        <div className="flex shrink-0 items-center justify-between gap-1 border-b bg-slate-50/80 px-2 py-2 sm:gap-2 sm:px-3">
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">State Controls</p>
+            <span className="shrink-0 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 sm:px-2 sm:text-xs">
+              {selectedStates.length} selected
+            </span>
+          </div>
+          <div className="flex shrink-0 items-center gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 sm:h-8 sm:w-8 ${favoriteStates.length > 0 ? "text-red-500" : ""}`}
+              onClick={() => setShowFavorites(true)}
+              title="Favorites"
+            >
+              <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 sm:h-8 sm:w-8 ${comparisonStates.length > 0 ? "text-blue-500" : ""}`}
+              onClick={() => setShowComparison(true)}
+              title="Comparison"
+            >
+              <GitCompare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+            {onOpenAchievements && (
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
-                className={`${favoriteStatesArray.length > 0 ? "text-red-500" : "text-gray-400"}`}
-                onClick={() => setShowFavorites(true)}
-                title="Favorites"
+                className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+                title="Achievements"
+                onClick={onOpenAchievements}
               >
-                <Heart className="w-4 h-4" />
-                {mounted && favoriteStatesArray.length > 0 && <span className="ml-1 text-xs">{favoriteStatesArray.length}</span>}
+                <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${comparisonStatesArray.length > 0 ? "text-blue-500" : "text-gray-400"}`}
-                onClick={() => setShowComparison(true)}
-                title="Comparison"
-              >
-                <GitCompare className="w-4 h-4" />
-                {mounted && comparisonStatesArray.length > 0 && <span className="ml-1 text-xs">{comparisonStatesArray.length}</span>}
-              </Button>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
+            )}
             <Button
+              type="button"
               variant="ghost"
               size="sm"
-              title="Preview"
-              onClick={() => setShowStateList(!showStateList)}
-              className={showStateList ? "bg-gray-200" : ""}
+              className="relative h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title={`Spin History (${recentResultsCount})`}
+              onClick={openHistory}
             >
-              <Eye className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              title="List View"
-              onClick={() => setViewMode(viewMode === "list" ? "wheel" : "list")}
-              className={viewMode === "list" ? "bg-gray-200" : ""}
-            >
-              <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              title="Text Mode"
-              onClick={() => setViewMode(viewMode === "text" ? "wheel" : "text")}
-              className={viewMode === "text" ? "bg-gray-200" : ""}
-            >
-              <Type className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Shuffle" onClick={() => setSelectedStates([...selectedStatesArray].sort(() => Math.random() - 0.5))}>
-              <Shuffle className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Sort A-Z" onClick={() => setSelectedStates([...selectedStatesArray].sort((a, b) => a.name.localeCompare(b.name)))}>
-              <RotateCcw className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Tab Buttons */}
-        <div className="flex space-x-2 mb-4">
-          <Button
-            variant={activeTab === 'manual' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleTabChange('manual')}
-            className={activeTab === 'manual' ? 'bg-gray-800 text-white' : ''}
-          >
-            Manual
-          </Button>
-          <Button
-            variant={activeTab === 'ai' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleTabChange('ai')}
-            className={activeTab === 'ai' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent border-purple-300 hover:bg-purple-50'}
-          >
-            <Brain className={`w-4 h-4 mr-2 ${activeTab === 'ai' ? 'text-white' : 'text-purple-600'}`} />
-            AI-Powered
-          </Button>
-        </div>
-
-        {/* Manual Tab Content */}
-        {activeTab === 'manual' && (
-          <div>
-            {/* Country Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Select Country:</label>
-              <Select value={selectedCountry} onValueChange={handleCountrySelect}>
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {selectedCountryData && (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{selectedCountryData.flag}</span>
-                        <span>{selectedCountryData.name}</span>
-                      </div>
-                    )}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCountries.map((country) => (
-                    <SelectItem key={country.id} value={country.id}>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{country.flag}</span>
-                        <span>{country.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Selected Count */}
-            <div className="mb-6">
-              <div
-                className="w-full flex items-center justify-between p-3 h-auto bg-transparent border rounded-md cursor-pointer"
-                onClick={() => setShowStateList(!showStateList)}
-                tabIndex={0}
-                role="button"
-              >
-                <span className="font-medium">
-                  {selectedStatesArray.length} selected of {allStatesForCountry.length}
+              <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              {recentResultsCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-0.5 text-[10px] text-white">
+                  {recentResultsCount}
                 </span>
-                <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedStates(allStatesForCountry)
-                    }}
-                    className="text-xs"
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedStates([])
-                    }}
-                    className="text-xs"
-                  >
-                    Clear All
-                  </Button>
-                  {/* ChevronDown is not defined in the new_code, so it's removed */}
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title="Shuffle"
+              onClick={shuffleStates}
+            >
+              <Shuffle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+            {onHideInputs && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+                title="Hide"
+                onClick={onHideInputs}
+              >
+                <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            )}
+            <SlicesManageMenu
+              settings={settings as unknown as WheelSettings}
+              onUpdateSettings={(partial) => {
+                updateSettings(partial as any)
+                if (partial.spinBehavior && "removeWinnerAfterSpin" in partial.spinBehavior) {
+                  setActionModeSynced(
+                    partial.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal",
+                  )
+                }
+              }}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onSortZA={sortStatesZA}
+              onShuffle={shuffleStates}
+              onEqualize={() => showToast("States use equal slice weights", "info")}
+              onDeleteBlanks={deleteBlankStates}
+              onRemoveDuplicates={removeDuplicateStates}
+              onClearAll={clearAllStates}
+            />
+          </div>
+        </div>
+
+        {/* Sidebar tab nav */}
+        <div className="flex shrink-0 overflow-x-auto border-b">
+          {SIDEBAR_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                if (tab.id === "text") {
+                  setBulkText(selectedStates.map((s) => s.name).join("\n"))
+                }
+                setSidebarTab(tab.id)
+              }}
+              className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium transition-colors ${
+                sidebarTab === tab.id
+                  ? "border-b-2 border-blue-600 bg-blue-50/50 text-blue-700"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3">
+          {/* ── INPUTS TAB ── */}
+          {sidebarTab === "inputs" && (
+            <div>
+              {/* Action Mode */}
+              <div className="mb-4 space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Action Mode</Label>
+                <Select value={actionMode} onValueChange={(v) => setActionModeSynced(v as ActionMode)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal Mode</SelectItem>
+                    <SelectItem value="elimination">Elimination Mode</SelectItem>
+                    <SelectItem value="manual">Manual Mode</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-500">
+                  Elimination removes the winning state after each spin. Synced with Manage → Remove winner.
+                </p>
+              </div>
+
+              {/* View mode */}
+              <div className="mb-4 space-y-2">
+                <Label className="text-sm font-medium text-slate-700">View</Label>
+                <div className="flex gap-2">
+                  {(["wheel", "list", "text"] as const).map((mode) => (
+                    <Button
+                      key={mode}
+                      type="button"
+                      size="sm"
+                      variant={viewMode === mode ? "default" : "outline"}
+                      className="flex-1 capitalize"
+                      onClick={() => setViewMode(mode)}
+                    >
+                      {mode}
+                    </Button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Display Mode */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Show:</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="displayMode"
-                    value="both"
-                    checked={displayMode === "both"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both" )}
-                    className="text-blue-600"
+              {/* Manual / AI toggle */}
+              <div className="mb-4 flex space-x-2">
+                <Button
+                  variant={activeTab === "manual" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleTabChange("manual")}
+                  className={activeTab === "manual" ? "bg-gray-800 text-white" : ""}
+                >
+                  Manual
+                </Button>
+                <Button
+                  variant={activeTab === "ai" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleTabChange("ai")}
+                  className={
+                    activeTab === "ai"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                      : "border-purple-300 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent hover:bg-purple-50"
+                  }
+                >
+                  <Brain
+                    className={`mr-2 h-4 w-4 ${activeTab === "ai" ? "text-white" : "text-purple-600"}`}
                   />
-                  <span className="text-sm">Flag & Name</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="displayMode"
-                    value="flag"
-                    checked={displayMode === "flag"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both" )}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm">Flag</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="displayMode"
-                    value="name"
-                    checked={displayMode === "name"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both" )}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm">Name</span>
-                </label>
+                  AI-Powered
+                </Button>
               </div>
-            </div>
 
-            {/* State List (when expanded) */}
-            {showStateList && (
-              <div className="mt-4">
-                <div className="p-4 max-h-64 overflow-y-auto">
-                  <div className="space-y-2">
-                    {allStatesForCountry.map((state) => (
-                      <div
-                        key={state.id}
-                        className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Checkbox
-                            checked={selectedStatesArray.some((s: State) => s.id === state.id)}
-                            onCheckedChange={() => {
-                              const isSelected = selectedStatesArray.some((s: State) => s.id === state.id)
-                              setSelectedStates(isSelected
-                                ? selectedStatesArray.filter((s: State) => s.id !== state.id)
-                                : [...selectedStatesArray, state]
-                              )
-                            }}
-                            className="w-4 h-4 text-blue-600"
-                          />
-                          {state.flag && <span className="text-2xl">{state.flag}</span>}
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{state.name}</div>
-                            <div className="text-xs text-gray-500">
-                              {state.capital && `${state.capital} • `}
-                              {state.abbreviation && `${state.abbreviation} • `}
-                              {state.country}
+              {activeTab === "manual" && (
+                <div>
+                  {/* Country Selector */}
+                  <div className="mb-6">
+                    <label className="mb-3 block text-sm font-medium text-gray-700">Select Country:</label>
+                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {selectedCountryData && (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{selectedCountryData.flag}</span>
+                              <span>{selectedCountryData.name}</span>
                             </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleShowStatistics(state)}
-                            title="Statistics"
-                            className="text-blue-500 hover:text-blue-700"
-                          >
-                            <BarChart3 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleFavorite(state)}
-                            title={(favoriteStatesArray || []).some((s) => s.id === state.id) ? "Remove from favorites" : "Add to favorites"}
-                            className={
-                              (favoriteStatesArray || []).some((s) => s.id === state.id) ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"
-                            }
-                          >
-                            <Heart className={`w-4 h-4 ${((favoriteStatesArray || []).some((s) => s.id === state.id)) ? "fill-current" : ""}`} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleComparison(state)}
-                            title={(comparisonStatesArray || []).some((s) => s.id === state.id) ? "Remove from comparison" : "Add to comparison"}
-                            disabled={(comparisonStatesArray || []).some((s) => s.id === state.id) && (comparisonStatesArray || []).length >= 4}
-                            className={
-                              (comparisonStatesArray || []).some((s) => s.id === state.id)
-                                ? "text-blue-500 hover:text-blue-700"
-                                : "text-gray-400 hover:text-blue-500"
-                            }
-                          >
-                            {(comparisonStatesArray || []).some((s) => s.id === state.id) ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCountries.map((country) => (
+                          <SelectItem key={country.id} value={country.id}>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{country.flag}</span>
+                              <span>{country.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* View Mode Display */}
-            {viewMode === "list" && (
-              <div className="mt-4">
-                <div className="p-4">
-                  <h4 className="font-semibold mb-3">List View</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                    {(selectedStatesArray || []).map((state) => (
-                      <div key={state.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                        {state.flag && <span className="text-lg">{state.flag}</span>}
-                        <span className="text-sm font-medium truncate">{state.name}</span>
-                      </div>
-                    ))}
+                  {/* Selected count expand */}
+                  <div className="mb-6">
+                    <Button
+                      variant="outline"
+                      className="flex h-auto w-full items-center justify-between bg-transparent p-3"
+                      onClick={() => setShowStateList(!showStateList)}
+                    >
+                      <span className="font-medium">
+                        {selectedStates.length} selected of {allStatesForCountry.length}
+                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${showStateList ? "rotate-180" : ""}`}
+                      />
+                    </Button>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {viewMode === "text" && (
-              <div className="mt-4">
-                <div className="p-4">
-                  <h4 className="font-semibold mb-3">Text Mode</h4>
-                  <div className="max-h-64 overflow-y-auto">
-                    <div className="text-sm leading-relaxed">
-                      {(selectedStatesArray || []).map((state, index) => (
-                        <span key={state.id}>
-                          {state.name}
-                          {index < (selectedStatesArray || []).length - 1 ? ", " : ""}
-                        </span>
+                  {/* Display Mode */}
+                  <div className="mb-6">
+                    <label className="mb-3 block text-sm font-medium text-gray-700">Show:</label>
+                    <div className="flex space-x-4">
+                      {(["both", "flag", "name"] as const).map((val) => (
+                        <label key={val} className="flex cursor-pointer items-center space-x-2">
+                          <input
+                            type="radio"
+                            name="stateDisplayMode"
+                            value={val}
+                            checked={displayMode === val}
+                            onChange={() => setDisplayMode(val)}
+                            className="text-blue-600"
+                          />
+                          <span className="text-sm capitalize">
+                            {val === "both" ? "Flag & Name" : val === "flag" ? "Flag" : "Name"}
+                          </span>
+                        </label>
                       ))}
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {(selectedStatesArray || []).length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <div className="text-4xl mb-2">🏛️</div>
-                <p className="font-medium">No states selected</p>
-                <p className="text-sm">Choose a country and select states to get started!</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* AI Tab Content */}
-        {activeTab === 'ai' && (
-          <div>
-            {/* Country Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Select Country:</label>
-              <Select value={selectedCountry} onValueChange={handleCountrySelect}>
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {selectedCountryData && (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{selectedCountryData.flag}</span>
-                        <span>{selectedCountryData.name}</span>
-                      </div>
-                    )}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCountries.map((country) => (
-                    <SelectItem key={country.id} value={country.id}>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{country.flag}</span>
-                        <span>{country.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* AI State Suggestions */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">AI State Suggestions</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-purple-600 border-purple-300 hover:bg-purple-50"
-                  onClick={generateAISuggestions}
-                  disabled={isGeneratingSuggestions}
-                >
-                  <Brain className="w-4 h-4 mr-2" />
-                  {isGeneratingSuggestions ? "Generating..." : "Get AI Suggestions"}
-                </Button>
-              </div>
-              {isGeneratingSuggestions ? (
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4">
-                  <div className="text-center">
-                    <Brain className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <p className="text-sm text-purple-700 font-medium">AI is generating suggestions...</p>
-                    <p className="text-xs text-purple-600 mt-1">Please wait a moment.</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4">
-                  {aiSuggestions.length > 0 ? (
-                    <div>
-                      <div className="text-center mb-3">
-                        <Brain className="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                        <p className="text-sm text-purple-700 font-medium">AI Suggestions Generated!</p>
-                        <p className="text-xs text-purple-600">Based on population, size, and diversity</p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                        {aiSuggestions.map((state) => (
-                          <div key={state.id} className="flex items-center space-x-2 p-2 bg-white rounded border border-purple-200">
-                            <span className="text-lg">{state.flag}</span>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate">{state.name}</div>
-                              {state.population && (
-                                <div className="text-xs text-purple-600">
-                                  {state.population.toLocaleString()} people
+                  {/* State List (expanded) */}
+                  {showStateList && (
+                    <Card className="mt-4">
+                      <CardContent className="max-h-64 overflow-y-auto p-4">
+                        {searchQuery.trim() && (
+                          <p className="mb-2 text-xs text-slate-500">
+                            Showing {filteredSelectedStates.length} of {selectedStates.length} matching &quot;{searchQuery.trim()}&quot;
+                          </p>
+                        )}
+                        <div className="space-y-2">
+                          {filteredSelectedStates.map((state) => (
+                            <div
+                              key={state.id}
+                              className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50"
+                            >
+                              <div className="flex min-w-0 items-center space-x-3">
+                                <Checkbox
+                                  checked={selectedStates.some((s) => s.id === state.id)}
+                                  onCheckedChange={() => toggleState(state)}
+                                  aria-label={`Toggle ${state.name}`}
+                                />
+                                {state.flag && <span className="text-2xl">{state.flag}</span>}
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate text-sm font-medium">{state.name}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {state.capital && `${state.capital} • `}
+                                    {state.abbreviation && `${state.abbreviation} • `}
+                                    {state.country}
+                                  </div>
                                 </div>
-                              )}
+                              </div>
+                              <div className="flex shrink-0 items-center space-x-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleShowStatistics(state)}
+                                  title="Statistics"
+                                  className="text-blue-500 hover:text-blue-700"
+                                >
+                                  <BarChart3 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleToggleFavorite(state)}
+                                  title={isFavorite(state.id) ? "Remove from favorites" : "Add to favorites"}
+                                  className={
+                                    isFavorite(state.id)
+                                      ? "text-red-500 hover:text-red-700"
+                                      : "text-gray-400 hover:text-red-500"
+                                  }
+                                >
+                                  <Heart
+                                    className={`h-4 w-4 ${isFavorite(state.id) ? "fill-current" : ""}`}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleToggleComparison(state)}
+                                  title={
+                                    isInComparison(state.id)
+                                      ? "Remove from comparison"
+                                      : "Add to comparison"
+                                  }
+                                  disabled={!isInComparison(state.id) && comparisonStates.length >= 4}
+                                  className={
+                                    isInComparison(state.id)
+                                      ? "text-blue-500 hover:text-blue-700"
+                                      : "text-gray-400 hover:text-blue-500"
+                                  }
+                                >
+                                  {isInComparison(state.id) ? (
+                                    <X className="h-4 w-4" />
+                                  ) : (
+                                    <Plus className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
                             </div>
+                          ))}
+                          {filteredSelectedStates.length === 0 && (
+                            <p className="py-4 text-center text-sm text-slate-500">
+                              {searchQuery.trim()
+                                ? "No states match your search."
+                                : "No states selected."}
+                            </p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* View Mode display */}
+                  {viewMode === "list" && (
+                    <Card className="mt-4">
+                      <CardContent className="p-4">
+                        <h4 className="mb-3 font-semibold">List View</h4>
+                        <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto md:grid-cols-3">
+                          {filteredSelectedStates.map((state) => (
+                            <div key={state.id} className="flex items-center space-x-2 rounded p-2 hover:bg-gray-50">
+                              {state.flag && <span className="text-lg">{state.flag}</span>}
+                              <span className="truncate text-sm font-medium">{state.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {viewMode === "text" && (
+                    <Card className="mt-4">
+                      <CardContent className="p-4">
+                        <h4 className="mb-3 font-semibold">Text Mode</h4>
+                        <div className="max-h-64 overflow-y-auto">
+                          <div className="text-sm leading-relaxed">
+                            {filteredSelectedStates.map((state, index) => (
+                              <span key={state.id}>
+                                {state.name}
+                                {index < filteredSelectedStates.length - 1 ? ", " : ""}
+                              </span>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      <div className="mt-3 text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAiSuggestions([])}
-                          className="text-xs text-purple-600 border-purple-300 hover:bg-purple-50"
-                        >
-                          Clear Suggestions
-                        </Button>
-                      </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {selectedStates.length === 0 && (
+                    <div className="py-8 text-center text-gray-500">
+                      <div className="mb-2 text-4xl">🏛️</div>
+                      <p className="font-medium">No states selected</p>
+                      <p className="text-sm">Choose a country above to get started!</p>
                     </div>
-                  ) : (
-                    <div className="text-center">
-                      <Brain className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                      <p className="text-sm text-purple-700 font-medium">AI will suggest states based on your preferences</p>
-                      <p className="text-xs text-purple-600 mt-1">Click the button above to get intelligent recommendations</p>
+                  )}
+                </div>
+              )}
+
+              {/* AI Tab Content */}
+              {activeTab === "ai" && (
+                <div className="space-y-6">
+                  {/* Country Selector for AI */}
+                  <div className="mb-4">
+                    <label className="mb-3 block text-sm font-medium text-gray-700">
+                      AI Country Focus:
+                    </label>
+                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {selectedCountryData && (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{selectedCountryData.flag}</span>
+                              <span>{selectedCountryData.name}</span>
+                            </div>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCountries.map((country) => (
+                          <SelectItem key={country.id} value={country.id}>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{country.flag}</span>
+                              <span>{country.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* AI selected count */}
+                  <div className="mb-4">
+                    <Button
+                      variant="outline"
+                      className="flex h-auto w-full items-center justify-between border-purple-200 bg-transparent p-3"
+                      onClick={() => setShowStateList(!showStateList)}
+                    >
+                      <span className="font-medium">
+                        {selectedStates.length} selected of {allStatesForCountry.length}
+                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${showStateList ? "rotate-180" : ""}`}
+                      />
+                    </Button>
+                  </div>
+
+                  {/* AI Features Info */}
+                  <div className="rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 p-4">
+                    <h4 className="mb-2 font-semibold text-purple-800">🤖 AI Features</h4>
+                    <ul className="space-y-1 text-sm text-purple-700">
+                      <li>• Intelligent state recommendations</li>
+                      <li>• AI-powered spinning with insights</li>
+                      <li>• Smart result analysis</li>
+                      <li>• Personalized suggestions</li>
+                    </ul>
+                  </div>
+
+                  {/* AI Insights */}
+                  {selectedStates.length > 0 && (
+                    <div className="rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 p-4">
+                      <h4 className="mb-3 font-semibold text-purple-800">🧠 AI Analysis</h4>
+                      <div className="space-y-2 text-sm text-purple-700">
+                        <div className="flex justify-between">
+                          <span>Total States Selected:</span>
+                          <span className="font-medium">{selectedStates.length}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Population:</span>
+                          <span className="font-medium">
+                            {selectedStates
+                              .reduce((sum, s) => sum + (s.population || 0), 0)
+                              .toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Area:</span>
+                          <span className="font-medium">
+                            {selectedStates
+                              .reduce((sum, s) => sum + (s.area || 0), 0)
+                              .toLocaleString()}{" "}
+                            km²
+                          </span>
+                        </div>
+                        <div className="mt-3 rounded border border-purple-200 bg-white p-2">
+                          <p className="text-xs text-purple-600">
+                            <strong>AI Insight:</strong>{" "}
+                            {selectedStates.length > 5
+                              ? "You've selected a diverse mix of states! This will create an interesting and varied wheel experience."
+                              : "Consider adding more states for a more dynamic wheel experience."}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
             </div>
+          )}
 
-            {/* Selected States for AI */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">States for AI Wheel</label>
-                <span className="text-sm text-gray-500">{selectedStatesArray.length} selected</span>
+          {/* ── TEXT TAB ── */}
+          {sidebarTab === "text" && (
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium text-slate-700">State list</Label>
+                <p className="mt-1 text-xs text-slate-500">
+                  One state name per line. Matching names from the catalog are selected.
+                </p>
               </div>
-              <div className="bg-white border rounded-lg p-3 max-h-32 overflow-y-auto">
-                {selectedStatesArray.length === 0 ? (
-                  <p className="text-gray-500 text-sm text-center py-4">No states selected for AI wheel</p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedStatesArray.slice(0, 8).map((state) => (
-                      <div key={state.id} className="flex items-center space-x-2 p-2 bg-gray-50 rounded">
-                        <span className="text-lg">{state.flag}</span>
-                        <span className="text-sm font-medium truncate">{state.name}</span>
-                      </div>
-                    ))}
-                    {selectedStatesArray.length > 8 && (
-                      <div className="text-xs text-gray-500 col-span-2 text-center">
-                        +{selectedStatesArray.length - 8} more states
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Display Mode for AI */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">AI Wheel Display:</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="aiDisplayMode"
-                    value="both"
-                    checked={displayMode === "both"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both")}
-                    className="text-purple-600"
-                  />
-                  <span className="text-sm">Flag & Name</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="aiDisplayMode"
-                    value="flag"
-                    checked={displayMode === "flag"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both")}
-                    className="text-purple-600"
-                  />
-                  <span className="text-sm">Flag</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="aiDisplayMode"
-                    value="name"
-                    checked={displayMode === "name"}
-                    onChange={(e) => setDisplayMode(e.target.value as "flag" | "name" | "both")}
-                    className="text-purple-600"
-                  />
-                  <span className="text-sm">Name</span>
-                </label>
+              <Textarea
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                rows={12}
+                placeholder={"California\nTexas\nNew York"}
+                className="font-mono text-sm"
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={applyBulkText}>
+                  Apply text
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setBulkText(selectedStates.map((s) => s.name).join("\n"))}
+                >
+                  Load current
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const blob = new Blob([exportText], { type: "text/plain" })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement("a")
+                    a.href = url
+                    a.download = "states.txt"
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  }}
+                >
+                  Export
+                </Button>
               </div>
             </div>
+          )}
 
-            {/* AI Features Info */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-semibold text-purple-800 mb-2">🤖 AI Features</h4>
-              <ul className="text-sm text-purple-700 space-y-1">
-                <li>• Intelligent state recommendations</li>
-                <li>• AI-powered spinning with insights</li>
-                <li>• Smart result analysis</li>
-                <li>• Personalized suggestions</li>
-              </ul>
-            </div>
-
-            {/* AI Insights about Selected States */}
-            {selectedStatesArray.length > 0 && (
-              <div className="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-                <h4 className="font-semibold text-purple-800 mb-3">🧠 AI Analysis</h4>
-                <div className="space-y-2 text-sm text-purple-700">
-                  {(() => {
-                    const totalPopulation = selectedStatesArray.reduce((sum, state) => sum + (state.population || 0), 0)
-                    const totalArea = selectedStatesArray.reduce((sum, state) => sum + (state.area || 0), 0)
-                    const avgPopulation = totalPopulation / selectedStatesArray.length
-                    const statesWithCapitals = selectedStatesArray.filter(state => state.capital).length
-                    
-                    return (
-                      <>
-                        <div className="flex justify-between">
-                          <span>Total States Selected:</span>
-                          <span className="font-medium">{selectedStatesArray.length}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Population:</span>
-                          <span className="font-medium">{totalPopulation.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Average Population:</span>
-                          <span className="font-medium">{Math.round(avgPopulation).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Area:</span>
-                          <span className="font-medium">{totalArea.toLocaleString()} km²</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>States with Capitals:</span>
-                          <span className="font-medium">{statesWithCapitals}</span>
-                        </div>
-                        <div className="mt-3 p-2 bg-white rounded border border-purple-200">
-                          <p className="text-xs text-purple-600">
-                            <strong>AI Insight:</strong> {selectedStatesArray.length > 5 
-                              ? "You've selected a diverse mix of states! This will create an interesting and varied wheel experience." 
-                              : "Consider adding more states for a more dynamic wheel experience."
-                            }
-                          </p>
-                        </div>
-                      </>
-                    )
-                  })()}
+          {/* ── STYLE TAB ── */}
+          {sidebarTab === "style" && (
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Display Options</Label>
+                <div className="grid gap-2">
+                  {(
+                    [
+                      { value: "both" as const, label: "Flag & Name" },
+                      { value: "flag" as const, label: "Flag Only" },
+                      { value: "name" as const, label: "Name Only" },
+                    ] as const
+                  ).map((opt) => (
+                    <label
+                      key={opt.value}
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                        displayMode === opt.value
+                          ? "border-blue-400 bg-blue-50"
+                          : "border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="state-display"
+                        value={opt.value}
+                        checked={displayMode === opt.value}
+                        onChange={() => setDisplayMode(opt.value)}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-slate-700">Color palettes</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const palette =
+                        LETTER_COLOR_PALETTES[Math.floor(Math.random() * LETTER_COLOR_PALETTES.length)]
+                      onApplyPalette?.(palette.colors)
+                      showToast("Palette applied", "success")
+                    }}
+                  >
+                    Randomize
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {LETTER_COLOR_PALETTES.map((palette) => (
+                    <button
+                      key={palette.name}
+                      type="button"
+                      onClick={() => {
+                        onApplyPalette?.(palette.colors)
+                        showToast("Palette applied", "success")
+                      }}
+                      className="rounded-lg border border-slate-200 p-2 text-left hover:border-blue-300 hover:bg-blue-50/40"
+                    >
+                      <span className="mb-1 block text-xs font-semibold text-slate-800">
+                        {palette.name}
+                      </span>
+                      <span className="flex gap-0.5">
+                        {palette.colors.slice(0, 6).map((c) => (
+                          <span
+                            key={`${palette.name}-${c}`}
+                            className="h-3 w-3 rounded-sm"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-slate-700">Themes</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const unlocked = themes.filter((t) => t.unlocked)
+                      const pool = unlocked.length > 0 ? unlocked : themes
+                      const next = pool[Math.floor(Math.random() * pool.length)]
+                      if (next) onThemeChange?.(next.id)
+                    }}
+                  >
+                    Randomize
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {themes.map((theme) => {
+                    const locked = !theme.unlocked
+                    const active = currentTheme === theme.id
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        disabled={locked}
+                        onClick={() => {
+                          if (!locked) onThemeChange?.(theme.id)
+                        }}
+                        className={`rounded-lg border p-2 text-left transition-colors ${
+                          active
+                            ? "border-blue-400 bg-blue-50"
+                            : locked
+                              ? "cursor-not-allowed border-slate-100 opacity-50"
+                              : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
+                        }`}
+                        title={locked ? `Locked — ${theme.description}` : theme.description}
+                      >
+                        <span className="mb-1 flex items-center justify-between gap-1">
+                          <span className="block truncate text-xs font-semibold text-slate-800">
+                            {theme.name}
+                          </span>
+                          {locked && (
+                            <span className="shrink-0 text-[10px] text-slate-400">Locked</span>
+                          )}
+                        </span>
+                        <span className="flex gap-0.5">
+                          {theme.colors.slice(0, 6).map((c) => (
+                            <span
+                              key={`${theme.id}-${c}`}
+                              className="h-3 w-3 rounded-sm"
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── OTHER OPTIONS TAB ── */}
+          {sidebarTab === "other" && (
+            <div className="space-y-4">
+              <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">Confetti</p>
+                    <p className="text-xs text-slate-500">Celebrate each spin result</p>
+                  </div>
+                  <Switch
+                    id="state-confetti"
+                    checked={settings.confettiSound?.enableConfetti ?? true}
+                    onCheckedChange={(checked) =>
+                      updateSettings({
+                        confettiSound: {
+                          ...settings.confettiSound,
+                          enableConfetti: checked,
+                        },
+                      } as any)
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">Sound</p>
+                    <p className="text-xs text-slate-500">Play spin / result sounds</p>
+                  </div>
+                  <Switch
+                    id="state-sound"
+                    checked={settings.confettiSound?.enableSound ?? true}
+                    onCheckedChange={(checked) =>
+                      updateSettings({
+                        confettiSound: {
+                          ...settings.confettiSound,
+                          enableSound: checked,
+                        },
+                      } as any)
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-800">
+                    Spinning duration: {settings.spinBehavior?.spinningDuration ?? 10}s
+                  </Label>
+                  <input
+                    type="range"
+                    min={3}
+                    max={25}
+                    step={1}
+                    value={settings.spinBehavior?.spinningDuration ?? 10}
+                    onChange={(e) =>
+                      updateSettings({
+                        spinBehavior: {
+                          ...settings.spinBehavior,
+                          spinningDuration: Number(e.target.value),
+                        },
+                      } as any)
+                    }
+                    className="w-full accent-blue-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-800">
+                    Spinning speed level: {settings.spinBehavior?.spinningSpeedLevel ?? 10}
+                  </Label>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={settings.spinBehavior?.spinningSpeedLevel ?? 10}
+                    onChange={(e) =>
+                      updateSettings({
+                        spinBehavior: {
+                          ...settings.spinBehavior,
+                          spinningSpeedLevel: Number(e.target.value),
+                        },
+                      } as any)
+                    }
+                    className="w-full accent-blue-500"
+                  />
+                </div>
+              </div>
+
+              <SidebarOtherOptions
+                toolLabel="States"
+                resultsCount={recentResultsCount}
+                exportFileName="states.txt"
+                exportText={exportText}
+                entries={selectedStates.map((s) => ({
+                  id: s.id,
+                  name: s.name,
+                  weight: 1,
+                }))}
+                onImportText={(text) => {
+                  setBulkText(text)
+                  setSidebarTab("text")
+                  showToast("Pasted into Text tab — tap Apply text", "info")
+                }}
+                onRemoveDuplicates={removeDuplicateStates}
+                onViewResults={openHistory}
+                onOpenSettings={onOpenSettings}
+                onToggleFullscreen={onToggleFullscreen}
+                onOpenAnalytics={onOpenAnalytics}
+                onOpenAI={() => {
+                  setSidebarTab("inputs")
+                  handleTabChange("ai")
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modals */}
-      <StateStatisticsModal isOpen={showStatistics} onClose={() => setShowStatistics(false)} state={selectedState} />
-
+      <StateStatisticsModal
+        isOpen={showStatistics}
+        onClose={() => setShowStatistics(false)}
+        state={selectedState}
+      />
       <StateComparisonModal isOpen={showComparison} onClose={() => setShowComparison(false)} />
-
       <StateFavoritesModal isOpen={showFavorites} onClose={() => setShowFavorites(false)} />
+      <StateResultsModal
+        isOpen={showResults}
+        onClose={() => setShowResults(false)}
+        results={(data as any).recentResults || []}
+      />
     </>
   )
 }
-

@@ -10,6 +10,7 @@ import {
   YES_NO_PICKER_H1,
   YES_NO_PICKER_HERO_INTRO,
   YES_NO_PICKER_ON_THIS_PAGE,
+  YES_NO_PICKER_OPTIONS_GUIDE,
   YES_NO_PICKER_PARTY_IDEAS,
   YES_NO_PICKER_POPULAR_WHEELS,
   YES_NO_PICKER_RELATED_TOOLS,
@@ -136,6 +137,37 @@ export default function YesNoPickerSeoSections() {
                   {point.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-600">{point.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          id="yn-options"
+          aria-labelledby="yn-options-heading"
+          className="mt-12 scroll-mt-24"
+        >
+          <h2
+            id="yn-options-heading"
+            className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+          >
+            How This Tool&apos;s Options Work
+          </h2>
+          <p className="mb-6 text-base leading-relaxed text-slate-600">
+            The Yes / No Controls sidebar is where most settings live. Use this guide to understand
+            each option before you spin—so everyday decisions, classroom votes, and party games
+            behave the way you expect.
+          </p>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {YES_NO_PICKER_OPTIONS_GUIDE.map((option) => (
+              <li
+                key={option.title}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-spin-display mb-2 text-lg font-semibold text-slate-900">
+                  {option.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-600">{option.description}</p>
               </li>
             ))}
           </ul>

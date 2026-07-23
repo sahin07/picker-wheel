@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X, Trash2 } from "lucide-react"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { formatPopulation, formatArea, formatGDP } from "@/data/countries"
+import { CountryFlagImage } from "@/components/country-flag-image"
 
 interface CountryComparisonModalProps {
   isOpen: boolean
@@ -76,7 +77,11 @@ export default function CountryComparisonModal({ isOpen, onClose }: CountryCompa
                           >
                             <X className="w-4 h-4" />
                           </Button>
-                          <div className="text-4xl">{country.flag}</div>
+                          <CountryFlagImage
+                            country={country}
+                            width={80}
+                            imgClassName="h-10 w-[3.75rem] rounded object-cover border border-slate-200"
+                          />
                           <div className="font-semibold">{country.name}</div>
                         </div>
                       </th>

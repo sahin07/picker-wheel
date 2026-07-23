@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, Clock, Trophy } from "lucide-react";
+import { CountryFlagImage } from "@/components/country-flag-image";
 
 interface CountryResultsModalProps {
   isOpen: boolean;
@@ -46,7 +47,11 @@ export default function CountryResultsModal({ isOpen, onClose, result, results =
                       <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">
                         {index + 1}
                       </div>
-                      {result.flag && <span className="text-2xl">{result.flag}</span>}
+                      <CountryFlagImage
+                        country={result}
+                        width={80}
+                        imgClassName="h-8 w-12 rounded object-cover border border-slate-200"
+                      />
                       <div>
                         <div className="font-semibold text-lg">{result.name}</div>
                         {result.region && <div className="text-sm text-gray-600">{result.region}</div>}

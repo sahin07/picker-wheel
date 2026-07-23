@@ -196,7 +196,7 @@ export const IMAGE_PICKER_USE_CASE_GROUPS: ImagePickerUseCaseGroup[] = [
       {
         title: "Flag quizzes",
         href: "/flag-wheel",
-        description: "Spin flags on the Flag Wheel, or try the Country Wheel for geography quizzes.",
+        description: "Spin flags on the Flag Wheel, or try the Country Picker Wheel for geography quizzes.",
       },
       {
         title: "Letter recognition",
@@ -215,7 +215,7 @@ export const IMAGE_PICKER_USE_CASE_GROUPS: ImagePickerUseCaseGroup[] = [
     items: [
       {
         title: "Character selection",
-        href: "/pokemon-wheel",
+        href: "/pokemon-picker-wheel",
         description: "Spin Pokémon on the dedicated wheel, or load the Pokémon image template here.",
       },
       {
@@ -225,7 +225,7 @@ export const IMAGE_PICKER_USE_CASE_GROUPS: ImagePickerUseCaseGroup[] = [
       },
       {
         title: "Loot selection",
-        href: "/fortnite-wheel",
+        href: "/fortnite-picker-wheel",
         description: "Spin item or loot picks for party games and stream rewards.",
       },
       {
@@ -347,7 +347,7 @@ export const IMAGE_PICKER_RELATED_TOOLS: ImagePickerLinkItem[] = [
   },
   {
     label: "Team / Name Picker",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Spin names and teams for classrooms, giveaways, and groups.",
   },
   {
@@ -366,13 +366,13 @@ export const IMAGE_PICKER_RELATED_TOOLS: ImagePickerLinkItem[] = [
     description: "A simple decision wheel for binary choices.",
   },
   {
-    label: "Country Wheel",
-    href: "/country-wheel",
+    label: "Country Picker Wheel",
+    href: "/country-picker-wheel",
     description: "Spin countries for geography and travel games.",
   },
   {
     label: "Pokémon Wheel",
-    href: "/pokemon-wheel",
+    href: "/pokemon-picker-wheel",
     description: "Spin Pokémon for gaming parties and fair character picks.",
   },
 ]
@@ -390,8 +390,8 @@ export const IMAGE_PICKER_CLUSTER_LINKS: ImagePickerLinkItem[] = [
   { label: "Car Logo Wheel", href: "/car-logo-wheel", description: "" },
   { label: "Dinosaur Wheel", href: "/dinosaur-wheel", description: "" },
   { label: "Minecraft Mob Wheel", href: "/minecraft-mob-wheel", description: "" },
-  { label: "Pokémon Wheel", href: "/pokemon-wheel", description: "" },
-  { label: "Country Wheel", href: "/country-wheel", description: "" },
+  { label: "Pokémon Wheel", href: "/pokemon-picker-wheel", description: "" },
+  { label: "Country Picker Wheel", href: "/country-picker-wheel", description: "" },
   { label: "Fortnite Wheel", href: "/fortnite-wheel", description: "" },
 ]
 

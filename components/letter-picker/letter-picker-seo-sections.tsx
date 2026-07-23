@@ -8,6 +8,7 @@ import {
   LETTER_PICKER_H1,
   LETTER_PICKER_HERO_INTRO,
   LETTER_PICKER_ON_THIS_PAGE,
+  LETTER_PICKER_OPTIONS_GUIDE,
   LETTER_PICKER_POPULAR_WHEELS,
   LETTER_PICKER_RELATED_TOOLS,
   LETTER_PICKER_USE_CASES_SEO,
@@ -140,6 +141,37 @@ export default function LetterPickerSeoSections() {
                   {point.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-600">{point.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          id="lp-options"
+          aria-labelledby="lp-options-heading"
+          className="mt-12 scroll-mt-24"
+        >
+          <h2
+            id="lp-options-heading"
+            className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+          >
+            How This Tool&apos;s Options Work
+          </h2>
+          <p className="mb-6 text-base leading-relaxed text-slate-600">
+            The Letter Controls sidebar is where most settings live. Use this guide to understand
+            each option before you spin—so classroom, phonics, and game setups behave the way you
+            expect.
+          </p>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {LETTER_PICKER_OPTIONS_GUIDE.map((option) => (
+              <li
+                key={option.title}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-spin-display mb-2 text-lg font-semibold text-slate-900">
+                  {option.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-600">{option.description}</p>
               </li>
             ))}
           </ul>

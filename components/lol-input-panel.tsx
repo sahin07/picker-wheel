@@ -1,629 +1,773 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMemo, useState, type ReactNode } from "react"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import {
-  Eye,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  EyeOff,
   List,
-  Crown,
-  Users,
   Brain,
-  Target,
   BarChart3,
-  Sparkles,
-} from "lucide-react";
-import { lolChampions } from "@/data/lol-champions";
+  MoreVertical,
+  History,
+  Shuffle,
+  Trophy,
+  Type,
+  Palette,
+} from "lucide-react"
 import {
-  roleColors,
-  roleNames,
-  roleDescriptions,
-  popularityColors,
-  difficultyColors,
-} from "@/constants/lol-config";
+  ChampionsTab,
+  CustomChampionsCard,
+} from "@/components/tabs/champions-tab"
+import { AITab } from "@/components/tabs/ai-tab"
+import { StatsTab } from "@/components/tabs/stats-tab"
+import { SidebarOtherOptions } from "@/components/sidebar-other-options"
+import { SlicesManageMenu } from "@/components/slices-manage-menu"
+import { useSettingsStore } from "@/stores/settings-store"
+import { useToast } from "@/contexts/toast-context"
+import { PICKER_WHEEL_THEMES, type WheelTheme } from "@/lib/picker-wheel-themes"
+import { LETTER_COLOR_PALETTES } from "@/lib/letter-picker-constants"
+import type { WheelSettings } from "@/types/settings"
 import type {
-  LoLChampion,
-  DisplayMode,
-  RoleFilter,
+  ActionMode,
   AIMode,
   ChatMessage,
+  DisplayMode,
+  LoLChampion,
+  RoleFilter,
+  SpinResult,
   UserPreferences,
-} from "@/types/lol-types";
+} from "@/types/lol-types"
 
-interface LoLInputPanelProps {
-  activeTab?: "manual" | "ai";
-  onTabChange?: (tab: "manual" | "ai") => void;
-  actionMode?: "normal" | "elimination" | "manual";
-  onActionModeChange?: (mode: "normal" | "elimination" | "manual") => void;
-  onEliminationMode?: (champion: LoLChampion) => void;
-  onAddManualChampion?: (name: string) => void;
+type SidebarTab = "inputs" | "text" | "style" | "other"
+type InputsSubTab = "manual" | "ai" | "stats"
+
+const SIDEBAR_TABS: { id: SidebarTab; label: string; icon: ReactNode }[] = [
+  { id: "inputs", label: "Inputs", icon: <List className="h-4 w-4" /> },
+  { id: "text", label: "Text", icon: <Type className="h-4 w-4" /> },
+  { id: "style", label: "Style", icon: <Palette className="h-4 w-4" /> },
+  { id: "other", label: "Other Options", icon: <MoreVertical className="h-4 w-4" /> },
+]
+
+export interface LolInputPanelProps {
+  forceUpdate?: number
+
+  selectedRole: RoleFilter
+  selectedChampions: string[]
+  displayMode: DisplayMode
+  showTitle: boolean
+  actionMode: ActionMode
+  onActionModeChange?: (mode: ActionMode) => void
+  customChampions?: LoLChampion[]
+
+  onRoleChange: (role: RoleFilter) => void
+  onChampionToggle: (championId: string) => void
+  onClearAll: () => void
+  onDisplayModeChange: (mode: DisplayMode) => void
+  onShowTitleToggle: () => void
+  onPreviewChampion: (champion: LoLChampion) => void
+  getRoleCount: () => { selected: number; available: number }
+  onShuffleChampions?: () => void
+  onSortChampionsAZ?: () => void
+  onSortChampionsZA?: () => void
+  onDeleteCustomChampion?: (championId: string) => void
+
+  aiMode: AIMode
+  aiQuery: string
+  aiResponse: string
+  aiLoading: boolean
+  aiChatHistory: ChatMessage[]
+  aiRecommendations: LoLChampion[]
+  userPreferences: UserPreferences
+  onAiModeChange: (mode: AIMode) => void
+  onAiQueryChange: (query: string) => void
+  onAiQuerySubmit: () => void
+  onUserPreferencesChange: (preferences: UserPreferences) => void
+  onChampionsChange: (champions: Set<string>) => void
+  onAiResponseChange: (response: string) => void
+  getAllChampions: () => LoLChampion[]
+  getFilteredChampions: () => LoLChampion[]
+
+  championStats: Record<string, number>
+  allResults: SpinResult[]
+
+  resultsCount?: number
+  themes?: WheelTheme[]
+  currentTheme?: string
+  onThemeChange?: (themeId: string) => void
+  onApplyPalette?: (colors: readonly string[]) => void
+  onHideInputs?: () => void
+  onViewHistory?: () => void
+  onOpenAchievements?: () => void
+  onOpenSettings?: () => void
+  onToggleFullscreen?: () => void
+  onOpenAnalytics?: () => void
+  onImportChampionsText?: (text: string) => void
 }
 
-export default function LoLInputPanel({
-  activeTab = "manual",
-  onTabChange,
-  actionMode = "normal",
+export default function LolInputPanel({
+  forceUpdate = 0,
+  selectedRole,
+  selectedChampions,
+  displayMode,
+  showTitle,
+  actionMode,
   onActionModeChange,
-  onEliminationMode,
-  onAddManualChampion,
-}: LoLInputPanelProps) {
-  const [selectedRole, setSelectedRole] = useState<RoleFilter>("all");
-  const [selectedChampions, setSelectedChampions] = useState<Set<string>>(
-    new Set()
-  );
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("emoji-name");
-  const [aiMode, setAiMode] = useState<AIMode>("chat");
-  const [aiQuery, setAiQuery] = useState("");
-  const [aiResponse, setAiResponse] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiChatHistory, setAiChatHistory] = useState<ChatMessage[]>([]);
-  const [aiRecommendations, setAiRecommendations] = useState<LoLChampion[]>([]);
-  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
-    favoriteRoles: [],
-    preferredDifficulty: "all",
-    playStyle: "casual",
-    favoriteRegions: [],
-  });
+  customChampions = [],
+  onRoleChange,
+  onChampionToggle,
+  onClearAll,
+  onDisplayModeChange,
+  onShowTitleToggle,
+  onPreviewChampion,
+  getRoleCount,
+  onShuffleChampions,
+  onSortChampionsAZ,
+  onSortChampionsZA,
+  onDeleteCustomChampion,
+  aiMode,
+  aiQuery,
+  aiResponse,
+  aiLoading,
+  aiChatHistory,
+  aiRecommendations,
+  userPreferences,
+  onAiModeChange,
+  onAiQueryChange,
+  onAiQuerySubmit,
+  onUserPreferencesChange,
+  onChampionsChange,
+  onAiResponseChange,
+  getAllChampions,
+  getFilteredChampions,
+  championStats,
+  allResults,
+  resultsCount = 0,
+  themes = PICKER_WHEEL_THEMES,
+  currentTheme = "classic",
+  onThemeChange,
+  onApplyPalette,
+  onHideInputs,
+  onViewHistory,
+  onOpenAchievements,
+  onOpenSettings,
+  onToggleFullscreen,
+  onOpenAnalytics,
+  onImportChampionsText,
+}: LolInputPanelProps) {
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("inputs")
+  const [inputsSubTab, setInputsSubTab] = useState<InputsSubTab>("manual")
+  const [bulkText, setBulkText] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const { settings, updateSettings } = useSettingsStore()
+  const { showToast } = useToast()
 
-  // Initialize with popular champions selected
-  useEffect(() => {
-    const popularChampionIds = new Set<string>();
-    Object.values(lolChampions)
-      .flat()
-      .filter(
-        (champion) =>
-          champion.popularity === "S-tier" || champion.popularity === "A-tier"
-      )
-      .forEach((champion) => popularChampionIds.add(champion.id));
-    setSelectedChampions(popularChampionIds);
+  const selectedSet = useMemo(
+    () => new Set(selectedChampions),
+    [selectedChampions, forceUpdate],
+  )
 
-    // Initialize AI recommendations
-    generateAIRecommendations();
-  }, []);
-
-  const generateAIRecommendations = () => {
-    const allChampions = getAllChampions();
-    const recommendations = allChampions
-      .filter(
-        (champion) =>
-          champion.popularity === "S-tier" ||
-          champion.proPlayPresence === "high" ||
-          champion.communityFavorite ||
-          champion.difficulty === "easy"
-      )
-      .slice(0, 6);
-    setAiRecommendations(recommendations);
-  };
-
-  const getAllChampions = (): LoLChampion[] => {
-    return Object.values(lolChampions).flat();
-  };
-
-  const getFilteredChampions = (): LoLChampion[] => {
-    const allChampions = getAllChampions();
-    let filtered = allChampions;
-
-    if (selectedRole !== "all") {
-      filtered = lolChampions[selectedRole] || [];
+  const setActionModeSynced = (mode: ActionMode) => {
+    onActionModeChange?.(mode)
+    // Keep store in sync when parent handler is missing; otherwise parent syncActionMode writes this.
+    if (!onActionModeChange) {
+      const latest = useSettingsStore.getState().settings
+      updateSettings({
+        spinBehavior: {
+          ...latest.spinBehavior,
+          removeWinnerAfterSpin: mode === "elimination",
+        },
+      } as any)
     }
+  }
 
-    return filtered.filter((champion) => selectedChampions.has(champion.id));
-  };
-
-  const handleRoleChange = (role: RoleFilter) => {
-    setSelectedRole(role);
-    const newSelected = new Set<string>();
-
-    if (role === "all") {
-      getAllChampions().forEach((champion) => newSelected.add(champion.id));
-    } else {
-      (lolChampions[role] || []).forEach((champion) =>
-        newSelected.add(champion.id)
-      );
+  const removeDuplicateChampions = () => {
+    const all = getAllChampions()
+    const seen = new Set<string>()
+    const unique: string[] = []
+    for (const id of selectedChampions) {
+      const name = (all.find((c) => c.id === id)?.name || "").trim().toLowerCase()
+      const key = name || id
+      if (seen.has(key)) continue
+      seen.add(key)
+      unique.push(id)
     }
-
-    setSelectedChampions(newSelected);
-  };
-
-  const handleChampionToggle = (championId: string) => {
-    const newSelected = new Set(selectedChampions);
-    if (newSelected.has(championId)) {
-      newSelected.delete(championId);
-    } else {
-      newSelected.add(championId);
+    if (unique.length !== selectedChampions.length) {
+      onChampionsChange(new Set(unique))
     }
-    setSelectedChampions(newSelected);
-  };
+  }
 
-  const clearAllChampions = () => {
-    setSelectedChampions(new Set());
-  };
+  const deleteBlankChampions = () => {
+    const all = getAllChampions()
+    const cleaned = selectedChampions.filter((id) => {
+      const champion = all.find((c) => c.id === id)
+      return Boolean(champion?.name?.trim())
+    })
+    if (cleaned.length !== selectedChampions.length) {
+      onChampionsChange(new Set(cleaned))
+    }
+  }
 
-  const handleAiQuery = async () => {
-    if (!aiQuery.trim()) return;
+  const exportText = useMemo(() => {
+    return getFilteredChampions()
+      .map((c) => c.name)
+      .join("\n")
+  }, [getFilteredChampions, selectedChampions, selectedRole, forceUpdate])
 
-    setAiLoading(true);
-    const userMessage = aiQuery.trim();
+  const giveawayEntries = useMemo(
+    () =>
+      getFilteredChampions().map((c) => ({
+        id: c.id,
+        name: c.name,
+        weight: 1,
+      })),
+    [getFilteredChampions, selectedChampions, selectedRole, forceUpdate],
+  )
 
-    // Add user message to chat history
-    const newChatEntry: ChatMessage = {
-      role: "user",
-      message: userMessage,
-      timestamp: new Date(),
-    };
-    setAiChatHistory((prev) => [...prev, newChatEntry]);
-
-    // Simulate AI processing with realistic responses
-    setTimeout(() => {
-      let aiResponse = "";
-      const query = userMessage.toLowerCase();
-
-      // AI Response Logic based on query content
-      if (query.includes("recommend") || query.includes("suggest")) {
-        if (
-          query.includes("beginner") ||
-          query.includes("easy") ||
-          query.includes("new")
-        ) {
-          aiResponse =
-            "🎮 Perfect for beginners! I recommend: Garen (tanky top laner), Annie (simple mage), Ashe (straightforward ADC), and Soraka (easy support). These champions have simple mechanics and are great for learning the game!";
-          const beginnerChampions = getAllChampions().filter(
-            (champion) => champion.difficulty === "easy"
-          );
-          const newSelected = new Set<string>();
-          beginnerChampions.forEach((champion) => newSelected.add(champion.id));
-          setSelectedChampions(newSelected);
-          setSelectedRole("all");
-        } else if (
-          query.includes("s-tier") ||
-          query.includes("meta") ||
-          query.includes("strong")
-        ) {
-          aiResponse =
-            "⚡ S-tier meta champions! Try: Jinx (hyper carry ADC), Graves (versatile jungler), Ahri (safe mid laner), and Thresh (playmaking support). These are currently dominating solo queue and pro play!";
-          const metaChampions = getAllChampions().filter(
-            (champion) => champion.popularity === "S-tier"
-          );
-          const newSelected = new Set<string>();
-          metaChampions.forEach((champion) => newSelected.add(champion.id));
-          setSelectedChampions(newSelected);
-          setSelectedRole("all");
-        } else if (query.includes("pro play") || query.includes("esports")) {
-          aiResponse =
-            "🏆 Pro play favorites! Consider: Azir (scaling control mage), Lee Sin (high skill jungler), Thresh (playmaking support), and Gnar (versatile top laner). These champions shine in competitive play!";
-          const proChampions = getAllChampions().filter(
-            (champion) => champion.proPlayPresence === "high"
-          );
-          const newSelected = new Set<string>();
-          proChampions.forEach((champion) => newSelected.add(champion.id));
-          setSelectedChampions(newSelected);
-          setSelectedRole("all");
-        } else {
-          aiResponse =
-            "🎯 Based on community data: 1) S-tier champions for climbing, 2) Easy champions for learning, 3) Community favorites for fun. What's your current skill level and preferred playstyle?";
-        }
-      } else if (query.includes("best") || query.includes("top")) {
-        aiResponse =
-          "🏆 Top 5 community favorites: 1) Jinx (explosive ADC), 2) Yasuo (high skill ceiling), 3) Thresh (playmaking support), 4) Lee Sin (flashy jungler), 5) Ahri (versatile mid). Each offers unique gameplay experiences!";
-      } else if (query.includes("role") || query.includes("position")) {
-        if (query.includes("adc") || query.includes("bot")) {
-          aiResponse =
-            "🏹 ADC role! Focus on: Jinx (late game carry), Caitlyn (safe laning), Ezreal (mobile), and Ashe (utility). ADCs are the primary damage dealers in team fights!";
-        } else if (query.includes("support")) {
-          aiResponse =
-            "🛡️ Support role! Try: Thresh (playmaker), Soraka (healer), Leona (tank), and Lulu (enchanter). Supports enable their team and control vision!";
-        } else if (query.includes("jungle")) {
-          aiResponse =
-            "🌲 Jungle role! Consider: Graves (carry), Lee Sin (early game), Ammu (team fight), and Kha'Zix (assassin). Junglers control map pressure and objectives!";
-        } else {
-          aiResponse =
-            "🎮 All roles have unique playstyles: Top (1v1 dueling), Jungle (map control), Mid (roaming), ADC (damage dealing), Support (team enabling). Which interests you most?";
-        }
-      } else if (query.includes("help") || query.includes("how")) {
-        aiResponse =
-          "🤖 I can help you: 1) Find champions by asking 'recommend easy champions', 2) Learn roles with 'tell me about jungle', 3) Get meta insights with 'best S-tier champions', 4) Explore playstyles. What would you like to know?";
-      } else {
-        // General AI response
-        aiResponse = `🤖 I understand you're asking about "${userMessage}". I can help with champion recommendations, role explanations, meta analysis, and difficulty guidance. Try asking "recommend champions for my role" or "what are the best champions for beginners"?`;
-      }
-
-      // Add AI response to chat history
-      const aiChatEntry: ChatMessage = {
-        role: "ai",
-        message: aiResponse,
-        timestamp: new Date(),
-      };
-      setAiChatHistory((prev) => [...prev, aiChatEntry]);
-      setAiResponse(aiResponse);
-      setAiLoading(false);
-      setAiQuery("");
-    }, 1500);
-  };
-
-  const renderChampionsList = () => {
-    const roles =
-      selectedRole === "all" ? Object.keys(lolChampions) : [selectedRole];
-
-    return (
-      <div className="space-y-4">
-        {roles.map((roleKey) => {
-          const champions =
-            lolChampions[roleKey as keyof typeof lolChampions] || [];
-          const roleColor = roleColors[roleKey as keyof typeof roleColors];
-          const roleName = roleNames[roleKey as keyof typeof roleNames];
-          const roleDesc =
-            roleDescriptions[roleKey as keyof typeof roleDescriptions];
-
-          return (
-            <div key={roleKey}>
-              <div className="mb-2">
-                <h4 className="font-semibold text-sm flex items-center gap-2 text-gray-800">
-                  <span style={{ color: roleColor }}>●</span>
-                  {roleName} ({champions.length})
-                </h4>
-                <p className="text-xs text-gray-500 ml-4">{roleDesc}</p>
-              </div>
-              <div className="space-y-2">
-                {champions.map((champion) => (
-                  <div
-                    key={champion.id}
-                    className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <Checkbox
-                      id={champion.id}
-                      checked={selectedChampions.has(champion.id)}
-                      onCheckedChange={() => handleChampionToggle(champion.id)}
-                    />
-                    <Label
-                      htmlFor={champion.id}
-                      className="flex items-center space-x-2 cursor-pointer flex-1"
-                    >
-                      <span className="text-lg">{champion.emoji}</span>
-                      <div className="flex flex-col flex-1">
-                        <span className="text-sm font-medium text-gray-800">
-                          {champion.name}
-                        </span>
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <span
-                            className="text-xs px-1 rounded text-white"
-                            style={{
-                              backgroundColor:
-                                popularityColors[
-                                  champion.popularity as keyof typeof popularityColors
-                                ],
-                            }}
-                          >
-                            {champion.popularity}
-                          </span>
-                          <span
-                            className="text-xs px-1 rounded text-white"
-                            style={{
-                              backgroundColor:
-                                difficultyColors[
-                                  champion.difficulty as keyof typeof difficultyColors
-                                ],
-                            }}
-                          >
-                            {champion.difficulty}
-                          </span>
-                          {champion.communityFavorite && (
-                            <Users className="w-3 h-3 text-pink-400" />
-                          )}
-                          {champion.proPlayPresence === "high" && (
-                            <Crown className="w-3 h-3 text-yellow-400" />
-                          )}
-                        </div>
-                      </div>
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  const applyBulkText = () => {
+    onImportChampionsText?.(bulkText)
+  }
 
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={(value) => onTabChange?.(value as "manual" | "ai")}
-      className="w-full"
-    >
-      <TabsList className="grid w-full grid-cols-2 bg-white border-gray-200">
-        <TabsTrigger
-          value="manual"
-          className="text-gray-800 data-[state=active]:bg-gray-100"
-        >
-          Champions
-        </TabsTrigger>
-        <TabsTrigger
-          value="ai"
-          className="text-gray-800 data-[state=active]:bg-gray-100"
-        >
-          <Sparkles className="w-4 h-4 mr-1" />
-          AI
-        </TabsTrigger>
-      </TabsList>
+    <div className="flex max-h-[min(70vh,36rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-white shadow-sm lg:max-h-none">
+      <div className="flex shrink-0 items-center justify-between gap-1 border-b bg-slate-50/80 px-2 py-2 sm:gap-2 sm:px-3">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+          <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">
+            LoL Controls
+          </p>
+          <span className="shrink-0 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 sm:px-2 sm:text-xs">
+            {selectedChampions.length} selected
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {onOpenAchievements && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title="Achievements"
+              onClick={onOpenAchievements}
+            >
+              <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+          )}
+          {onViewHistory && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="relative h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title={`Spin History (${resultsCount})`}
+              onClick={onViewHistory}
+            >
+              <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              {resultsCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-0.5 text-[10px] text-white">
+                  {resultsCount}
+                </span>
+              )}
+            </Button>
+          )}
+          {onShuffleChampions && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title="Shuffle"
+              onClick={onShuffleChampions}
+            >
+              <Shuffle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+          )}
+          {onHideInputs && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title="Hide"
+              onClick={onHideInputs}
+            >
+              <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+          )}
+          <SlicesManageMenu
+            settings={settings as unknown as WheelSettings}
+            onUpdateSettings={(partial) => {
+              updateSettings(partial as any)
+              if (partial.spinBehavior && "removeWinnerAfterSpin" in partial.spinBehavior) {
+                setActionModeSynced(
+                  partial.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal",
+                )
+              }
+            }}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSortZA={onSortChampionsZA ?? (() => {})}
+            onShuffle={onShuffleChampions ?? (() => {})}
+            onEqualize={() => {}}
+            onDeleteBlanks={deleteBlankChampions}
+            onRemoveDuplicates={removeDuplicateChampions}
+            onClearAll={onClearAll}
+          />
+        </div>
+      </div>
 
-      <TabsContent value="manual">
-        <Card className="bg-white border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-gray-800">CHAMPIONS</h3>
-                <Badge
-                  variant="secondary"
-                  className="bg-blue-100 text-blue-800 border-blue-200"
-                >
-                  {selectedChampions.size}
-                </Badge>
-              </div>
-            </div>
+      <div className="flex shrink-0 overflow-x-auto border-b">
+        {SIDEBAR_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => {
+              if (tab.id === "text") {
+                setBulkText(getFilteredChampions().map((c) => c.name).join("\n"))
+              }
+              setSidebarTab(tab.id)
+            }}
+            className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium transition-colors ${
+              sidebarTab === tab.id
+                ? "border-b-2 border-blue-600 bg-blue-50/50 text-blue-700"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-            {/* Role Selection */}
-            <div className="mb-4">
-              <Label className="text-sm font-medium mb-2 block text-gray-800">
-                Select Role & Filter Champions:
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant={selectedRole === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleRoleChange("all")}
-                  className="text-xs bg-gray-50 border-gray-200 text-gray-800 hover:bg-gray-100"
-                >
-                  All Champions
-                </Button>
-                {Object.keys(roleColors).map((role) => (
-                  <Button
-                    key={role}
-                    variant={selectedRole === role ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleRoleChange(role as RoleFilter)}
-                    className="text-xs border-gray-200 text-gray-800 hover:bg-gray-100"
-                    style={{
-                      backgroundColor:
-                        selectedRole === role
-                          ? roleColors[role as keyof typeof roleColors]
-                          : undefined,
-                      color: selectedRole === role ? "white" : undefined,
-                    }}
-                  >
-                    {roleNames[role as keyof typeof roleNames]}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Champion Count and Clear */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">
-                {selectedChampions.size} selected champions
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllChampions}
-                className="text-red-400 hover:text-red-300"
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2.5 sm:p-3">
+        {sidebarTab === "inputs" && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700">Action Mode</Label>
+              <Select
+                value={actionMode}
+                onValueChange={(v) => setActionModeSynced(v as ActionMode)}
               >
-                Clear All
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal Mode</SelectItem>
+                  <SelectItem value="elimination">Elimination Mode</SelectItem>
+                  <SelectItem value="manual">Manual Mode</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500">
+                Elimination removes the winning champion after each spin. Manual lets you
+                type a champion under the wheel. Synced with the Game Mode controls.
+              </p>
+            </div>
+
+            <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={inputsSubTab === "manual" ? "default" : "ghost"}
+                className="flex-1"
+                onClick={() => setInputsSubTab("manual")}
+              >
+                Manual
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={inputsSubTab === "ai" ? "default" : "ghost"}
+                className="flex-1 gap-1"
+                onClick={() => setInputsSubTab("ai")}
+              >
+                <Brain className="h-3.5 w-3.5" />
+                AI
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={inputsSubTab === "stats" ? "default" : "ghost"}
+                className="flex-1 gap-1"
+                onClick={() => setInputsSubTab("stats")}
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                Stats
               </Button>
             </div>
 
-            {/* Champions List */}
-            <div className="max-h-64 overflow-y-auto mb-4">
-              {renderChampionsList()}
-            </div>
-
-            <Separator className="my-4 bg-gray-200" />
-
-            {/* Display Options */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-800">Show:</Label>
-              <RadioGroup
-                value={displayMode}
-                onValueChange={(value) => setDisplayMode(value as DisplayMode)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="emoji-name" id="emoji-name" />
-                  <Label htmlFor="emoji-name" className="text-gray-600">
-                    Emoji & Name
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="emoji" id="emoji" />
-                  <Label htmlFor="emoji" className="text-gray-600">
-                    Emoji Only
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="name" id="name" />
-                  <Label htmlFor="name" className="text-gray-600">
-                    Name Only
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="ai">
-        <Card className="bg-white border-gray-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gray-800">
-              <Brain className="w-5 h-5" />
-              LoL Champion AI
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* AI Mode Selection */}
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={aiMode === "chat" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setAiMode("chat")}
-                className="flex-1 bg-gray-50 border-gray-200 text-gray-800 hover:bg-gray-100"
-              >
-                💬 Chat
-              </Button>
-              <Button
-                variant={aiMode === "analysis" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setAiMode("analysis")}
-                className="flex-1 bg-gray-50 border-gray-200 text-gray-800 hover:bg-gray-100"
-              >
-                📊 Analysis
-              </Button>
-              <Button
-                variant={aiMode === "generator" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setAiMode("generator")}
-                className="flex-1 bg-gray-50 border-gray-200 text-gray-800 hover:bg-gray-100"
-              >
-                ✨ Generator
-              </Button>
-            </div>
-
-            {/* AI Chat Mode */}
-            {aiMode === "chat" && (
-              <div className="space-y-4">
-                {/* Chat History */}
-                <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200">
-                  {aiChatHistory.length === 0 ? (
-                    <div className="text-center text-gray-500 text-sm">
-                      <p>👋 Hi! I'm your League of Legends AI!</p>
-                      <p>Ask me about champions, roles, and strategies!</p>
-                    </div>
-                  ) : (
-                    aiChatHistory.map((chat, index) => (
-                      <div
-                        key={index}
-                        className={`flex ${
-                          chat.role === "user" ? "justify-end" : "justify-start"
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[80%] p-2 rounded-lg text-sm ${
-                            chat.role === "user"
-                              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                              : "bg-gray-100 border border-gray-200 text-gray-800"
-                          }`}
-                        >
-                          <p className="whitespace-pre-wrap">{chat.message}</p>
-                          <span className="text-xs opacity-70">
-                            {chat.timestamp.toLocaleTimeString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  {aiLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-white/10 border border-white/20 p-2 rounded-lg text-sm text-gray-200">
-                        <div className="flex items-center gap-2">
-                          <div className="animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full"></div>
-                          AI is analyzing champion data...
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Chat Input */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ask about champions, roles, meta, difficulty levels..."
-                    value={aiQuery}
-                    onChange={(e) => setAiQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleAiQuery()}
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {inputsSubTab === "manual" && (
+              <>
+                <ChampionsTab
+                  key={`champions-tab-${selectedChampions.length}-${forceUpdate}`}
+                  selectedRole={selectedRole}
+                  selectedChampions={selectedSet}
+                  displayMode={displayMode}
+                  showTitle={showTitle}
+                  onRoleChange={onRoleChange}
+                  onChampionToggle={onChampionToggle}
+                  onClearAll={onClearAll}
+                  onDisplayModeChange={onDisplayModeChange}
+                  onShowTitleToggle={onShowTitleToggle}
+                  onPreviewChampion={onPreviewChampion}
+                  getRoleCount={getRoleCount}
+                />
+                <div className="mt-4">
+                  <CustomChampionsCard
+                    customChampions={customChampions}
+                    selectedChampions={selectedSet}
+                    onChampionToggle={onChampionToggle}
+                    onPreviewChampion={onPreviewChampion}
+                    onDeleteCustomChampion={onDeleteCustomChampion}
                   />
-                  <Button
-                    onClick={handleAiQuery}
-                    disabled={aiLoading || !aiQuery.trim()}
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-500 to-purple-600"
-                  >
-                    {aiLoading ? "⏳" : "🚀"}
-                  </Button>
                 </div>
-
-                {/* Quick Questions */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-800">
-                    Quick Questions:
-                  </Label>
-                  <div className="grid grid-cols-1 gap-2">
-                    {[
-                      "Recommend easy champions for beginners",
-                      "Best S-tier champions for climbing",
-                      "Tell me about jungle role",
-                      "Pro play meta champions",
-                      "Community favorite champions",
-                    ].map((question) => (
-                      <Button
-                        key={question}
-                        variant="outline"
-                        size="sm"
-                        className="justify-start text-xs bg-white/5 border-white/20 text-gray-600 hover:bg-white/10"
-                        onClick={() => {
-                          setAiQuery(question);
-                          setTimeout(() => handleAiQuery(), 100);
-                        }}
-                      >
-                        {question}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </>
             )}
 
-            {/* AI Recommendations (always visible) */}
+            {inputsSubTab === "ai" && (
+              <AITab
+                aiMode={aiMode}
+                aiQuery={aiQuery}
+                aiResponse={aiResponse}
+                aiLoading={aiLoading}
+                aiChatHistory={aiChatHistory}
+                aiRecommendations={aiRecommendations}
+                userPreferences={userPreferences}
+                selectedItems={selectedSet}
+                onModeChange={onAiModeChange}
+                onQueryChange={onAiQueryChange}
+                onQuerySubmit={onAiQuerySubmit}
+                onPreferencesChange={onUserPreferencesChange}
+                onItemsChange={onChampionsChange}
+                onResponseChange={onAiResponseChange}
+                onFilterChange={(filter) => onRoleChange(filter as RoleFilter)}
+                getAllItems={getAllChampions}
+                getFilteredItems={getFilteredChampions}
+              />
+            )}
+
+            {inputsSubTab === "stats" && (
+              <StatsTab
+                championStats={championStats}
+                allResults={allResults}
+                getAllChampions={getAllChampions}
+              />
+            )}
+          </div>
+        )}
+
+        {sidebarTab === "text" && (
+          <div className="space-y-3">
             <div>
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-gray-800">
-                <Target className="w-4 h-4" />
-                Smart Recommendations
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {aiRecommendations.slice(0, 4).map((champion) => (
-                  <Button
-                    key={champion.id}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2 text-xs bg-white/5 border-white/20 text-gray-600 hover:bg-white/10"
-                    onClick={() => {
-                      const newSelected = new Set(selectedChampions);
-                      newSelected.add(champion.id);
-                      setSelectedChampions(newSelected);
-                      setAiResponse(`✅ Added ${champion.name} to your wheel!`);
-                    }}
+              <Label className="text-sm font-medium text-slate-700">Champion list</Label>
+              <p className="mt-1 text-xs text-slate-500">
+                One champion name per line. Matching names from the catalog are selected.
+              </p>
+            </div>
+            <Textarea
+              value={bulkText}
+              onChange={(e) => setBulkText(e.target.value)}
+              rows={12}
+              placeholder={"Ahri\nJinx\nThresh"}
+              className="font-mono text-sm"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={applyBulkText}>
+                Apply text
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setBulkText(getFilteredChampions().map((c) => c.name).join("\n"))
+                }
+              >
+                Load current
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const blob = new Blob([exportText], { type: "text/plain" })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement("a")
+                  a.href = url
+                  a.download = "lol-champions.txt"
+                  a.click()
+                  URL.revokeObjectURL(url)
+                }}
+              >
+                Export
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {sidebarTab === "style" && (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700">Display Options</Label>
+              <div className="grid gap-2">
+                {(
+                  [
+                    { value: "emoji-name" as const, label: "Emoji & Name" },
+                    { value: "emoji" as const, label: "Emoji Only" },
+                    { value: "name" as const, label: "Name Only" },
+                  ]
+                ).map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                      displayMode === opt.value
+                        ? "border-blue-400 bg-blue-50"
+                        : "border-slate-200 hover:bg-slate-50"
+                    }`}
                   >
-                    <span>{champion.emoji}</span>
-                    <span className="truncate">{champion.name}</span>
-                    {champion.communityFavorite && (
-                      <Users className="w-3 h-3 text-pink-400" />
-                    )}
-                    {champion.proPlayPresence === "high" && (
-                      <Crown className="w-3 h-3 text-yellow-400" />
-                    )}
-                  </Button>
+                    <input
+                      type="radio"
+                      name="lol-display"
+                      value={opt.value}
+                      checked={displayMode === opt.value}
+                      onChange={() => onDisplayModeChange(opt.value)}
+                    />
+                    {opt.label}
+                  </label>
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
-  );
+
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-slate-800">Show title</p>
+                <p className="text-xs text-slate-500">Wheel title above the spinner</p>
+              </div>
+              <Switch checked={showTitle} onCheckedChange={() => onShowTitleToggle()} />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-slate-700">Color palettes</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const palette =
+                      LETTER_COLOR_PALETTES[
+                        Math.floor(Math.random() * LETTER_COLOR_PALETTES.length)
+                      ]
+                    onApplyPalette?.(palette.colors)
+                    showToast("Palette applied", "success")
+                  }}
+                >
+                  Randomize
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {LETTER_COLOR_PALETTES.map((palette) => (
+                  <button
+                    key={palette.name}
+                    type="button"
+                    onClick={() => {
+                      onApplyPalette?.(palette.colors)
+                      showToast("Palette applied", "success")
+                    }}
+                    className="rounded-lg border border-slate-200 p-2 text-left hover:border-blue-300 hover:bg-blue-50/40"
+                  >
+                    <span className="mb-1 block text-xs font-semibold text-slate-800">
+                      {palette.name}
+                    </span>
+                    <span className="flex gap-0.5">
+                      {palette.colors.slice(0, 6).map((c) => (
+                        <span
+                          key={`${palette.name}-${c}`}
+                          className="h-3 w-3 rounded-sm"
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-slate-700">Themes</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const unlocked = themes.filter((t) => t.unlocked)
+                    const pool = unlocked.length > 0 ? unlocked : themes
+                    const next = pool[Math.floor(Math.random() * pool.length)]
+                    if (next) onThemeChange?.(next.id)
+                  }}
+                >
+                  Randomize
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {themes.map((theme) => {
+                  const locked = !theme.unlocked
+                  const active = currentTheme === theme.id
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => {
+                        if (!locked) onThemeChange?.(theme.id)
+                      }}
+                      className={`rounded-lg border p-2 text-left transition-colors ${
+                        active
+                          ? "border-blue-400 bg-blue-50"
+                          : locked
+                            ? "cursor-not-allowed border-slate-100 opacity-50"
+                            : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
+                      }`}
+                      title={locked ? `Locked — ${theme.description}` : theme.description}
+                    >
+                      <span className="mb-1 flex items-center justify-between gap-1">
+                        <span className="block truncate text-xs font-semibold text-slate-800">
+                          {theme.name}
+                        </span>
+                        {locked && (
+                          <span className="shrink-0 text-[10px] text-slate-400">Locked</span>
+                        )}
+                      </span>
+                      <span className="flex gap-0.5">
+                        {theme.colors.slice(0, 6).map((c) => (
+                          <span
+                            key={`${theme.id}-${c}`}
+                            className="h-3 w-3 rounded-sm"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sidebarTab === "other" && (
+          <div className="space-y-4">
+            <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Confetti</p>
+                  <p className="text-xs text-slate-500">Celebrate each spin result</p>
+                </div>
+                <Switch
+                  id="lol-confetti"
+                  checked={settings.confettiSound?.enableConfetti ?? true}
+                  onCheckedChange={(checked) =>
+                    updateSettings({
+                      confettiSound: {
+                        ...settings.confettiSound,
+                        enableConfetti: checked,
+                      },
+                    } as any)
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Sound</p>
+                  <p className="text-xs text-slate-500">Play spin / result sounds</p>
+                </div>
+                <Switch
+                  id="lol-sound"
+                  checked={settings.confettiSound?.enableSound ?? true}
+                  onCheckedChange={(checked) =>
+                    updateSettings({
+                      confettiSound: {
+                        ...settings.confettiSound,
+                        enableSound: checked,
+                      },
+                    } as any)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-800">
+                  Spinning duration: {settings.spinBehavior?.spinningDuration ?? 10}s
+                </Label>
+                <input
+                  type="range"
+                  min={3}
+                  max={25}
+                  step={1}
+                  value={settings.spinBehavior?.spinningDuration ?? 10}
+                  onChange={(e) =>
+                    updateSettings({
+                      spinBehavior: {
+                        ...settings.spinBehavior,
+                        spinningDuration: Number(e.target.value),
+                      },
+                    } as any)
+                  }
+                  className="w-full accent-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-800">
+                  Spinning speed level: {settings.spinBehavior?.spinningSpeedLevel ?? 10}
+                </Label>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={settings.spinBehavior?.spinningSpeedLevel ?? 10}
+                  onChange={(e) =>
+                    updateSettings({
+                      spinBehavior: {
+                        ...settings.spinBehavior,
+                        spinningSpeedLevel: Number(e.target.value),
+                      },
+                    } as any)
+                  }
+                  className="w-full accent-blue-500"
+                />
+              </div>
+            </div>
+
+            <SidebarOtherOptions
+              toolLabel="LoL Champions"
+              resultsCount={resultsCount}
+              exportFileName="lol-champions.txt"
+              exportText={exportText}
+              entries={giveawayEntries}
+              onImportText={(text) => {
+                setBulkText(text)
+                setSidebarTab("text")
+                showToast("Pasted into Text tab — tap Apply text", "info")
+              }}
+              onRemoveDuplicates={removeDuplicateChampions}
+              onViewResults={onViewHistory}
+              onOpenSettings={onOpenSettings}
+              onToggleFullscreen={onToggleFullscreen}
+              onOpenAI={() => {
+                setSidebarTab("inputs")
+                setInputsSubTab("ai")
+              }}
+              onOpenAnalytics={onOpenAnalytics}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

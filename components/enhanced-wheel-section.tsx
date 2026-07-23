@@ -9,6 +9,11 @@ import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { Badge } from "@/components/ui/badge"
 import { WheelCustomization } from '@/lib/picker-wheel-customization'
 import { createSpinAudioController, type SpinAudioController } from '@/lib/wheel-spin-audio'
+import {
+  computeSpinEndRotation,
+  computeSpinFrame,
+  getSpinDurationMs,
+} from '@/lib/wheel-spin-animation'
 
 const WHEEL_SIZE = 680
 const defaultWheelFallbackColors = ["#4ade80", "#fbbf24", "#f97316", "#84cc16", "#eab308", "#22c55e"]
@@ -245,10 +250,10 @@ export default function EnhancedWheelSection({
 
     const token = spinTokenRef.current
     const startTime = Date.now()
-    const duration = settingsRef.current.spinBehavior.spinningDuration * 1000
+    const duration = getSpinDurationMs(settingsRef.current.spinBehavior.spinningDuration)
     const startRotation = currentRotationRef.current
     const targetRotation = spinRotation
-    const speedMultiplier = settingsRef.current.spinBehavior.spinningSpeedLevel / 5
+    const speedLevel = settingsRef.current.spinBehavior.spinningSpeedLevel
     const soundOn = settingsRef.current.confettiSound.enableSound !== false
     const userVolume = settingsRef.current.confettiSound.soundVolume || 0.5
     const spinAudio = soundOn ? getSpinAudio() : null
@@ -257,9 +262,13 @@ export default function EnhancedWheelSection({
       if (token !== spinTokenRef.current) return
 
       const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 2 + speedMultiplier)
-      const rotation = startRotation + (targetRotation - startRotation) * easeOut
+      const { rotation, done } = computeSpinFrame(
+        startRotation,
+        targetRotation,
+        elapsed,
+        duration,
+        speedLevel,
+      )
 
       currentRotationRef.current = rotation
       drawWheel(rotation)
@@ -276,7 +285,7 @@ export default function EnhancedWheelSection({
         )
       }
 
-      if (progress < 1) {
+      if (!done) {
         animationRef.current = requestAnimationFrame(animate)
         return
       }
@@ -718,9 +727,9 @@ export default function EnhancedWheelSection({
     setMysteryResultRevealed(false)
     shouldCelebrateResultRef.current = false
 
-    const baseRotation = settings.display.randomInitialAngle ? Math.random() * 360 : 0
-    const fixedSpins = 10
-    const finalRotation = currentRotationRef.current + baseRotation + fixedSpins * 360 + Math.random() * 360
+    const finalRotation = computeSpinEndRotation(currentRotationRef.current, {
+      randomInitialAngle: settings.display.randomInitialAngle,
+    })
 
     setSpinRotation(finalRotation)
 
@@ -728,7 +737,7 @@ export default function EnhancedWheelSection({
       playSpinSound()
     }
 
-    const durationMs = settings.spinBehavior.spinningDuration * 1000
+    const durationMs = getSpinDurationMs(settings.spinBehavior.spinningDuration)
     window.setTimeout(() => {
       stopSpinSound()
       // Snap to the exact final angle BEFORE reading the winner / ending the spin.

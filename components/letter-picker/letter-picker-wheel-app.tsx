@@ -703,7 +703,7 @@ function LetterPickerWheelAppInner({
         )}
 
         {!isFullscreen && (
-          <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
+          <main className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
             <div className="mb-4 text-center">
               <ToolPageTitle
                 title={shortTitle ?? LETTER_PICKER_SHORT_TITLE}
@@ -730,13 +730,13 @@ function LetterPickerWheelAppInner({
               </div>
             )}
 
-            <div className="grid items-start gap-8 lg:grid-cols-3">
-              <div className="relative self-start overflow-hidden rounded-lg border bg-white p-6 shadow-sm lg:col-span-2">
+            <div className="mb-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
+              <div className="relative self-start overflow-x-hidden rounded-lg border bg-white p-3 shadow-sm sm:p-6 lg:col-span-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAllResults(true)}
-                  className="absolute left-4 top-4 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+                  className="absolute left-2 top-2 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:left-4 sm:top-4 sm:px-3"
                 >
                   Results
                   {results.length > 0 && (

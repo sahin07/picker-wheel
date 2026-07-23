@@ -31,7 +31,7 @@ export default function MLBComparisonModal({ isOpen, onClose }: MLBComparisonMod
 
   if (comparisonTeams.length === 0) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Team Comparison</DialogTitle>
@@ -47,7 +47,7 @@ export default function MLBComparisonModal({ isOpen, onClose }: MLBComparisonMod
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Team Comparison ({comparisonTeams.length}/4)</DialogTitle>

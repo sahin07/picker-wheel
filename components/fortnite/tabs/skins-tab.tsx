@@ -1,19 +1,17 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Eye, List, RotateCcw, Shuffle, MoreHorizontal, X, Heart, GitCompare, Plus, Info } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fortniteSkins } from "@/data/fortnite-skins"
 import { rarityColors, rarityIcons } from "@/lib/rarity-config"
 import type { Skin, DisplayMode, RarityFilter } from "@/types/fortnite-types"
-import { useWheelManagerStore } from "@/stores/wheel-manager-store"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 interface SkinsTabProps {
   selectedRarity?: RarityFilter
@@ -49,6 +47,10 @@ interface SkinsTabProps {
   // Custom skins props
   customSkins?: Skin[]
   onDeleteCustomSkin?: (skinId: string) => void
+  /** Challenge / weapon wheels — show only custom entries, not catalog rarities */
+  customOnlyMode?: boolean
+  /** Changes when template URL or spoke loads — resets list tab focus */
+  activeTemplateId?: string | null
 }
 
 export function SkinsTab({
@@ -81,24 +83,89 @@ export function SkinsTab({
   actionMode = "normal",
   customSkins = [],
   onDeleteCustomSkin,
+  showDisplayControls = true,
+  customOnlyMode = false,
+  activeTemplateId = null,
 }: SkinsTabProps) {
-  console.log('=== SkinsTab Component Props ===')
-  console.log('selectedSkins:', selectedSkins)
-  console.log('selectedSkins type:', typeof selectedSkins)
-  console.log('selectedSkins length:', selectedSkins?.length)
-  console.log('selectedRarity:', selectedRarity)
-  console.log('selectedRarity type:', typeof selectedRarity)
-  console.log('onSkinToggle exists:', !!onSkinToggle)
-  console.log('=== End SkinsTab Props ===')
-  
-  const { getCurrentWheel, updateWheelData } = useWheelManagerStore()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-
-
-  // Preserve scroll position when component re-renders
   const [savedScrollTop, setSavedScrollTop] = useState<number>(0)
   const [lastChangedSkinId, setLastChangedSkinId] = useState<string | null>(null)
+  const [activeListTab, setActiveListTab] = useState("common")
+
+  const customEntriesLabel = (skins: Skin[]) => {
+    if (skins.length === 0) return "Custom"
+    const category = skins[0]?.rarity
+    const sharedCategory =
+      category &&
+      category !== "Custom" &&
+      skins.every((skin) => skin.rarity === category)
+    if (sharedCategory) {
+      return `${category} (${skins.length})`
+    }
+    return `Custom (${skins.length})`
+  }
+
+  const preferredListTab = useMemo(() => {
+    if (customOnlyMode && customSkins.length > 0) return "custom"
+    if (selectedRarity !== "all") return selectedRarity.toLowerCase()
+    return null
+  }, [customOnlyMode, customSkins.length, selectedRarity])
+
+  const rarityKeys = useMemo(() => {
+    if (customOnlyMode) return []
+    return selectedRarity === "all"
+      ? Object.keys(fortniteSkins)
+      : Object.keys(fortniteSkins).filter(
+          (key) => key.toLowerCase() === selectedRarity.toLowerCase(),
+        )
+  }, [selectedRarity, customOnlyMode])
+
+  const listTabGroups = useMemo(() => {
+    if (customOnlyMode && customSkins.length > 0) {
+      return [
+        {
+          id: "custom",
+          label: customEntriesLabel(customSkins),
+          skins: customSkins,
+          isCustom: true,
+        },
+      ]
+    }
+
+    const groups: { id: string; label: string; skins: Skin[]; isCustom?: boolean }[] = []
+    for (const rarityKey of rarityKeys) {
+      const skins = fortniteSkins[rarityKey as keyof typeof fortniteSkins] || []
+      if (skins.length > 0) {
+        const label = rarityKey.charAt(0).toUpperCase() + rarityKey.slice(1)
+        groups.push({
+          id: rarityKey,
+          label: `${label} (${skins.length})`,
+          skins,
+        })
+      }
+    }
+    if (customSkins.length > 0) {
+      groups.push({
+        id: "custom",
+        label: customEntriesLabel(customSkins),
+        skins: customSkins,
+        isCustom: true,
+      })
+    }
+    return groups
+  }, [rarityKeys, customSkins, customOnlyMode])
+
+  useEffect(() => {
+    if (listTabGroups.length === 0) return
+    if (preferredListTab && listTabGroups.some((group) => group.id === preferredListTab)) {
+      setActiveListTab(preferredListTab)
+      return
+    }
+    if (!listTabGroups.some((group) => group.id === activeListTab)) {
+      setActiveListTab(listTabGroups[0].id)
+    }
+  }, [listTabGroups, preferredListTab, activeTemplateId, activeListTab])
   
   // Save scroll position before any state changes
   const saveScrollPosition = (skinId: string) => {
@@ -132,168 +199,145 @@ export function SkinsTab({
     }
   }, [selectedSkins, customSkins, savedScrollTop, lastChangedSkinId])
 
-  const renderSkinsList = () => {
-    const rarities = selectedRarity === "all" 
-      ? Object.keys(fortniteSkins) 
-      : Object.keys(fortniteSkins).filter(key => key.toLowerCase() === selectedRarity.toLowerCase())
-    
-    console.log('=== renderSkinsList ===')
-    console.log('selectedRarity:', selectedRarity)
-    console.log('Object.keys(fortniteSkins):', Object.keys(fortniteSkins))
-    console.log('rarities:', rarities)
-    console.log('fortniteSkins keys:', Object.keys(fortniteSkins))
-    console.log('=== end renderSkinsList ===')
-
-    return (
-      <div className="space-y-4">
-        {rarities.map((rarityKey) => {
-          const skins = fortniteSkins[rarityKey as keyof typeof fortniteSkins] || []
-          const rarityColor = rarityColors[rarityKey as keyof typeof rarityColors]
-          const rarityIcon = rarityIcons[rarityKey as keyof typeof rarityIcons]
-          
-          console.log(`Rendering rarity ${rarityKey}:`, skins.length, 'skins')
-          console.log('Skin names:', skins.map(s => s.name))
-
-          return (
-            <div key={rarityKey}>
-              <h4 className="font-semibold text-sm mb-2 capitalize flex items-center gap-2 text-gray-800">
-                <span style={{ color: rarityColor }}>{rarityIcon}</span>
-                {rarityKey} ({skins.length})
-              </h4>
-              <div className="space-y-2">
-                {skins.map((skin) => (
-                  <div key={skin.id} data-skin-id={skin.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={skin.id}
-                      checked={selectedSkins?.includes(skin.id) || false}
-                      onCheckedChange={(checked) => {
-                        console.log('=== CHECKBOX CLICKED ===')
-                        console.log('Skin:', skin.id, skin.name)
-                        console.log('Checked:', checked)
-                        console.log('onSkinToggle function exists:', !!onSkinToggle)
-                        saveScrollPosition(skin.id)
-                        onSkinToggle?.(skin.id)
-                        console.log('=== CHECKBOX CLICK END ===')
-                      }}
-                    />
-                    <Label 
-                      htmlFor={skin.id} 
-                      className={`flex items-center space-x-2 cursor-pointer ${
-                        actionMode === "manual" ? "hover:bg-blue-50 p-1 rounded" : ""
-                      }`}
-                      onClick={() => {
-                        if (actionMode === "manual" && onManualSelect) {
-                          onManualSelect(skin)
-                        }
-                      }}
-                    >
-                      <span className="text-lg">{skin.emoji}</span>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-800">{skin.name}</span>
-                        <span className="text-xs text-gray-500">{skin.season}</span>
-                      </div>
-                    </Label>
-                    <div className="flex items-center space-x-1 ml-auto">
-                      <Button variant="ghost" size="sm" onClick={() => onPreviewSkin?.(skin)} title="Preview">
-                        <Eye className="w-3 h-3" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => onEnhancedDetails?.(skin)} 
-                        title="Enhanced Details"
-                        className="text-purple-500 hover:text-purple-700"
-                      >
-                        <Info className="w-3 h-3" />
-                      </Button>
-                      {addToFavorites && removeFromFavorites && isFavorite && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => isFavorite(skin.id) ? removeFromFavorites(skin.id) : addToFavorites(skin)}
-                          title={isFavorite(skin.id) ? "Remove from favorites" : "Add to favorites"}
-                          className={isFavorite(skin.id) ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"}
-                        >
-                          <Heart className={`w-3 h-3 ${isFavorite(skin.id) ? "fill-current" : ""}`} />
-                        </Button>
-                      )}
-                      {addToComparison && removeFromComparison && isInComparison && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => isInComparison(skin.id) ? removeFromComparison(skin.id) : addToComparison(skin)}
-                          title={isInComparison(skin.id) ? "Remove from comparison" : "Add to comparison"}
-                          disabled={!isInComparison(skin.id) && comparisonSkins.length >= 4}
-                          className={isInComparison(skin.id) ? "text-blue-500 hover:text-blue-700" : "text-gray-400 hover:text-blue-500"}
-                        >
-                          {isInComparison(skin.id) ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        })}
-        
-        {/* Custom Skins Section */}
-        {customSkins.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-sm mb-2 capitalize flex items-center gap-2 text-gray-800">
-              <span style={{ color: "#8B5CF6" }}>🎮</span>
-              Custom ({customSkins.length})
-            </h4>
-            <div className="space-y-2">
-              {customSkins.map((skin) => (
-                <div key={skin.id} data-skin-id={skin.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={skin.id}
-                    checked={selectedSkins?.includes(skin.id) || false}
-                    onCheckedChange={() => {
-                      saveScrollPosition(skin.id)
-                      onSkinToggle?.(skin.id)
-                    }}
-                  />
-                  <Label 
-                    htmlFor={skin.id} 
-                    className={`flex items-center space-x-2 cursor-pointer ${
-                      actionMode === "manual" ? "hover:bg-blue-50 p-1 rounded" : ""
-                    }`}
-                    onClick={() => {
-                      if (actionMode === "manual" && onManualSelect) {
-                        onManualSelect(skin)
-                      }
-                    }}
-                  >
-                    <span className="text-lg">{skin.emoji}</span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-800">{skin.name}</span>
-                      <span className="text-xs text-gray-500">{skin.season}</span>
-                    </div>
-                  </Label>
-                  <div className="flex items-center space-x-1 ml-auto">
-                    <Button variant="ghost" size="sm" onClick={() => onPreviewSkin?.(skin)} title="Preview">
-                      <Eye className="w-3 h-3" />
-                    </Button>
-                    {onDeleteCustomSkin && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onDeleteCustomSkin(skin.id)}
-                        title="Delete Custom Skin"
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+  const renderSkinRow = (skin: Skin, isCustom = false) => (
+    <div key={skin.id} data-skin-id={skin.id} className="flex items-center space-x-2">
+      <Checkbox
+        id={skin.id}
+        checked={selectedSkins?.includes(skin.id) || false}
+        onCheckedChange={() => {
+          saveScrollPosition(skin.id)
+          onSkinToggle?.(skin.id)
+        }}
+      />
+      <Label
+        htmlFor={skin.id}
+        className={`flex cursor-pointer items-center space-x-2 ${
+          actionMode === "manual" ? "rounded p-1 hover:bg-blue-50" : ""
+        }`}
+        onClick={() => {
+          if (actionMode === "manual" && onManualSelect) {
+            onManualSelect(skin)
+          }
+        }}
+      >
+        <span className="text-lg">{skin.emoji}</span>
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-gray-800">{skin.name}</span>
+          <span className="text-xs text-gray-500">{skin.season}</span>
+        </div>
+      </Label>
+      <div className="ml-auto flex items-center space-x-1">
+        <Button variant="ghost" size="sm" onClick={() => onPreviewSkin?.(skin)} title="Preview">
+          <Eye className="h-3 w-3" />
+        </Button>
+        {!isCustom && onEnhancedDetails && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEnhancedDetails(skin)}
+            title="Enhanced Details"
+            className="text-purple-500 hover:text-purple-700"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+        {addToFavorites && removeFromFavorites && isFavorite && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              isFavorite(skin.id) ? removeFromFavorites(skin.id) : addToFavorites(skin)
+            }
+            title={isFavorite(skin.id) ? "Remove from favorites" : "Add to favorites"}
+            className={
+              isFavorite(skin.id) ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"
+            }
+          >
+            <Heart className={`h-3 w-3 ${isFavorite(skin.id) ? "fill-current" : ""}`} />
+          </Button>
+        )}
+        {addToComparison && removeFromComparison && isInComparison && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              isInComparison(skin.id) ? removeFromComparison(skin.id) : addToComparison(skin)
+            }
+            title={isInComparison(skin.id) ? "Remove from comparison" : "Add to comparison"}
+            disabled={!isInComparison(skin.id) && comparisonSkins.length >= 4}
+            className={
+              isInComparison(skin.id) ? "text-blue-500 hover:text-blue-700" : "text-gray-400 hover:text-blue-500"
+            }
+          >
+            {isInComparison(skin.id) ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+          </Button>
+        )}
+        {isCustom && onDeleteCustomSkin && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDeleteCustomSkin(skin.id)}
+            title="Delete Custom Skin"
+            className="text-red-500 hover:text-red-700"
+          >
+            <X className="h-3 w-3" />
+          </Button>
         )}
       </div>
+    </div>
+  )
+
+  const renderSkinsList = () => {
+    if (listTabGroups.length === 0) {
+      return <p className="text-sm text-gray-500">No skins in this filter.</p>
+    }
+
+    if (listTabGroups.length === 1) {
+      const group = listTabGroups[0]
+      return (
+        <div ref={scrollContainerRef} className="max-h-64 space-y-2 overflow-y-auto">
+          {group.skins.map((skin) => renderSkinRow(skin, group.isCustom))}
+        </div>
+      )
+    }
+
+    return (
+      <Tabs value={activeListTab} onValueChange={setActiveListTab} className="w-full">
+        <TabsList className="mb-2 flex h-auto w-full flex-wrap justify-start gap-1 bg-slate-100 p-1">
+          {listTabGroups.map((group) => {
+            const icon =
+              group.id === "custom"
+                ? "🎮"
+                : rarityIcons[group.id as keyof typeof rarityIcons]
+            const color =
+              group.id === "custom"
+                ? "#8B5CF6"
+                : rarityColors[group.id as keyof typeof rarityColors]
+            return (
+              <TabsTrigger
+                key={group.id}
+                value={group.id}
+                className="shrink-0 px-2 py-1 text-xs data-[state=active]:bg-white"
+              >
+                <span className="mr-1" style={{ color }}>
+                  {icon}
+                </span>
+                {group.label}
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
+        {listTabGroups.map((group) => (
+          <TabsContent
+            key={group.id}
+            value={group.id}
+            ref={group.id === activeListTab ? scrollContainerRef : undefined}
+            className="mt-0 max-h-64 space-y-2 overflow-y-auto"
+          >
+            {group.skins.map((skin) => renderSkinRow(skin, group.isCustom))}
+          </TabsContent>
+        ))}
+      </Tabs>
     )
   }
 
@@ -401,33 +445,27 @@ export function SkinsTab({
             </div>
           </div>
 
-          {/* Rarity Selection */}
+          {/* Rarity Selection — catalog skins only */}
+          {!customOnlyMode && (
           <div className="mb-4">
             <Label className="text-sm font-medium mb-2 block text-gray-800">Select Rarity & Filter Skins:</Label>
             <div key={`rarity-buttons-${selectedRarity}`} className="grid grid-cols-2 gap-2">
               <Button
                 variant={selectedRarity === "all" ? "default" : "outline"}
                 size="sm"
-                onClick={() => {
-                  console.log('All Skins button clicked')
-                  onRarityChange?.("all")
-                }}
+                onClick={() => onRarityChange?.("all")}
                 className={`text-xs ${selectedRarity === "all" ? "bg-gray-800 text-white" : "bg-white text-gray-700"}`}
               >
                 All Skins
               </Button>
               {Object.keys(rarityColors).map((rarity) => {
-                const isSelected = selectedRarity === rarity;
-                console.log(`Rarity button ${rarity}: selectedRarity=${selectedRarity}, rarity=${rarity}, isSelected=${isSelected}, comparison=${selectedRarity === rarity}`);
+                const isSelected = selectedRarity === rarity
                 return (
                   <Button
                     key={`${rarity}-${selectedRarity}`}
                     variant={isSelected ? "default" : "outline"}
                     size="sm"
-                    onClick={() => {
-                      console.log(`${rarity} button clicked`)
-                      onRarityChange?.(rarity as RarityFilter)
-                    }}
+                    onClick={() => onRarityChange?.(rarity as RarityFilter)}
                     className={`text-xs ${isSelected ? "text-white" : "bg-white text-gray-700"}`}
                     style={{
                       backgroundColor:
@@ -437,10 +475,11 @@ export function SkinsTab({
                   >
                     {rarityIcons[rarity as keyof typeof rarityIcons]} {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
                   </Button>
-                );
+                )
               })}
             </div>
           </div>
+          )}
 
           {/* Skin Count and Clear */}
           <div className="flex items-center justify-between mb-4">
@@ -453,75 +492,13 @@ export function SkinsTab({
           </div>
 
           {/* Skins List */}
-          <div ref={scrollContainerRef} className="max-h-64 overflow-y-auto">{renderSkinsList()}</div>
+          <div>{renderSkinsList()}</div>
 
         </CardContent>
       </Card>
 
-      {/* Custom Skins Card */}
-      {customSkins && customSkins.length > 0 && (
-        <Card className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <span className="text-purple-600">🎨</span>
-              Custom Skins ({customSkins.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {customSkins.map((skin) => (
-                <div
-                  key={skin.id}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <input
-                      type="checkbox"
-                      checked={selectedSkins.includes(skin.id)}
-                      onChange={() => onSkinToggle?.(skin.id)}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-2xl">{skin.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{skin.name}</div>
-                      <div className="text-xs text-gray-500 flex items-center gap-2">
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
-                          {skin.rarity}
-                        </span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                          {skin.season}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onPreviewSkin?.(skin)}
-                      className="h-8 w-8 p-0 hover:bg-gray-200"
-                      title="Preview"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDeleteCustomSkin?.(skin.id)}
-                      className="h-8 w-8 p-0 hover:bg-red-100 text-red-600"
-                      title="Delete"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Display Mode Controls - Moved outside the card container */}
+      {showDisplayControls && (
       <Card>
         <CardContent className="p-4">
           <Label className="text-sm font-medium mb-2 block text-gray-800">Display Mode:</Label>
@@ -567,6 +544,7 @@ export function SkinsTab({
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   )
 }

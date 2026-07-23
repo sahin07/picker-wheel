@@ -822,12 +822,12 @@ export function NumberPickerWheel({
         </>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="mb-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
         <div
-          className={`relative lg:col-span-2 lg:order-1 ${
+          className={`relative overflow-x-hidden lg:col-span-2 lg:order-1 ${
             isFullscreen
               ? ""
-              : "overflow-hidden rounded-lg border bg-white p-6 shadow-sm"
+              : "rounded-lg border bg-white p-3 shadow-sm sm:p-6"
           }`}
         >
           {!isFullscreen && (
@@ -835,7 +835,7 @@ export function NumberPickerWheel({
               variant="outline"
               size="sm"
               onClick={() => setShowHistory(true)}
-              className="absolute left-4 top-4 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+              className="absolute left-2 top-2 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:left-4 sm:top-4 sm:px-3"
             >
               Results
               {results.length > 0 && (
@@ -847,7 +847,7 @@ export function NumberPickerWheel({
           )}
 
           <div className="flex flex-col items-center space-y-6 pt-6">
-            <div className="relative">
+            <div className="relative mx-auto w-full max-w-[680px]">
               <div
                 className="cursor-pointer"
                 onClick={!isSpinning ? spinWheel : handleManualStop}

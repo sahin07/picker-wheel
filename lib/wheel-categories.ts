@@ -19,6 +19,8 @@ import {
   Map,
   Wrench,
   Sun,
+  Scale,
+  Gift,
 } from "lucide-react"
 
 export type WheelItem = {
@@ -108,7 +110,7 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
       },
       {
         label: "Team Picker Wheel",
-        href: "/team-picker",
+        href: "/team-picker-wheel",
         description: "Split a group into teams without preference or debate.",
         icon: UsersRound,
         color: "#4ade80",
@@ -131,6 +133,92 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     ],
   },
   {
+    id: "giveaways-odds-wheel-pickers",
+    title: "Giveaways & Odds",
+    description:
+      "Run prize giveaways and weighted spins for promotions, classrooms, events, and contests.",
+    icon: Gift,
+    color: "#d97706",
+    bg: "rgba(217, 119, 6, 0.12)",
+    items: [
+      {
+        label: "Prize Wheel Spinner",
+        href: "/prize-wheel-spinner",
+        description: "Create an equal-odds prize wheel with images and winner messages.",
+        icon: Gift,
+        color: "#f59e0b",
+        bg: "rgba(245, 158, 11, 0.15)",
+      },
+      {
+        label: "Weighted Wheel Spinner",
+        href: "/weighted-wheel-spinner",
+        description: "Assign custom odds to every outcome and view live probabilities.",
+        icon: Scale,
+        color: "#a78bfa",
+        bg: "rgba(167, 139, 250, 0.15)",
+      },
+    ],
+  },
+  {
+    id: "wheel-of-fortune-pickers",
+    title: "Wheel of Fortune",
+    description:
+      "Custom fortune wheels for decisions, classrooms, prizes, and group games.",
+    icon: Sparkles,
+    color: "#7c3aed",
+    bg: "rgba(124, 58, 237, 0.12)",
+    items: [
+      {
+        label: "Wheel of Fortune",
+        href: "/wheel-of-fortune",
+        description: "Create a custom equal-odds wheel for any decision.",
+        icon: Sparkles,
+        color: "#a78bfa",
+        bg: "rgba(167, 139, 250, 0.15)",
+      },
+      {
+        label: "Classroom Wheel of Fortune",
+        href: "/classroom-wheel-of-fortune",
+        description: "Choose classroom rewards, roles, and activities.",
+        icon: Users,
+        color: "#8b5cf6",
+        bg: "rgba(139, 92, 246, 0.15)",
+      },
+      {
+        label: "Prize Wheel of Fortune",
+        href: "/prize-wheel-of-fortune",
+        description: "Spin for rewards, giveaways, and prizes.",
+        icon: Gift,
+        color: "#f59e0b",
+        bg: "rgba(245, 158, 11, 0.15)",
+      },
+      {
+        label: "Game Night Wheel of Fortune",
+        href: "/game-night-wheel-of-fortune",
+        description: "Choose the next game, challenge, or wild card.",
+        icon: Gamepad2,
+        color: "#7c3aed",
+        bg: "rgba(124, 58, 237, 0.15)",
+      },
+      {
+        label: "Jess Coleman Wheel of Fortune",
+        href: "/jess-coleman-wheel-of-fortune",
+        description: "Open the Jess Coleman fan-style fortune template.",
+        icon: CircleDot,
+        color: "#f59e0b",
+        bg: "rgba(245, 158, 11, 0.15)",
+      },
+      {
+        label: "Rainey Dorbor Wheel of Fortune",
+        href: "/rainey-dorbor-wheel-of-fortune",
+        description: "Open the Rainey Dorbor fan-style fortune template.",
+        icon: CircleDot,
+        color: "#fb7185",
+        bg: "rgba(251, 113, 133, 0.15)",
+      },
+    ],
+  },
+  {
     id: "sports-wheel-pickers",
     title: "Sports",
     description:
@@ -141,7 +229,7 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     items: [
       {
         label: "MLB Picker Wheel",
-        href: "/mlb-wheel",
+        href: "/mlb-picker-wheel",
         description: "Draw one Major League Baseball team from the league.",
         icon: Trophy,
         color: "#fb923c",
@@ -149,7 +237,7 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
       },
       {
         label: "NBA Picker Wheel",
-        href: "/nba-wheel",
+        href: "/nba-team-picker-wheel",
         description: "Let the wheel choose one professional basketball team.",
         icon: CircleDot,
         color: "#f472b6",
@@ -168,27 +256,35 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     items: [
       {
         label: "Fortnite Skins Picker",
-        href: "/fortnite-wheel",
+        href: "/fortnite-picker-wheel",
         description: "Choose a Fortnite outfit when your locker has too many options.",
         icon: Gamepad2,
         color: "#c084fc",
         bg: "rgba(192, 132, 252, 0.15)",
       },
       {
-        label: "Pokemon Picker Wheel",
-        href: "/pokemon-wheel",
+        label: "Pokémon Picker Wheel",
+        href: "/pokemon-picker-wheel",
         description: "Draw a Pokemon for a team, battle, challenge, or favorite pick.",
         icon: Sparkles,
         color: "#facc15",
         bg: "rgba(250, 204, 21, 0.15)",
       },
       {
-        label: "LoL Champions Picker",
-        href: "/lol-wheel",
+        label: "LoL Picker Wheel",
+        href: "/lol-picker-wheel",
         description: "Leave your next League champion choice to chance.",
         icon: Swords,
         color: "#60a5fa",
         bg: "rgba(96, 165, 250, 0.15)",
+      },
+      {
+        label: "JJK Spin Wheel picker",
+        href: "/jjk-spin-the-wheel",
+        description: "Pick a random Jujutsu Kaisen character, spirit, technique, or domain.",
+        icon: Sparkles,
+        color: "#a78bfa",
+        bg: "rgba(167, 139, 250, 0.15)",
       },
     ],
   },
@@ -203,7 +299,7 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     items: [
       {
         label: "Country Picker Wheel",
-        href: "/country-wheel",
+        href: "/country-picker-wheel",
         description: "Draw a nation for destination ideas, study topics, or quizzes.",
         icon: Globe,
         color: "#4ade80",
@@ -272,12 +368,92 @@ export function getAvailableWheels(items: WheelItem[] = getAllWheels()): WheelIt
 /** Map route href → wheel-manager toolType key */
 export function hrefToToolType(href: string): string {
   if (href === "/") return "picker-wheel"
+  if (href === "/weighted-wheel-spinner") return "weighted-wheel"
+  if (href === "/prize-wheel-spinner") return "prize-wheel"
+  if (
+    href === "/wheel-of-fortune" ||
+    href === "/the-wheel-of-fortune" ||
+    href === "/custom-wheel-of-fortune" ||
+    href === "/classroom-wheel-of-fortune" ||
+    href === "/prize-wheel-of-fortune" ||
+    href === "/truth-or-dare-wheel-of-fortune" ||
+    href === "/holiday-wheel-of-fortune" ||
+    href === "/game-night-wheel-of-fortune" ||
+    href === "/icebreaker-wheel-of-fortune" ||
+    href === "/jess-coleman-wheel-of-fortune" ||
+    href === "/rainey-dorbor-wheel-of-fortune"
+  ) {
+    return "fortune-wheel"
+  }
   // Pillar SEO URLs that differ from internal toolType keys
   if (href === "/random-letter-picker" || href === "/letter-picker-wheel") {
     return "letter-picker-wheel"
   }
   if (href === "/yes-or-no-wheel" || href === "/yes-no-picker-wheel") {
     return "yes-no-picker-wheel"
+  }
+  if (
+    href === "/mlb-picker-wheel" ||
+    href === "/random-mlb-team-picker-wheel" ||
+    href === "/mlb-american-league-picker-wheel" ||
+    href === "/mlb-national-league-picker-wheel" ||
+    href === "/mlb-al-east-picker-wheel" ||
+    href === "/mlb-al-central-picker-wheel" ||
+    href === "/mlb-al-west-picker-wheel" ||
+    href === "/mlb-nl-east-picker-wheel" ||
+    href === "/mlb-nl-central-picker-wheel" ||
+    href === "/mlb-nl-west-picker-wheel" ||
+    href === "/mlb-world-series-winners-picker-wheel"
+  ) {
+    return "mlb-wheel"
+  }
+  if (
+    href === "/nba-team-picker-wheel" ||
+    href === "/random-nba-team-picker-wheel" ||
+    href === "/nba-eastern-conference-picker-wheel" ||
+    href === "/nba-western-conference-picker-wheel" ||
+    href === "/nba-atlantic-picker-wheel" ||
+    href === "/nba-central-picker-wheel" ||
+    href === "/nba-southeast-picker-wheel" ||
+    href === "/nba-northwest-picker-wheel" ||
+    href === "/nba-pacific-picker-wheel" ||
+    href === "/nba-southwest-picker-wheel" ||
+    href === "/nba-championship-winners-picker-wheel"
+  ) {
+    return "nba-wheel"
+  }
+  if (
+    href === "/fortnite-picker-wheel" ||
+    href === "/fortnite-wheel" ||
+    href === "/random-fortnite-skin-picker-wheel" ||
+    href.startsWith("/fortnite-")
+  ) {
+    return "fortnite-wheel"
+  }
+  if (
+    href === "/jjk-spin-the-wheel" ||
+    href === "/jujutsu-kaisen-wheel" ||
+    href === "/favorite-jjk-character-picker" ||
+    href.startsWith("/jjk-")
+  ) {
+    return "jjk-wheel"
+  }
+  if (
+    href === "/team-picker-wheel" ||
+    href === "/team-picker" ||
+    href === "/random-team-picker" ||
+    href === "/random-team-generator" ||
+    href === "/3-team-generator" ||
+    href === "/4-team-generator" ||
+    href === "/classroom-team-generator" ||
+    href === "/football-team-picker" ||
+    href === "/basketball-team-picker" ||
+    href === "/volleyball-team-picker" ||
+    href === "/esports-team-picker" ||
+    href === "/office-team-builder" ||
+    href === "/tournament-team-generator"
+  ) {
+    return "team-picker"
   }
   return href.replace(/^\//, "")
 }

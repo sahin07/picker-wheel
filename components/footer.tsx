@@ -73,7 +73,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/country-wheel"
+                  href="/country-picker-wheel"
                   className="text-gray-300 hover:text-white"
                 >
                   Country Picker
@@ -85,6 +85,38 @@ export default function Footer() {
                   className="text-gray-300 hover:text-white"
                 >
                   State Picker
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/weighted-wheel-spinner"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Weighted Wheel
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/prize-wheel-spinner"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Prize Wheel
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/wheel-of-fortune"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Wheel of Fortune
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/jjk-spin-the-wheel"
+                  className="text-gray-300 hover:text-white"
+                >
+                  JJK Spin Wheel picker
                 </Link>
               </li>
             </ul>

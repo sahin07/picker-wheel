@@ -1341,7 +1341,7 @@ function InnerDatePickerWheelPage({
       )}
       {!isFullscreen && <Header onOpenSettings={() => setShowSettings(true)} onOpenGames={() => setShowGames(true)} />}
       
-      <main className={isFullscreen ? "h-full flex flex-col items-center justify-center p-4" : "w-full px-4 py-8 sm:px-6 lg:px-8"}>
+      <main className={isFullscreen ? "h-full flex flex-col items-center justify-center p-4" : "w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8"}>
         {!isFullscreen && (
           <>
             <div className="mb-4 text-center">
@@ -1380,7 +1380,7 @@ function InnerDatePickerWheelPage({
             className={
               isFullscreen
                 ? "flex flex-col items-center"
-                : "grid grid-cols-1 items-start gap-8 lg:grid-cols-3"
+                : "mb-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-3 lg:gap-8"
             }
           >
             {/* Wheel Section — white card shell matches Letter / Image */}
@@ -1388,7 +1388,7 @@ function InnerDatePickerWheelPage({
               className={
                 isFullscreen
                   ? "fixed inset-0 z-50 flex w-full flex-col items-center justify-center overflow-auto bg-white p-4"
-                  : `relative self-start overflow-hidden rounded-lg border bg-white p-6 shadow-sm ${
+                  : `relative self-start overflow-x-hidden rounded-lg border bg-white p-3 shadow-sm sm:p-6 ${
                       showInputs ? "lg:col-span-2" : "lg:col-span-3"
                     }`
               }
@@ -1416,10 +1416,9 @@ function InnerDatePickerWheelPage({
                     : "relative flex flex-col items-center space-y-4 pt-6"
                 }
               >
-                <div className="relative w-full max-w-[680px]">
+                <div className="relative mx-auto flex w-full max-w-[680px] flex-col items-center">
                   <div
-                    className="relative mx-auto cursor-pointer"
-                    style={{ width: "min(100%, 680px)" }}
+                    className="relative w-full max-w-[680px] cursor-pointer overflow-visible"
                     onClick={canClickSpin ? handleSpinClick : undefined}
                   >
                     <WheelCanvas

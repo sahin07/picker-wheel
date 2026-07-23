@@ -140,7 +140,7 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         ],
         links: [
           { label: "Yes or No wheel", href: "/yes-or-no-wheel" },
-          { label: "Team picker", href: "/team-picker" },
+          { label: "Team picker", href: "/team-picker-wheel" },
         ],
       },
       {
@@ -694,7 +694,7 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
             ],
           },
         ],
-        links: [{ label: "Try the Country Picker", href: "/country-wheel" }],
+        links: [{ label: "Try the Country Picker", href: "/country-picker-wheel" }],
       },
       {
         id: "state-picker-how-it-works",

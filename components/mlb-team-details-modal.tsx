@@ -45,8 +45,8 @@ export default function MLBTeamDetailsModal({ isOpen, onClose, team }: MLBTeamDe
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent className="max-h-[90vh] w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-xl">
             <span className="text-3xl">{team.logo}</span>

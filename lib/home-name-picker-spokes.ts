@@ -222,7 +222,7 @@ export function getHomeNameTemplateHref(id: HomeNameTemplateId): string | null {
   if (id === "classroom" || id === "giveaway" || id === "secret-santa" || id === "presentation") {
     return HOME_NAME_SPOKES[id].path
   }
-  if (id === "team") return "/team-picker"
+  if (id === "team") return "/team-picker-wheel"
   return null
 }
 

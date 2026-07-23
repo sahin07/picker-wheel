@@ -23,7 +23,7 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     name: "Country Picker",
     options: [],
     isSpecialTool: true,
-    href: "/country-wheel",
+    href: "/country-picker-wheel",
   },
   {
     name: "State Picker",

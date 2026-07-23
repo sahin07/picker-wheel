@@ -64,6 +64,21 @@ export type HomeLinkItem = {
 /** Live routes only — popular tool cards */
 export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   {
+    label: "Wheel of Fortune",
+    href: "/wheel-of-fortune",
+    description: "Create a custom fortune wheel for decisions, activities, prizes, and games.",
+  },
+  {
+    label: "Prize Wheel Spinner",
+    href: "/prize-wheel-spinner",
+    description: "Create equal-odds prizes for giveaways, events, and classroom rewards.",
+  },
+  {
+    label: "Weighted Wheel Spinner",
+    href: "/weighted-wheel-spinner",
+    description: "Set custom odds for simulations, lessons, games, and scenario testing.",
+  },
+  {
     label: "Yes or No Wheel",
     href: "/yes-or-no-wheel",
     description: "A simple decision wheel when you need a quick yes or no.",
@@ -79,8 +94,8 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Draw a random number from a range for raffles and games.",
   },
   {
-    label: "Country Wheel",
-    href: "/country-wheel",
+    label: "Country Picker Wheel",
+    href: "/country-picker-wheel",
     description: "Spin for a random country for travel ideas or quizzes.",
   },
   {
@@ -95,22 +110,27 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   },
   {
     label: "Team Picker",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Split names into random teams for sports and group work.",
   },
   {
-    label: "Pokemon Wheel",
-    href: "/pokemon-wheel",
+    label: "Pokemon Picker Wheel",
+    href: "/pokemon-picker-wheel",
     description: "Pick a random Pokémon for challenges and game nights.",
   },
   {
-    label: "NBA Teams Wheel",
-    href: "/nba-wheel",
+    label: "JJK Spin Wheel picker",
+    href: "/jjk-spin-the-wheel",
+    description: "Pick a random Jujutsu Kaisen character for fan challenges and team drafts.",
+  },
+  {
+    label: "NBA Picker Wheel",
+    href: "/nba-team-picker-wheel",
     description: "Spin for a random NBA team for fantasy and watch parties.",
   },
   {
-    label: "MLB Teams Wheel",
-    href: "/mlb-wheel",
+    label: "MLB Picker Wheel",
+    href: "/mlb-picker-wheel",
     description: "Choose a random MLB team for drafts and sports games.",
   },
   {
@@ -480,6 +500,21 @@ export const HOME_CUSTOMIZE_STEPS = [
 /** Live routes only — related tools for the article (excludes this pillar page) */
 export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
   {
+    label: "Wheel of Fortune",
+    href: "/wheel-of-fortune",
+    description: "Create a themed equal-odds wheel for decisions, activities, and games.",
+  },
+  {
+    label: "Prize Wheel Spinner",
+    href: "/prize-wheel-spinner",
+    description: "Spin equal-odds prizes with optional images and winner messages.",
+  },
+  {
+    label: "Weighted Wheel Spinner",
+    href: "/weighted-wheel-spinner",
+    description: "Assign transparent custom probabilities to every outcome.",
+  },
+  {
     label: "Number Picker Wheel",
     href: "/number-picker-wheel",
     description: "Draw a number from a range for raffles and games.",
@@ -496,7 +531,7 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Split names into random teams for class or sports.",
   },
   {
@@ -540,7 +575,7 @@ export const HOME_CLUSTER_LINKS: HomeLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Split names into random teams (existing tool).",
   },
 ]

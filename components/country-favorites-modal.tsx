@@ -8,6 +8,7 @@ import { useState } from "react"
 import CountryStatisticsModal from "./country-statistics-modal"
 import type { Country } from "@/data/countries"
 import CountryComparisonModal from "./country-comparison-modal"
+import { CountryFlagImage } from "@/components/country-flag-image"
 
 interface CountryFavoritesModalProps {
   isOpen: boolean
@@ -106,7 +107,11 @@ export default function CountryFavoritesModal({ isOpen, onClose }: CountryFavori
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <span className="text-3xl">{country.flag}</span>
+                          <CountryFlagImage
+                            country={country}
+                            width={80}
+                            imgClassName="h-8 w-12 rounded object-cover border border-slate-200"
+                          />
                           <div>
                             <h3 className="font-semibold">{country.name}</h3>
                             <p className="text-sm text-gray-600">{country.region}</p>

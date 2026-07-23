@@ -241,7 +241,7 @@ export const DATE_PICKER_RELATED_TOOLS: DatePickerLinkItem[] = [
   },
   {
     label: "Team / Name Picker",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Spin names and teams for classrooms and groups.",
   },
 ]

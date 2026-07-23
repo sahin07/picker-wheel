@@ -1,3 +1,5 @@
+import type { Skin } from "@/types/fortnite-types"
+
 export const fortniteSkins = {
   common: [
     {
@@ -457,3 +459,104 @@ export const fortniteSkins = {
     },
   ],
 } as const
+
+export type FortniteRarityKey =
+  | "common"
+  | "uncommon"
+  | "rare"
+  | "epic"
+  | "legendary"
+  | "mythic"
+
+export const FORTNITE_RARITY_KEYS: readonly FortniteRarityKey[] = [
+  "common",
+  "uncommon",
+  "rare",
+  "epic",
+  "legendary",
+  "mythic",
+] as const
+
+/** Season labels that usually mean collab / event cosmetics. */
+export const FORTNITE_COLLAB_SEASON_MARKERS = [
+  "Marvel",
+  "DC",
+  "Star Wars",
+  "Dragon Ball",
+  "Halloween",
+  "Christmas",
+] as const
+
+function toSkin(skin: {
+  id: string
+  name: string
+  rarity: string
+  emoji: string
+  season: string
+  preview: string
+}): Skin {
+  return {
+    id: skin.id,
+    name: skin.name,
+    rarity: skin.rarity,
+    emoji: skin.emoji,
+    season: skin.season,
+    preview: skin.preview,
+  }
+}
+
+export function normalizeFortniteRarityKey(
+  rarity: string,
+): FortniteRarityKey | null {
+  const key = rarity.trim().toLowerCase() as FortniteRarityKey
+  return FORTNITE_RARITY_KEYS.includes(key) ? key : null
+}
+
+/** Flat list of every skin in the catalog. */
+export function getAllFortniteSkins(): Skin[] {
+  return (Object.values(fortniteSkins) as unknown as Skin[][]).flat().map(toSkin)
+}
+
+export function getFortniteSkinById(id: string): Skin | undefined {
+  return getAllFortniteSkins().find((skin) => skin.id === id)
+}
+
+/** Filter by rarity key (`common`…`mythic`) or return all when `all`. */
+export function getFortniteSkinsByRarity(
+  rarity: FortniteRarityKey | "all",
+): Skin[] {
+  if (rarity === "all") return getAllFortniteSkins()
+  const bucket = fortniteSkins[rarity]
+  if (!bucket) return []
+  return bucket.map(toSkin)
+}
+
+/** Case-insensitive season / event match (exact or substring). */
+export function getFortniteSkinsBySeason(season: string): Skin[] {
+  const needle = season.trim().toLowerCase()
+  if (!needle) return []
+  return getAllFortniteSkins().filter((skin) =>
+    skin.season.toLowerCase().includes(needle),
+  )
+}
+
+/** Collab / event skins (Marvel, DC, Star Wars, holiday, etc.). */
+export function getFortniteCollabSkins(): Skin[] {
+  return getAllFortniteSkins().filter((skin) =>
+    FORTNITE_COLLAB_SEASON_MARKERS.some((marker) =>
+      skin.season.toLowerCase().includes(marker.toLowerCase()),
+    ),
+  )
+}
+
+export function getFortniteSkinCountsByRarity(): Record<FortniteRarityKey, number> {
+  return FORTNITE_RARITY_KEYS.reduce(
+    (acc, key) => {
+      acc[key] = fortniteSkins[key].length
+      return acc
+    },
+    {} as Record<FortniteRarityKey, number>,
+  )
+}
+
+export const FORTNITE_SKIN_COUNT = getAllFortniteSkins().length

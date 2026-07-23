@@ -51,6 +51,7 @@ export const LETTER_PICKER_ON_THIS_PAGE = [
   { id: "lp-popular-wheels", label: "Popular letter wheels" },
   { id: "lp-spin-wheel", label: "Spin the letter wheel" },
   { id: "lp-create-wheel", label: "Create your letter wheel" },
+  { id: "lp-options", label: "How this tool's options work" },
   { id: "lp-use-cases", label: "Common uses" },
   { id: "lp-why", label: "Why use a random letter picker" },
   { id: "lp-vs-generator", label: "Picker vs generator" },
@@ -143,6 +144,50 @@ export const LETTER_PICKER_CREATE_POINTS = [
     title: "Save wheels",
     description:
       "Keep custom letter wheels in My Wheels on this device and reopen them for the next lesson or game night.",
+  },
+] as const
+
+/** Explains each Letter Controls option for the complete guide. */
+export const LETTER_PICKER_OPTIONS_GUIDE = [
+  {
+    title: "Action Mode",
+    description:
+      "Normal Mode keeps every letter on the wheel after a spin. Elimination Mode removes the winning letter (synced with Manage → Remove winner) so later spins pick from what’s left—ideal for classroom rounds where each letter should appear once.",
+  },
+  {
+    title: "List tab (slices & weights)",
+    description:
+      "Add, edit, enable, or delete letter slices one by one. Adjust weight to change odds, pick per-slice colors, or use Reset A–Z to restore the full alphabet. Clear results when you want a fresh spin history.",
+  },
+  {
+    title: "Manage menu",
+    description:
+      "Sort Z–A, Shuffle, Equalize weights, Search slices, Remove winner, Delete blanks, Remove duplicates, or Clear all. These bulk actions keep a long alphabet list tidy before you spin.",
+  },
+  {
+    title: "Text tab & CSV",
+    description:
+      "Paste one letter per line (or letter + weight) and tap Apply text. Use CSV import/export when you already have a letter list from a spreadsheet or another wheel.",
+  },
+  {
+    title: "Letter case",
+    description:
+      "In Style, choose Uppercase (A, B, C), Lowercase (a, b, c), or Mixed Case. Match classroom worksheets, phonics cards, or game rules that care about case.",
+  },
+  {
+    title: "Preset set",
+    description:
+      "Load Full Alphabet (A–Z), Vowels only, Consonants only, or keep a Custom list. Popular templates and spoke pages use these presets so you do not rebuild the set by hand.",
+  },
+  {
+    title: "Color palettes",
+    description:
+      "Apply Style palettes (Default, Warm, Ocean, Candy, and more) or Randomize colors so the letter wheel is easy to read on a projector or stream.",
+  },
+  {
+    title: "Other Options & Share",
+    description:
+      "Import, Export, Share, Embed, QR Code, Fullscreen, and OBS Overlay live under Other Options—plus giveaway tools and utilities like Probability Calculator and Saved Wheels when you need them.",
   },
 ] as const
 
@@ -292,13 +337,13 @@ export const LETTER_PICKER_RELATED_TOOLS: LetterPickerLinkItem[] = [
     description: "Spin for a random color for design and art challenges.",
   },
   {
-    label: "Country Wheel",
-    href: "/country-wheel",
+    label: "Country Picker Wheel",
+    href: "/country-picker-wheel",
     description: "Pick a random country for geography games and travel prompts.",
   },
   {
     label: "Team Picker",
-    href: "/team-picker",
+    href: "/team-picker-wheel",
     description: "Split people into random teams for sports and class.",
   },
   {

@@ -1,404 +1,404 @@
-"use client";
+"use client"
 
-import { useState, useRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import type { RefObject } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
-  Settings,
-  Share2,
-  Maximize,
-  EyeOff,
-  Eye,
   Volume2,
-  RotateCcw,
-  Sparkles,
-  BarChart3,
+  VolumeX,
+  Maximize,
+  Minimize,
   Trophy,
   Palette,
+  BarChart3,
   Users,
   Gamepad2,
-} from "lucide-react";
-import { WheelComponent } from "@/components/lol-wheel-component";
-import { useWheelManagerStore } from "@/stores/wheel-manager-store";
-import type {
-  LoLChampion,
-  SpinResult,
-  DisplayMode,
-  ActionMode,
-  RoleFilter,
-} from "@/types/lol-types";
+} from "lucide-react"
+import { WheelComponent, LOL_WHEEL_SIZE } from "@/components/lol-wheel-component"
+import type { ActionMode, DisplayMode, LoLChampion, SpinResult } from "@/types/lol-types"
+import type { WheelTheme } from "@/lib/picker-wheel-themes"
+import { useSettingsStore } from "@/stores/settings-store"
 
-interface LoLWheelSectionProps {
-  onOpenAchievements?: () => void;
-  onOpenThemeSelector?: () => void;
-  onOpenAnalytics?: () => void;
-  onOpenSocialHub?: () => void;
-  onOpenGameModes?: () => void;
-  totalPoints?: number;
-  currentTheme?: string;
-  themes?: any[];
-  currentUser?: any;
-  isGameActive?: boolean;
-  currentGameMode?: string;
-  onSpinCompleted?: () => void;
-  actionMode?: ActionMode;
-  onEliminationMode?: (champion: LoLChampion) => void;
-  onActionModeChange?: (mode: ActionMode) => void;
-  onAddManualChampion?: (name: string) => void;
+export { LOL_WHEEL_SIZE }
+
+export interface LolWheelSectionProps {
+  champions: LoLChampion[]
+  rotation: number
+  isSpinning: boolean
+  spinDuration: number
+  wheelRef: RefObject<HTMLDivElement | null>
+  displayMode: DisplayMode
+  currentTheme?: string
+  themes?: WheelTheme[]
+  wheelKey?: string
+  onSpinCompleted?: () => void
+
+  muted: boolean
+  onToggleMute: () => void
+
+  displaySpinCount: number
+  onSpin: () => void
+  onManualStop?: () => void
+
+  actionMode: ActionMode
+  onActionModeChange: (mode: ActionMode) => void
+  manualChampionName: string
+  onManualChampionNameChange: (value: string) => void
+  onAddManualChampion: () => void
+
+  spinResult?: SpinResult | null
+  selectedResult?: SpinResult | null
+
+  isGameActive?: boolean
+  currentGameModeName?: string
+
+  onOpenAchievements?: () => void
+  onOpenThemeSelector?: () => void
+  onOpenAnalytics?: () => void
+  onOpenSocialHub?: () => void
+  onOpenGameModes?: () => void
+  totalPoints?: number
+
+  isFullscreen?: boolean
+  onToggleFullscreen?: () => void
+  soundEnabled?: boolean
 }
 
-export default function LoLWheelSection({
+export default function LolWheelSection({
+  champions,
+  rotation,
+  isSpinning,
+  spinDuration,
+  wheelRef,
+  displayMode,
+  currentTheme = "classic",
+  themes = [],
+  wheelKey,
+  onSpinCompleted,
+  muted,
+  onToggleMute,
+  displaySpinCount,
+  onSpin,
+  onManualStop,
+  actionMode,
+  onActionModeChange,
+  manualChampionName,
+  onManualChampionNameChange,
+  onAddManualChampion,
+  spinResult,
+  selectedResult,
+  isGameActive = false,
+  currentGameModeName,
   onOpenAchievements,
   onOpenThemeSelector,
   onOpenAnalytics,
   onOpenSocialHub,
   onOpenGameModes,
   totalPoints = 0,
-  currentTheme = "classic",
-  themes = [],
-  currentUser,
-  isGameActive = false,
-  currentGameMode,
-  onSpinCompleted,
-  actionMode = "normal",
-  onEliminationMode,
-  onActionModeChange,
-  onAddManualChampion,
-}: LoLWheelSectionProps) {
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
-  const [showInputs, setShowInputs] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [manualInput, setManualInput] = useState("");
-  const [spinSpeed, setSpinSpeed] = useState([5]);
-  const [spinDuration, setSpinDuration] = useState([3]);
+  isFullscreen = false,
+  onToggleFullscreen,
+  soundEnabled: soundEnabledProp,
+}: LolWheelSectionProps) {
+  const soundFromStore = useSettingsStore(
+    (s) => s.settings.confettiSound?.enableSound ?? true,
+  )
+  const soundEnabled = soundEnabledProp ?? soundFromStore
 
-  const wheelRef = useRef<HTMLDivElement>(null);
-  const [rotation, setRotation] = useState(0);
+  const currentResult = selectedResult ?? spinResult ?? null
 
-  const { getCurrentWheel, updateWheelData } = useWheelManagerStore();
-
-  // Get current wheel data
-  const currentWheel = getCurrentWheel();
-  const wheelData = currentWheel?.data as any;
-
-  const getFilteredChampions = useCallback((): LoLChampion[] => {
-    if (!wheelData?.selectedChampions) return [];
-
-    const selectedRole = wheelData.selectedRole || "all";
-    const selectedChampions = wheelData.selectedChampions || [];
-
-    if (selectedRole === "all") {
-      return selectedChampions;
-    }
-
-    return selectedChampions.filter(
-      (champion: LoLChampion) => champion.role === selectedRole
-    );
-  }, [wheelData]);
-
-  const spinWheel = useCallback(() => {
-    const availableChampions = getFilteredChampions();
-    if (availableChampions.length === 0) return;
-
-    setIsSpinning(true);
-
-    // Enhanced spin mechanics like Fortnite wheel
-    const spins = 8 + Math.random() * 4; // Increased from 5+5 to 8+4 for longer spinning
-    const randomAngle = Math.random() * 360;
-    const finalRotation = rotation + spins * 360 + randomAngle;
-
-    setRotation(finalRotation);
-
-    // Increased duration - make it spin longer
-    const spinDurationMs = Math.max(4000, spinDuration[0] * 1000); // Minimum 4 seconds
-
-    setTimeout(() => {
-      // Calculate which segment the pointer is pointing to (pointer is at 12 o'clock = 0 degrees)
-      const finalAngle = finalRotation % 360;
-      const segmentAngle = 360 / availableChampions.length;
-
-      // Debug: Log the calculation
-      console.log("Final rotation:", finalRotation);
-      console.log("Final angle:", finalAngle);
-      console.log("Segment angle:", segmentAngle);
-      console.log("Available champions:", availableChampions.length);
-
-      // When wheel rotates clockwise, segments move clockwise
-      // Segment 0 starts at 0°, Segment 1 starts at segmentAngle°, etc.
-      // After rotation, the segment that was at 0° is now at finalAngle°
-      // To find which segment is now at 0° (12 o'clock), we need to find
-      // which segment was originally at (360 - finalAngle)°
-      let selectedIndex = Math.floor((360 - finalAngle) / segmentAngle);
-      // Ensure the index is within bounds
-      selectedIndex =
-        ((selectedIndex % availableChampions.length) +
-          availableChampions.length) %
-        availableChampions.length;
-      const selectedChampion = availableChampions[selectedIndex];
-
-      console.log("Selected index:", selectedIndex);
-      console.log("Selected champion:", selectedChampion?.name);
-
-      const result: SpinResult = {
-        champion: selectedChampion,
-        timestamp: new Date(),
-      };
-
-      setSpinResult(result);
-      setIsSpinning(false);
-
-      // Update wheel data with enhanced statistics like Fortnite wheel
-      if (currentWheel) {
-        const currentData = currentWheel.data as any;
-        const newTotalSpins = (currentData.totalSpins || 0) + 1;
-
-        // Calculate enhanced statistics
-        const currentStats = currentData.statistics || {
-          totalSpins: 0,
-          uniqueChampionsSpun: 0,
-          mostSpunChampion: undefined,
-          mostSpunRole: undefined,
-          averageSpinsPerSession: 0,
-          lastSpinDate: undefined,
-          firstSpinDate: undefined,
-          spinStreak: 0,
-          totalSpinTime: 0,
-          favoriteRole: undefined,
-          championCountByRole: {},
-          spinResultsByRole: {},
-        };
-
-        // Track unique champions spun
-        const allSpunChampions = new Set<string>();
-
-        // Add current spin history champions from the actual spin history
-        if (
-          currentData.recentResults &&
-          Array.isArray(currentData.recentResults)
-        ) {
-          currentData.recentResults.forEach((spin: any) => {
-            if (spin.name) {
-              allSpunChampions.add(spin.name);
-            }
-          });
-        }
-
-        // Add current spin result
-        allSpunChampions.add(selectedChampion.name);
-
-        const uniqueChampionsSpun = allSpunChampions.size;
-
-        // Track spin results by role
-        const spinResultsByRole = { ...currentStats.spinResultsByRole };
-        const championRole = selectedChampion.role.toLowerCase();
-        spinResultsByRole[championRole] =
-          (spinResultsByRole[championRole] || 0) + 1;
-
-        // Find most spun role
-        const mostSpunRole = Object.entries(spinResultsByRole).sort(
-          ([, a], [, b]) => (b as number) - (a as number)
-        )[0]?.[0];
-
-        // Calculate champion count by role for current selection
-        const championCountByRole: Record<string, number> = {};
-        availableChampions.forEach((champion) => {
-          const role = champion.role.toLowerCase();
-          championCountByRole[role] = (championCountByRole[role] || 0) + 1;
-        });
-
-        // Update statistics
-        const updatedStats = {
-          ...currentStats,
-          totalSpins: newTotalSpins,
-          uniqueChampionsSpun,
-          mostSpunChampion: selectedChampion.name, // For now, just track the latest
-          mostSpunRole,
-          averageSpinsPerSession: newTotalSpins, // Simplified for now
-          lastSpinDate: new Date().toISOString(),
-          firstSpinDate: currentStats.firstSpinDate || new Date().toISOString(),
-          spinStreak: currentStats.spinStreak + 1, // Simplified streak calculation
-          totalSpinTime: currentStats.totalSpinTime + 4, // Assuming 4 second spins
-          favoriteRole: mostSpunRole,
-          championCountByRole,
-          spinResultsByRole,
-        };
-
-        const updatedData = {
-          ...currentData,
-          selectedResult: selectedChampion,
-          totalSpins: newTotalSpins,
-          recentResults: [
-            { name: selectedChampion.name, timestamp: new Date() },
-            ...(currentData.recentResults || []).slice(-9),
-          ],
-          statistics: updatedStats,
-          rotation: finalRotation,
-        };
-        updateWheelData("lol-wheel", currentWheel.id, updatedData);
-      }
-
-      // Handle elimination mode with immediate removal
-      if (actionMode === "elimination" && onEliminationMode) {
-        console.log("ELIMINATION MODE: Starting elimination process...");
-        console.log(
-          "Champion to eliminate:",
-          selectedChampion.name,
-          "ID:",
-          selectedChampion.id
-        );
-
-        // Call elimination handler immediately
-        onEliminationMode(selectedChampion);
-      }
-
-      // Call spin completed callback
-      if (onSpinCompleted) {
-        onSpinCompleted();
-      }
-    }, spinDurationMs);
-  }, [
-    getFilteredChampions,
-    rotation,
-    spinDuration,
-    actionMode,
-    onEliminationMode,
-    onSpinCompleted,
-    currentWheel,
-    wheelData,
-    updateWheelData,
-  ]);
-
-  const addManualChampion = useCallback(() => {
-    if (!manualInput.trim()) return;
-
-    if (onAddManualChampion) {
-      onAddManualChampion(manualInput.trim());
-    }
-    setManualInput("");
-  }, [manualInput, onAddManualChampion]);
-
-  const availableChampions = getFilteredChampions();
+  const handleActionModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onActionModeChange(event.target.value as ActionMode)
+  }
 
   return (
-    <div className="flex flex-col items-center space-y-4">
-      {/* Wheel */}
-      <WheelComponent
-        items={availableChampions}
-        rotation={rotation}
-        isSpinning={isSpinning}
-        spinDuration={spinDuration[0]}
-        wheelRef={wheelRef}
-      />
-
-      {/* Spin Button */}
-      <Button
-        size="lg"
-        onClick={spinWheel}
-        disabled={isSpinning || availableChampions.length === 0}
-        className="px-8 py-3 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
-      >
-        {isSpinning ? "⚔️ Spinning..." : "⚔️ SPIN THE WHEEL"}
-      </Button>
-
-      {/* Mode Selection */}
-      <div className="flex items-center space-x-4">
-        <Label className="text-sm text-gray-600">Mode:</Label>
-        <RadioGroup
-          value={actionMode}
-          onValueChange={(value) => onActionModeChange?.(value as ActionMode)}
-          className="flex space-x-4"
+    <div
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-50 flex flex-col items-center justify-center space-y-4 overflow-auto bg-white p-3 sm:space-y-6 sm:p-4"
+          : "relative flex w-full min-w-0 max-w-full flex-col items-center space-y-4 sm:space-y-6"
+      }
+    >
+      <div className="relative mx-auto flex w-full max-w-[680px] flex-col items-center">
+        <div
+          className={`relative w-full max-w-[680px] overflow-visible ${
+            !isSpinning && champions.length > 0 ? "cursor-pointer" : ""
+          }`}
+          onClick={!isSpinning && champions.length > 0 ? onSpin : undefined}
         >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="normal" id="normal" />
-            <Label htmlFor="normal" className="text-sm text-gray-600">
-              Normal
-            </Label>
+          <WheelComponent
+            key={wheelKey}
+            items={champions}
+            rotation={rotation}
+            isSpinning={isSpinning}
+            spinDuration={spinDuration}
+            wheelRef={wheelRef as RefObject<HTMLDivElement>}
+            displayMode={displayMode}
+            currentTheme={currentTheme}
+            themes={themes}
+            onSpinCompleted={onSpinCompleted}
+          />
+
+          <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleMute()
+              }}
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+              title={
+                !soundEnabled
+                  ? "Global sound disabled"
+                  : muted
+                    ? "Unmute"
+                    : "Mute"
+              }
+            >
+              {!soundEnabled || muted ? (
+                <VolumeX className={`h-5 w-5 ${!soundEnabled ? "text-gray-400" : ""}`} />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
+            {onToggleFullscreen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleFullscreen()
+                }}
+                className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              </Button>
+            )}
           </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="elimination" id="elimination" />
-            <Label htmlFor="elimination" className="text-sm text-gray-600">
-              Elimination
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="manual" id="manual" />
-            <Label htmlFor="manual" className="text-sm text-gray-600">
-              Manual
-            </Label>
-          </div>
-        </RadioGroup>
+
+          {isSpinning && onManualStop && (
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onManualStop()
+              }}
+              className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white hover:bg-red-600"
+              size="sm"
+            >
+              STOP
+            </Button>
+          )}
+
+          {isSpinning && (
+            <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-blue-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
+              Spinning...
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Manual Input */}
+      <div className="flex justify-center">
+        <div className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-white shadow-lg">
+          <div className="text-center">
+            <div className="text-2xl font-bold">{displaySpinCount}</div>
+            <div className="text-sm opacity-90">Total Spins</div>
+          </div>
+        </div>
+      </div>
+
+      <Button
+        type="button"
+        onClick={onSpin}
+        disabled={isSpinning || champions.length === 0}
+        className="w-full max-w-sm bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl sm:px-12 sm:text-lg"
+      >
+        {isSpinning ? (
+          <div className="flex items-center space-x-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            <span>Spinning...</span>
+          </div>
+        ) : (
+          `⚔️ SPIN THE WHEEL (${champions.length} Champions)`
+        )}
+      </Button>
+
+      {champions.length === 0 && (
+        <p className="mt-2 text-center text-gray-500">Select some champions to start spinning!</p>
+      )}
+
       {actionMode === "manual" && (
-        <div className="flex items-center space-x-2 w-full max-w-md">
+        <div className="flex min-w-0 items-center gap-2">
           <Input
-            placeholder="Enter custom champion name..."
-            value={manualInput}
-            onChange={(e) => setManualInput(e.target.value)}
-            className="flex-1 bg-white border-gray-200 text-gray-800 placeholder:text-gray-500"
+            value={manualChampionName}
+            onChange={(e) => onManualChampionNameChange(e.target.value)}
+            placeholder="Type champion name..."
+            className="min-w-0 w-40 text-sm sm:w-48"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && manualChampionName.trim()) onAddManualChampion()
+            }}
           />
-          <Button onClick={addManualChampion} disabled={!manualInput.trim()}>
+          <Button
+            onClick={onAddManualChampion}
+            disabled={!manualChampionName.trim()}
+            size="sm"
+            className="shrink-0 bg-green-500 text-white hover:bg-green-600"
+          >
             Add
           </Button>
         </div>
       )}
 
-      {/* Controls */}
-      <div className="flex items-center space-x-4">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-gray-200 text-gray-600 hover:bg-gray-50 bg-transparent"
-        >
-          <Volume2 className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-gray-200 text-gray-600 hover:bg-gray-50 bg-transparent"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </Button>
+      <div className="mt-2 w-full max-w-md rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 sm:mt-4 sm:p-4">
+        <label className="mb-2 flex items-center text-sm font-semibold text-blue-800 sm:mb-3">
+          <span className="mr-2 h-2 w-2 rounded-full bg-blue-500" />
+          Game Mode
+        </label>
+
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          {(
+            [
+              { value: "normal" as const, icon: "🎯", label: "Normal" },
+              { value: "elimination" as const, icon: "❌", label: "Elimination" },
+              { value: "manual" as const, icon: "📝", label: "Manual" },
+            ] as const
+          ).map((mode) => (
+            <label
+              key={mode.value}
+              className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-3 ${
+                actionMode === mode.value
+                  ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                  : "border border-blue-200 bg-white hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50"
+              }`}
+            >
+              <input
+                type="radio"
+                name="lolActionMode"
+                value={mode.value}
+                checked={actionMode === mode.value}
+                onChange={handleActionModeChange}
+                className="sr-only"
+              />
+              <div
+                className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                  actionMode === mode.value ? "bg-white/20" : "bg-blue-100"
+                }`}
+              >
+                <span className="text-sm">{mode.icon}</span>
+              </div>
+              <span
+                className={`text-[10px] font-semibold sm:text-xs ${
+                  actionMode === mode.value ? "text-white" : "text-blue-700"
+                }`}
+              >
+                {mode.label}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-2 rounded-lg bg-blue-50 p-2 text-center text-[11px] text-blue-600 sm:mt-3 sm:text-xs">
+          {actionMode === "normal" && "🎯 All champions available for each spin"}
+          {actionMode === "elimination" && "❌ Selected champion is removed after each spin"}
+          {actionMode === "manual" && "📝 Add custom champions by typing names"}
+        </div>
+      </div>
+
+      {currentResult && !isSpinning && (
+        <div className="w-full max-w-md rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-4 text-center shadow-lg sm:p-6">
+          <h3 className="mb-2 text-base font-semibold text-green-800 sm:text-lg">
+            🎉 Current Result:
+          </h3>
+          <div className="mb-1 flex items-center justify-center gap-2 sm:gap-3">
+            <span className="text-3xl sm:text-4xl">{currentResult.champion.emoji}</span>
+            <div className="min-w-0 text-left">
+              <p className="truncate text-xl font-bold text-gray-900 sm:text-2xl">
+                {currentResult.champion.name}
+              </p>
+              <p className="text-xs capitalize text-gray-600 sm:text-sm">
+                {currentResult.champion.role}
+                {" · "}
+                {currentResult.champion.difficulty} difficulty
+                {" · "}
+                {currentResult.champion.playStyle} playstyle
+              </p>
+              <p className="mt-1 text-[11px] text-gray-500 sm:text-xs">
+                {currentResult.champion.popularity} · {currentResult.champion.region} — fair pick
+                for challenges, drafts, and streams.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isGameActive && currentGameModeName && (
+        <div className="w-full max-w-md rounded-lg border-2 border-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 p-2.5 sm:p-3">
+          <p className="text-xs font-semibold text-purple-800 sm:text-sm">
+            🎮 Playing: {currentGameModeName}
+          </p>
+        </div>
+      )}
+
+      <div className="mb-2 mt-2 grid w-full grid-cols-5 gap-1.5 sm:mt-4 sm:gap-2">
+        {onOpenAchievements && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenAchievements}
+            className="h-auto min-w-0 border-yellow-300 bg-yellow-50 px-1.5 py-1.5 text-[10px] text-yellow-700 hover:bg-yellow-100 sm:px-2 sm:text-xs"
+          >
+            <Trophy className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+            <span className="truncate">Achievements ({totalPoints})</span>
+          </Button>
+        )}
+        {onOpenThemeSelector && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenThemeSelector}
+            className="h-auto min-w-0 border-purple-300 bg-purple-50 px-1.5 py-1.5 text-[10px] text-purple-700 hover:bg-purple-100 sm:px-2 sm:text-xs"
+          >
+            <Palette className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+            <span className="truncate">Themes</span>
+          </Button>
+        )}
         {onOpenAnalytics && (
           <Button
             variant="outline"
             size="sm"
             onClick={onOpenAnalytics}
-            className="border-gray-200 text-gray-600 hover:bg-gray-50"
+            className="h-auto min-w-0 border-green-300 bg-green-50 px-1.5 py-1.5 text-[10px] text-green-700 hover:bg-green-100 sm:px-2 sm:text-xs"
           >
-            📊 View Results ({wheelData?.recentResults?.length || 0})
+            <BarChart3 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+            <span className="truncate">Analytics</span>
+          </Button>
+        )}
+        {onOpenSocialHub && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenSocialHub}
+            className="h-auto min-w-0 border-orange-300 bg-orange-50 px-1.5 py-1.5 text-[10px] text-orange-700 hover:bg-orange-100 sm:px-2 sm:text-xs"
+          >
+            <Users className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+            <span className="truncate">Social</span>
+          </Button>
+        )}
+        {onOpenGameModes && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenGameModes}
+            className="h-auto min-w-0 border-blue-300 bg-blue-50 px-1.5 py-1.5 text-[10px] text-blue-700 hover:bg-blue-100 sm:px-2 sm:text-xs"
+          >
+            <Gamepad2 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
+            <span className="truncate">Games</span>
           </Button>
         )}
       </div>
-
-      {/* Result Display */}
-      {spinResult && (
-        <Card className="w-full max-w-md bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl mb-2">{spinResult.champion.emoji}</div>
-            <h3 className="text-xl font-bold text-gray-800 mb-1">
-              {spinResult.champion.name}
-            </h3>
-            <div className="flex justify-center gap-2 mb-2">
-              <Badge className="bg-blue-100 text-blue-800">
-                {spinResult.champion.role}
-              </Badge>
-              <Badge className="bg-purple-100 text-purple-800">
-                {spinResult.champion.popularity}
-              </Badge>
-            </div>
-            <p className="text-sm text-gray-600">
-              {spinResult.champion.region} • {spinResult.champion.playStyle}
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
-  );
+  )
 }

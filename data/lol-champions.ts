@@ -1,4 +1,6 @@
-export const lolChampions = {
+import type { LoLChampion } from "@/types/lol-types"
+
+export const lolChampions: Record<string, LoLChampion[]> = {
   top: [
     // S-tier Top Laners
     {
@@ -524,4 +526,4 @@ export const lolChampions = {
       preview: "/placeholder.svg?height=100&width=100&text=Nautilus",
     },
   ],
-} as const;
+}

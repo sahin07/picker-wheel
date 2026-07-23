@@ -41,7 +41,11 @@ interface AISuggestion {
   impact: 'high' | 'medium' | 'low';
 }
 
-export default function GeminiAIChat() {
+export default function GeminiAIChat({
+  hideFloatingButton = false,
+}: {
+  hideFloatingButton?: boolean
+} = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,6 +69,12 @@ export default function GeminiAIChat() {
   } = useTeamPickerStore();
 
   // Initialize with welcome message
+  useEffect(() => {
+    const open = () => setIsOpen(true)
+    window.addEventListener("open-gemini-ai-chat", open)
+    return () => window.removeEventListener("open-gemini-ai-chat", open)
+  }, [])
+
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([{
@@ -489,13 +499,15 @@ The AI has analyzed your participant count and created the most effective team c
   return (
     <>
       {/* AI Chat Toggle Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg animate-pulse hover:animate-none transition-all duration-500 hover:scale-110 hover:shadow-xl"
-        size="icon"
-      >
-        <Bot className="w-6 h-6" />
-      </Button>
+      {!hideFloatingButton && (
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg animate-pulse hover:animate-none transition-all duration-500 hover:scale-110 hover:shadow-xl"
+          size="icon"
+        >
+          <Bot className="w-6 h-6" />
+        </Button>
+      )}
 
       {/* AI Chat Panel */}
       {isOpen && (

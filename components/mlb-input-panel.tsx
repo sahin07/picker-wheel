@@ -9,13 +9,66 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, GitCompare, Eye, List, Type, Shuffle, RotateCcw, Brain, BarChart3, Plus, X, ChevronDown, Sparkles, Target, TrendingUp, Users, Zap, Star, Trophy, Lightbulb, Gamepad2, Mic, Music, BookOpen, Globe, Cloud, Sun, Moon, Coffee, Pizza, Crown, Gem, Heart as HeartIcon, Zap as ZapIcon, Target as TargetIcon, Users as UsersIcon, Star as StarIcon, Trophy as TrophyIcon } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import {
+  Heart,
+  GitCompare,
+  Eye,
+  List,
+  Type,
+  Shuffle,
+  RotateCcw,
+  Brain,
+  BarChart3,
+  Plus,
+  X,
+  ChevronDown,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
+  Star,
+  Trophy,
+  Lightbulb,
+  Gamepad2,
+  Mic,
+  Music,
+  BookOpen,
+  Globe,
+  Cloud,
+  Sun,
+  Moon,
+  Coffee,
+  Pizza,
+  Crown,
+  Gem,
+  History,
+  EyeOff,
+  Palette,
+  MoreVertical,
+} from "lucide-react"
 import { useWheelManagerStore, MLBWheelData } from "@/stores/wheel-manager-store"
+import { useSettingsStore } from "@/stores/settings-store"
 import { mlbTeams, getMLBTeamsByLeague, type MLBTeam, type ActionMode } from "@/data/mlb-teams"
 import { useToast } from "@/contexts/toast-context"
 import MLBTeamDetailsModal from "./mlb-team-details-modal"
 import MLBFavoritesModal from "./mlb-favorites-modal"
 import MLBComparisonModal from "./mlb-comparison-modal"
+import { SidebarOtherOptions } from "@/components/sidebar-other-options"
+import { SlicesManageMenu } from "@/components/slices-manage-menu"
+import { LETTER_COLOR_PALETTES } from "@/lib/letter-picker-constants"
+import type { WheelSettings } from "@/types/settings"
+
+type SidebarTab = "inputs" | "text" | "style" | "other"
+
+const SIDEBAR_TABS: { id: SidebarTab; label: string; icon: React.ReactNode }[] = [
+  { id: "inputs", label: "Inputs", icon: <List className="h-4 w-4" /> },
+  { id: "text", label: "Text", icon: <Type className="h-4 w-4" /> },
+  { id: "style", label: "Style", icon: <Palette className="h-4 w-4" /> },
+  { id: "other", label: "Other Options", icon: <MoreVertical className="h-4 w-4" /> },
+]
 
 interface MLBInputPanelProps {
   activeTab?: 'manual' | 'ai'
@@ -23,6 +76,14 @@ interface MLBInputPanelProps {
   actionMode?: ActionMode
   onActionModeChange?: (mode: ActionMode) => void
   onEliminationMode?: (selectedTeam: MLBTeam) => void
+  onHideInputs?: () => void
+  onOpenAchievements?: () => void
+  onViewHistory?: () => void
+  onOpenSettings?: () => void
+  onToggleFullscreen?: () => void
+  onOpenAI?: () => void
+  onOpenAnalytics?: () => void
+  historyCount?: number
 }
 
 const MLBInputPanel = React.memo(({ 
@@ -30,9 +91,19 @@ const MLBInputPanel = React.memo(({
   onTabChange,
   actionMode: externalActionMode,
   onActionModeChange,
-  onEliminationMode
+  onEliminationMode,
+  onHideInputs,
+  onOpenAchievements,
+  onViewHistory,
+  onOpenSettings,
+  onToggleFullscreen,
+  onOpenAI,
+  onOpenAnalytics,
+  historyCount = 0,
 }: MLBInputPanelProps) => {
   const [mounted, setMounted] = useState(false)
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("inputs")
+  const [bulkText, setBulkText] = useState("")
   const [activeTab, setActiveTab] = useState<'manual' | 'ai'>(externalActiveTab || 'manual')
   const [showTeamList, setShowTeamList] = useState(true)
   const [selectedTeam, setSelectedTeam] = useState<MLBTeam | null>(null)
@@ -66,10 +137,20 @@ const MLBInputPanel = React.memo(({
   const [aiWeatherImpact, setAiWeatherImpact] = useState<any>(null)
   const [aiFanPerspective, setAiFanPerspective] = useState<any>(null)
   
-  // Mode feature state
-  const [actionMode, setActionMode] = useState<ActionMode>(externalActionMode || "normal")
+  // Mode — controlled by parent so Game Mode, Action Mode select, and Manage stay in sync
+  const actionMode: ActionMode = externalActionMode || "normal"
   const [manualTeamName, setManualTeamName] = useState("")
   const [customTeams, setCustomTeams] = useState<MLBTeam[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const { settings, updateSettings } = useSettingsStore()
+
+  // Keep Manual/AI sub-tab in sync when parent opens AI (e.g. Other Options → AI)
+  useEffect(() => {
+    if (externalActiveTab && externalActiveTab !== activeTab) {
+      setActiveTab(externalActiveTab)
+    }
+  }, [externalActiveTab, activeTab])
 
   // Client-side only rendering to prevent hydration errors
   useEffect(() => {
@@ -195,6 +276,114 @@ const MLBInputPanel = React.memo(({
       selectedTeams: sorted
     })
   }
+
+  const sortTeamsZA = () => {
+    const sorted = [...data.selectedTeams].sort((a, b) => b.name.localeCompare(a.name))
+    updateWheelData("mlb-wheel", wheel?.id || "", {
+      ...data,
+      selectedTeams: sorted,
+    })
+  }
+
+  const removeDuplicateTeams = () => {
+    const seen = new Set<string>()
+    const unique = data.selectedTeams.filter((t) => {
+      const key = t.name.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    updateWheelData("mlb-wheel", wheel?.id || "", {
+      ...data,
+      selectedTeams: unique,
+    })
+  }
+
+  const applyBulkText = () => {
+    const names = bulkText
+      .split(/\r?\n/)
+      .map((n) => n.trim())
+      .filter(Boolean)
+    if (names.length === 0) {
+      showToast("Add one team name per line", "error")
+      return
+    }
+    const matched: MLBTeam[] = []
+    const missing: string[] = []
+    names.forEach((name) => {
+      const found = mlbTeams.find(
+        (t) =>
+          t.name.toLowerCase() === name.toLowerCase() ||
+          t.abbreviation.toLowerCase() === name.toLowerCase(),
+      )
+      if (found) {
+        if (!matched.some((m) => m.id === found.id)) matched.push(found)
+      } else {
+        missing.push(name)
+        matched.push({
+          id: `custom-${Date.now()}-${matched.length}`,
+          name,
+          abbreviation: name.substring(0, 3).toUpperCase(),
+          city: "Custom",
+          league: "American",
+          division: "Custom",
+          logo: "⚾",
+          primaryColor: "#666666",
+          secondaryColor: "#999999",
+          founded: new Date().getFullYear(),
+          championships: 0,
+          homeVenue: "Custom Stadium",
+          manager: "Custom",
+          owner: "Custom",
+        })
+      }
+    })
+    updateWheelData("mlb-wheel", wheel?.id || "", {
+      ...data,
+      selectedTeams: matched,
+      selectedLeague: "all",
+    })
+    showToast(
+      missing.length
+        ? `Loaded ${matched.length} teams (${missing.length} custom)`
+        : `Loaded ${matched.length} teams`,
+      "success",
+    )
+  }
+
+  const applyPalette = (colors: readonly string[]) => {
+    if (!data.selectedTeams.length) return
+    const next = data.selectedTeams.map((team, i) => ({
+      ...team,
+      primaryColor: colors[i % colors.length],
+      secondaryColor: colors[(i + 1) % colors.length],
+    }))
+    updateWheelData("mlb-wheel", wheel?.id || "", {
+      ...data,
+      selectedTeams: next,
+    })
+    showToast("Palette applied", "success")
+  }
+
+  const setActionModeSynced = (mode: ActionMode) => {
+    onActionModeChange?.(mode)
+    if (mode === "elimination" || mode === "normal") {
+      const latest = useSettingsStore.getState().settings
+      updateSettings({
+        spinBehavior: {
+          ...latest.spinBehavior,
+          removeWinnerAfterSpin: mode === "elimination",
+        },
+      } as any)
+    }
+  }
+
+  const exportText = data.selectedTeams.map((t) => t.name).join("\n")
+  const giveawayEntries = data.selectedTeams.map((t) => ({
+    id: t.id,
+    name: t.name,
+    weight: 1,
+  }))
 
   const addToFavorites = (team: MLBTeam) => {
     if (!data.favoriteTeams.some(t => t.id === team.id)) {
@@ -1684,181 +1873,214 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
 
   return (
     <>
-      <div className="bg-gray-50 rounded-lg p-4">
-        {/* Tab Navigation */}
-        <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 border border-slate-200 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h3 className="text-lg font-bold text-slate-800 flex items-center">
-                <span className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-2"></span>
-                INPUTS
-              </h3>
-          <div className="flex items-center space-x-2">
-                             <Button
-                 variant="ghost"
-                 size="sm"
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    data.favoriteTeams?.length > 0 
-                      ? "text-red-500 bg-red-50 hover:bg-red-100 border border-red-200" 
-                      : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-                  }`}
-                 onClick={() => setShowFavoritesModal(true)}
-                 title="Favorites"
-               >
-                 <Heart className="w-4 h-4" />
-                  {mounted && data.favoriteTeams?.length > 0 && (
-                    <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">
-                      {data.favoriteTeams.length}
-                    </span>
-                  )}
-               </Button>
-               <Button
-                 variant="ghost"
-                 size="sm"
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    data.comparisonTeams?.length > 0 
-                      ? "text-blue-500 bg-blue-50 hover:bg-blue-100 border border-blue-200" 
-                      : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
-                  }`}
-                 onClick={() => setShowComparisonModal(true)}
-                 title="Comparison"
-               >
-                 <GitCompare className="w-4 h-4" />
-                  {mounted && data.comparisonTeams?.length > 0 && (
-                    <span className="ml-1 text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full">
-                      {data.comparisonTeams.length}
-                    </span>
-                  )}
-               </Button>
-            </div>
+      <div className="flex max-h-[min(70vh,36rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-white shadow-sm lg:max-h-none">
+        <div className="flex shrink-0 items-center justify-between gap-1 border-b bg-slate-50/80 px-2 py-2 sm:gap-2 sm:px-3">
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <p className="truncate text-xs font-semibold text-slate-800 sm:text-sm">MLB Controls</p>
+            <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 sm:px-2 sm:text-xs">
+              {data.selectedTeams.length} selected
+            </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex shrink-0 items-center gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Button
+              type="button"
               variant="ghost"
               size="sm"
-              title="Preview"
-              onClick={() => setShowTeamList(!showTeamList)}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  showTeamList 
-                    ? "bg-green-100 text-green-700 border border-green-300" 
-                    : "text-gray-500 hover:text-green-600 hover:bg-green-50"
-                }`}
+              className={`h-7 w-7 p-0 sm:h-8 sm:w-8 ${data.favoriteTeams?.length ? "text-red-500" : ""}`}
+              title="Favorites"
+              onClick={() => setShowFavoritesModal(true)}
             >
-              <Eye className="w-4 h-4" />
+              <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             <Button
+              type="button"
               variant="ghost"
               size="sm"
-              title="List View"
-              onClick={() => handleViewModeChange(data.viewMode === "list" ? "wheel" : "list")}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  data.viewMode === "list" 
-                    ? "bg-teal-100 text-teal-700 border border-teal-300" 
-                    : "text-gray-500 hover:text-teal-600 hover:bg-teal-50"
-                }`}
+              className={`h-7 w-7 p-0 sm:h-8 sm:w-8 ${data.comparisonTeams?.length ? "text-blue-500" : ""}`}
+              title="Comparison"
+              onClick={() => setShowComparisonModal(true)}
             >
-              <List className="w-4 h-4" />
+              <GitCompare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              title="Text Mode"
-              onClick={() => handleViewModeChange(data.viewMode === "text" ? "wheel" : "text")}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  data.viewMode === "text" 
-                    ? "bg-indigo-100 text-indigo-700 border border-indigo-300" 
-                    : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
-                }`}
-            >
-              <Type className="w-4 h-4" />
-            </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                title="Shuffle" 
-                onClick={shuffleTeams}
-                className="p-2 rounded-lg transition-all duration-200 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
+            {onOpenAchievements && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+                title="Achievements"
+                onClick={onOpenAchievements}
               >
-              <Shuffle className="w-4 h-4" />
-            </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                title="Sort A-Z" 
-                onClick={sortTeamsAlphabetically}
-                className="p-2 rounded-lg transition-all duration-200 text-gray-500 hover:text-orange-600 hover:bg-orange-50"
+                <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            )}
+            {onViewHistory && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="relative h-7 w-7 p-0 sm:h-8 sm:w-8"
+                title={`Spin History (${historyCount})`}
+                onClick={onViewHistory}
               >
-              <RotateCcw className="w-4 h-4" />
+                <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                {historyCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-0.5 text-[10px] text-white">
+                    {historyCount}
+                  </span>
+                )}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              title="Shuffle"
+              onClick={shuffleTeams}
+            >
+              <Shuffle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
-            </div>
+            {onHideInputs && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+                title="Hide"
+                onClick={onHideInputs}
+              >
+                <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            )}
+            <SlicesManageMenu
+              settings={settings as unknown as WheelSettings}
+              onUpdateSettings={(partial) => {
+                updateSettings(partial as any)
+                if (partial.spinBehavior && "removeWinnerAfterSpin" in partial.spinBehavior) {
+                  setActionModeSynced(
+                    partial.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal",
+                  )
+                }
+              }}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onSortZA={sortTeamsZA}
+              onShuffle={shuffleTeams}
+              onEqualize={() => {}}
+              onDeleteBlanks={() => {
+                const cleaned = data.selectedTeams.filter((t) => t.name.trim())
+                updateWheelData("mlb-wheel", wheel?.id || "", {
+                  ...data,
+                  selectedTeams: cleaned,
+                })
+              }}
+              onRemoveDuplicates={removeDuplicateTeams}
+              onClearAll={clearAllTeams}
+            />
           </div>
         </div>
 
-        {/* Tab Buttons */}
-        <div className="bg-white rounded-xl p-2 border border-slate-200 mb-6 flex space-x-2">
-          <Button
-            variant={activeTab === 'manual' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleTabChange('manual')}
-            className={`px-6 py-2 rounded-lg transition-all duration-200 font-semibold ${
-              activeTab === 'manual' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 transform scale-105' 
-                : 'bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 text-gray-600 hover:text-blue-700 border-blue-200 hover:border-blue-300'
-            }`}
-          >
-            <span className="flex items-center">
-              <span className={`w-2 h-2 rounded-full mr-2 ${activeTab === 'manual' ? 'bg-white' : 'bg-blue-500'}`}></span>
-            Manual
-            </span>
-          </Button>
-          <Button
-            variant={activeTab === 'ai' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleTabChange('ai')}
-            className={`px-6 py-2 rounded-lg transition-all duration-200 font-semibold ${
-              activeTab === 'ai' 
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25 transform scale-105' 
-                : 'bg-white hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 text-gray-600 hover:text-purple-700 border-purple-200 hover:border-purple-300'
-            }`}
-          >
-            <span className="flex items-center">
-            <Brain className={`w-4 h-4 mr-2 ${activeTab === 'ai' ? 'text-white' : 'text-purple-600'}`} />
-            AI-Powered
-            </span>
-          </Button>
+        <div className="flex shrink-0 overflow-x-auto border-b">
+          {SIDEBAR_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                if (tab.id === "text") {
+                  setBulkText(data.selectedTeams.map((t) => t.name).join("\n"))
+                }
+                setSidebarTab(tab.id)
+              }}
+              className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium transition-colors ${
+                sidebarTab === tab.id
+                  ? "border-b-2 border-emerald-600 bg-emerald-50/50 text-emerald-700"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2.5 sm:p-3">
+          {sidebarTab === "inputs" && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Action Mode</Label>
+                <Select
+                  value={actionMode}
+                  onValueChange={(v) => setActionModeSynced(v as ActionMode)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal Mode</SelectItem>
+                    <SelectItem value="elimination">Elimination Mode</SelectItem>
+                    <SelectItem value="manual">Manual Mode</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-500">
+                  Elimination removes the winning team after each spin. Manual lets you type a team
+                  under the wheel. Synced with the Game Mode controls.
+                </p>
+              </div>
+
+              <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeTab === "manual" ? "default" : "ghost"}
+                  className="flex-1"
+                  onClick={() => handleTabChange("manual")}
+                >
+                  Manual
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeTab === "ai" ? "default" : "ghost"}
+                  className="flex-1 gap-1"
+                  onClick={() => handleTabChange("ai")}
+                >
+                  <Brain className="h-3.5 w-3.5" />
+                  AI
+                </Button>
+              </div>
 
         {/* Manual Tab Content */}
         {activeTab === 'manual' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* League Selection */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-              <label className="block text-sm font-semibold text-blue-800 mb-4 flex items-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 sm:p-6">
+              <label className="mb-3 flex items-center text-sm font-semibold text-blue-800 sm:mb-4">
+                <span className="mr-2 h-2 w-2 rounded-full bg-blue-500"></span>
                 Select League
               </label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {leagues.map((league) => (
                   <Button
                     key={league.id}
                     variant={data.selectedLeague === league.id ? "default" : "outline"}
-                    className={`h-20 flex flex-col items-center justify-center space-y-2 transition-all duration-200 transform hover:scale-105 ${
+                    className={`flex h-16 flex-col items-center justify-center space-y-1 transition-all duration-200 sm:h-20 sm:space-y-2 ${
                       data.selectedLeague === league.id 
                         ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25" 
-                        : "bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 border-blue-200 hover:border-blue-300"
+                        : "border-blue-200 bg-white hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50"
                     }`}
                     onClick={() => handleLeagueChange(league.id as "all" | "American" | "National")}
                   >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md ${
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full shadow-md sm:h-10 sm:w-10 ${
                       data.selectedLeague === league.id 
                         ? "bg-white/20 backdrop-blur-sm" 
                         : getLeagueBgColor(league.id)
                     }`}>
-                      <span className={`text-lg ${data.selectedLeague === league.id ? "text-white" : "text-white"}`}>
+                      <span className="text-sm text-white sm:text-lg">
                         {getLeagueIcon(league.id)}
                       </span>
                     </div>
-                    <span className={`text-xs font-semibold ${data.selectedLeague === league.id ? "text-white" : "text-blue-700"}`}>
+                    <span className={`line-clamp-2 px-0.5 text-center text-[10px] font-semibold leading-tight sm:text-xs ${data.selectedLeague === league.id ? "text-white" : "text-blue-700"}`}>
                       {league.name}
                     </span>
                   </Button>
@@ -1884,16 +2106,16 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
             </div>
 
             {/* Display Mode */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-              <label className="block text-sm font-semibold text-purple-800 mb-4 flex items-center">
-                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+            <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-3 sm:p-6">
+              <label className="mb-3 flex items-center text-sm font-semibold text-purple-800 sm:mb-4">
+                <span className="mr-2 h-2 w-2 rounded-full bg-purple-500"></span>
                 Display Options
               </label>
-              <div className="grid grid-cols-3 gap-3">
-                <label className={`flex flex-col items-center space-y-2 p-4 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-4 ${
                   data.displayMode === "both" 
                     ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25" 
-                    : "bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 border border-purple-200 hover:border-purple-300"
+                    : "border border-purple-200 bg-white hover:border-purple-300 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50"
                 }`}>
                   <input
                     type="radio"
@@ -1903,20 +2125,20 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                     onChange={(e) => handleDisplayModeChange(e.target.value as "logo" | "name" | "both")}
                     className="sr-only"
                   />
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8 ${
                     data.displayMode === "both" ? "bg-white/20" : "bg-purple-100"
                   }`}>
-                    <span className="text-lg">🎨</span>
+                    <span className="text-base sm:text-lg">🎨</span>
                   </div>
-                  <span className={`text-xs font-semibold ${data.displayMode === "both" ? "text-white" : "text-purple-700"}`}>
+                  <span className={`text-center text-[10px] font-semibold leading-tight sm:text-xs ${data.displayMode === "both" ? "text-white" : "text-purple-700"}`}>
                     Logo & Name
                   </span>
                 </label>
                 
-                <label className={`flex flex-col items-center space-y-2 p-4 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+                <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-4 ${
                   data.displayMode === "logo" 
                     ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25" 
-                    : "bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 border border-purple-200 hover:border-purple-300"
+                    : "border border-purple-200 bg-white hover:border-purple-300 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50"
                 }`}>
                   <input
                     type="radio"
@@ -1926,20 +2148,20 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                     onChange={(e) => handleDisplayModeChange(e.target.value as "logo" | "name" | "both")}
                     className="sr-only"
                   />
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8 ${
                     data.displayMode === "logo" ? "bg-white/20" : "bg-purple-100"
                   }`}>
-                    <span className="text-lg">🎯</span>
+                    <span className="text-base sm:text-lg">🎯</span>
                   </div>
-                  <span className={`text-xs font-semibold ${data.displayMode === "logo" ? "text-white" : "text-purple-700"}`}>
+                  <span className={`text-center text-[10px] font-semibold leading-tight sm:text-xs ${data.displayMode === "logo" ? "text-white" : "text-purple-700"}`}>
                     Logo Only
                   </span>
                 </label>
                 
-                <label className={`flex flex-col items-center space-y-2 p-4 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+                <label className={`flex cursor-pointer flex-col items-center space-y-1 rounded-lg p-2 transition-all duration-200 sm:space-y-2 sm:p-4 ${
                   data.displayMode === "name" 
                     ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25" 
-                    : "bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 border border-purple-200 hover:border-purple-300"
+                    : "border border-purple-200 bg-white hover:border-purple-300 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50"
                 }`}>
                   <input
                     type="radio"
@@ -1949,12 +2171,12 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                     onChange={(e) => handleDisplayModeChange(e.target.value as "logo" | "name" | "both")}
                     className="sr-only"
                   />
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8 ${
                     data.displayMode === "name" ? "bg-white/20" : "bg-purple-100"
                   }`}>
-                    <span className="text-lg">📝</span>
+                    <span className="text-base sm:text-lg">📝</span>
                   </div>
-                  <span className={`text-xs font-semibold ${data.displayMode === "name" ? "text-white" : "text-purple-700"}`}>
+                  <span className={`text-center text-[10px] font-semibold leading-tight sm:text-xs ${data.displayMode === "name" ? "text-white" : "text-purple-700"}`}>
                     Name Only
                   </span>
                 </label>
@@ -2012,8 +2234,8 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
 
                         {/* Team List (when expanded) */}
             {showTeamList && (
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200">
-                <div className="max-h-96 overflow-y-auto space-y-6">
+              <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-3 sm:p-6">
+                <div className="max-h-80 space-y-4 overflow-y-auto sm:max-h-96 sm:space-y-6">
                     {/* Group teams by division */}
                     {(() => {
                       const teamsByDivision = data.selectedTeams.reduce((acc, team) => {
@@ -2026,65 +2248,59 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                       }, {} as Record<string, MLBTeam[]>);
 
                       return Object.entries(teamsByDivision).map(([division, teams]) => (
-                      <div key={division} className="space-y-3">
+                      <div key={division} className="space-y-2 sm:space-y-3">
                           {/* Division Header */}
-                        <div className="flex items-center space-x-3 py-3 px-4 bg-gradient-to-r from-orange-100 to-amber-100 rounded-lg border border-orange-300">
-                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                          <h4 className="font-bold text-orange-800 text-sm uppercase tracking-wide">
+                        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-orange-300 bg-gradient-to-r from-orange-100 to-amber-100 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3">
+                          <div className="h-2.5 w-2.5 rounded-full bg-orange-500 sm:h-3 sm:w-3"></div>
+                          <h4 className="text-xs font-bold uppercase tracking-wide text-orange-800 sm:text-sm">
                               {division} Division
                             </h4>
-                          <span className="text-xs text-orange-700 bg-orange-200 px-3 py-1 rounded-full font-semibold">
+                          <span className="rounded-full bg-orange-200 px-2 py-0.5 text-[10px] font-semibold text-orange-700 sm:px-3 sm:py-1 sm:text-xs">
                               {(teams as MLBTeam[]).length} team{(teams as MLBTeam[]).length !== 1 ? 's' : ''}
                             </span>
                           </div>
                           
                           {/* Teams in this division */}
-                        <div className="space-y-3 pl-4">
+                        <div className="space-y-2 sm:space-y-3 sm:pl-4">
                             {(teams as MLBTeam[]).map((team) => (
                               <div
                                 key={team.id}
-                              className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 ${
+                              className={`flex flex-col gap-2 rounded-xl border-2 p-3 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:p-4 ${
                                 data.selectedTeams.some(t => t.id === team.id)
-                                  ? "bg-gradient-to-r from-orange-100 to-amber-100 border-orange-400 shadow-lg shadow-orange-500/20"
-                                  : "bg-white hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 border-orange-200 hover:border-orange-300"
+                                  ? "border-orange-400 bg-gradient-to-r from-orange-100 to-amber-100 shadow-md shadow-orange-500/10"
+                                  : "border-orange-200 bg-white hover:border-orange-300 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50"
                               }`}
                             >
-                              <div className="flex items-center space-x-4">
+                              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                                   <Checkbox
                                     checked={data.selectedTeams.some(t => t.id === team.id)}
                                     onCheckedChange={() => toggleTeam(team)}
-                                  className={`w-5 h-5 ${
+                                  className={`h-4 w-4 shrink-0 sm:h-5 sm:w-5 ${
                                     data.selectedTeams.some(t => t.id === team.id) 
-                                      ? "text-orange-600 border-orange-600" 
-                                      : "text-orange-400 border-orange-300"
+                                      ? "border-orange-600 text-orange-600" 
+                                      : "border-orange-300 text-orange-400"
                                   }`}
                                 />
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md ${
+                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-md sm:h-12 sm:w-12 ${
                                   data.selectedTeams.some(t => t.id === team.id)
                                     ? "bg-gradient-to-br from-orange-500 to-amber-500"
                                     : "bg-gradient-to-br from-orange-100 to-amber-100"
                                 }`}>
-                                  <span className="text-2xl">{team.logo}</span>
+                                  <span className="text-lg sm:text-2xl">{team.logo}</span>
                                 </div>
-                                  <div className="flex-1">
-                                  <div className={`font-bold text-sm ${
+                                  <div className="min-w-0 flex-1">
+                                  <div className={`truncate text-sm font-bold ${
                                     data.selectedTeams.some(t => t.id === team.id) ? "text-orange-800" : "text-gray-800"
                                   }`}>
                                     {team.name}
                                     </div>
-                                  <div className="text-xs text-gray-600 flex items-center space-x-2">
-                                    <span className="flex items-center">
-                                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-1"></span>
-                                      {team.city}
-                                    </span>
-                                    <span className="flex items-center">
-                                      <span className="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
-                                      {team.league} League
-                                    </span>
+                                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-gray-600 sm:text-xs">
+                                    <span className="truncate">{team.city}</span>
+                                    <span className="truncate">{team.league} League</span>
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex shrink-0 items-center justify-end gap-0.5 sm:gap-1">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -2471,7 +2687,7 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                     disabled={isGeneratingAI}
                     className="h-16 flex flex-col items-center justify-center space-y-1"
                   >
-                    <TargetIcon className="w-5 h-5 text-red-600" />
+                    <Target className="w-5 h-5 text-red-600" />
                     <span className="text-xs">AI Challenger</span>
                   </Button>
                   <Button
@@ -2725,14 +2941,14 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
                   <div className="space-y-3">
                     <div className="p-3 bg-violet-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <HeartIcon className="w-4 h-4 text-violet-600" />
+                        <Heart className="w-4 h-4 text-violet-600" />
                         <span className="text-sm font-medium text-violet-800">AI Matchmaker</span>
                       </div>
                       <p className="text-sm text-violet-700">{aiSocial.aiMatchmaker}</p>
                     </div>
                     <div className="p-3 bg-fuchsia-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <TargetIcon className="w-4 h-4 text-fuchsia-600" />
+                        <Target className="w-4 h-4 text-fuchsia-600" />
                         <span className="text-sm font-medium text-fuchsia-800">Group Challenge</span>
                       </div>
                       <p className="text-sm text-fuchsia-700">{aiSocial.groupChallenge}</p>
@@ -3035,6 +3251,197 @@ Make your prediction engaging, detailed, and baseball-focused. Include specific 
             </Card>
           </div>
         )}
+            </div>
+          )}
+
+          {sidebarTab === "text" && (
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium text-slate-700">Team list</Label>
+                <p className="mt-1 text-xs text-slate-500">
+                  One team name or abbreviation per line. Unknown names become custom teams.
+                </p>
+              </div>
+              <Textarea
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                rows={12}
+                placeholder={"New York Yankees\nBOS\nLos Angeles Dodgers"}
+                className="font-mono text-sm"
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={applyBulkText}>
+                  Apply text
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setBulkText(data.selectedTeams.map((t) => t.name).join("\n"))}
+                >
+                  Load current
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const blob = new Blob([exportText], { type: "text/plain" })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement("a")
+                    a.href = url
+                    a.download = "mlb-teams.txt"
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  }}
+                >
+                  Export
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {sidebarTab === "style" && (
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Display Options</Label>
+                <div className="grid gap-2">
+                  {(
+                    [
+                      { value: "both", label: "Logo & Name" },
+                      { value: "logo", label: "Logo Only" },
+                      { value: "name", label: "Name Only" },
+                    ] as const
+                  ).map((opt) => (
+                    <label
+                      key={opt.value}
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                        data.displayMode === opt.value
+                          ? "border-emerald-400 bg-emerald-50"
+                          : "border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="mlb-display"
+                        value={opt.value}
+                        checked={data.displayMode === opt.value}
+                        onChange={() => handleDisplayModeChange(opt.value)}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-slate-700">Color palettes</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const palette =
+                        LETTER_COLOR_PALETTES[
+                          Math.floor(Math.random() * LETTER_COLOR_PALETTES.length)
+                        ]
+                      applyPalette(palette.colors)
+                    }}
+                  >
+                    Randomize
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {LETTER_COLOR_PALETTES.map((palette) => (
+                    <button
+                      key={palette.name}
+                      type="button"
+                      onClick={() => applyPalette(palette.colors)}
+                      className="rounded-lg border border-slate-200 p-2 text-left hover:border-emerald-300 hover:bg-emerald-50/40"
+                    >
+                      <span className="mb-1 block text-xs font-semibold text-slate-800">
+                        {palette.name}
+                      </span>
+                      <span className="flex gap-0.5">
+                        {palette.colors.slice(0, 6).map((c) => (
+                          <span
+                            key={c}
+                            className="h-3 w-3 rounded-sm"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {sidebarTab === "other" && (
+            <div className="space-y-4">
+              <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">Confetti</p>
+                    <p className="text-xs text-slate-500">Celebrate each spin result</p>
+                  </div>
+                  <Switch
+                    id="mlb-confetti"
+                    checked={settings.confettiSound?.enableConfetti ?? true}
+                    onCheckedChange={(checked) =>
+                      updateSettings({
+                        confettiSound: {
+                          ...settings.confettiSound,
+                          enableConfetti: checked,
+                        },
+                      } as any)
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">Sound</p>
+                    <p className="text-xs text-slate-500">Play spin / result sounds</p>
+                  </div>
+                  <Switch
+                    id="mlb-sound"
+                    checked={settings.confettiSound?.enableSound ?? true}
+                    onCheckedChange={(checked) =>
+                      updateSettings({
+                        confettiSound: {
+                          ...settings.confettiSound,
+                          enableSound: checked,
+                        },
+                      } as any)
+                    }
+                  />
+                </div>
+              </div>
+              <SidebarOtherOptions
+                toolLabel="MLB Picker Wheel"
+                resultsCount={data.recentResults?.length || data.totalSpins || 0}
+                exportFileName="mlb-teams.txt"
+                exportText={exportText}
+                entries={giveawayEntries}
+                onImportText={(text) => {
+                  setBulkText(text)
+                  setSidebarTab("text")
+                  showToast("Pasted into Text tab — tap Apply text", "info")
+                }}
+                onRemoveDuplicates={removeDuplicateTeams}
+                onViewResults={onViewHistory}
+                onOpenSettings={onOpenSettings}
+                onToggleFullscreen={onToggleFullscreen}
+                onOpenAI={() => {
+                  setSidebarTab("inputs")
+                  handleTabChange("ai")
+                  onOpenAI?.()
+                }}
+                onOpenAnalytics={onOpenAnalytics}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Team Details Modal */}

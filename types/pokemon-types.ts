@@ -7,6 +7,10 @@ export type Pokemon = {
   region: string
   isLegendary: boolean
   isStarter: boolean
+  /** Mythical entries (separate from box legendaries when both flags are used). */
+  isMythical?: boolean
+  /** Eevee + Eeveelutions for the Eeveelution wheel template. */
+  isEeveelution?: boolean
   popularity: "low" | "medium" | "high"
   preview: string
 }
@@ -18,7 +22,17 @@ export type SpinResult = {
 
 export type DisplayMode = "emoji-name" | "emoji" | "name"
 export type ActionMode = "normal" | "elimination" | "manual"
-export type GenerationFilter = "all" | "gen1" | "gen2" | "gen3" | "gen4" | "gen5" | "gen6" | "gen7" | "gen8"
+export type GenerationFilter =
+  | "all"
+  | "gen1"
+  | "gen2"
+  | "gen3"
+  | "gen4"
+  | "gen5"
+  | "gen6"
+  | "gen7"
+  | "gen8"
+  | "gen9"
 
 export type UserPreferences = {
   favoriteTypes: string[]

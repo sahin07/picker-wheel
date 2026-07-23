@@ -116,7 +116,34 @@ export const useSettingsStore = create<SettingsStore>()(
           if (response.ok) {
             const data = await response.json()
             if (data.settings) {
-              set({ settings: { ...defaultSettings, ...data.settings } })
+              const incoming = data.settings as Partial<WheelSettings>
+              set((state) => ({
+                settings: {
+                  ...defaultSettings,
+                  ...state.settings,
+                  ...incoming,
+                  spinBehavior: {
+                    ...defaultSettings.spinBehavior,
+                    ...state.settings.spinBehavior,
+                    ...incoming.spinBehavior,
+                  },
+                  display: {
+                    ...defaultSettings.display,
+                    ...state.settings.display,
+                    ...incoming.display,
+                  },
+                  appearance: {
+                    ...defaultSettings.appearance,
+                    ...state.settings.appearance,
+                    ...incoming.appearance,
+                  },
+                  confettiSound: {
+                    ...defaultSettings.confettiSound,
+                    ...state.settings.confettiSound,
+                    ...incoming.confettiSound,
+                  },
+                },
+              }))
             }
           }
         } catch (error) {

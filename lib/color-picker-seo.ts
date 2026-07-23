@@ -50,6 +50,7 @@ export const COLOR_PICKER_KEYWORDS = [
 export const COLOR_PICKER_ON_THIS_PAGE = [
   { id: "cp-spin-wheel", label: "Spin the color wheel" },
   { id: "cp-create-wheel", label: "Create your own color wheel" },
+  { id: "cp-options", label: "How this tool's options work" },
   { id: "cp-use-cases", label: "Ways to use a color picker wheel" },
   { id: "cp-why", label: "Why use a color wheel" },
   { id: "cp-vs-picker", label: "Color picker wheel vs color picker tool" },
@@ -147,6 +148,50 @@ export const COLOR_PICKER_CREATE_POINTS = [
     title: "Share wheels",
     description:
       "Share a spin result, export your color list, or embed the page when you want others to spin the same setup.",
+  },
+] as const
+
+/** Explains each Color Controls option for the complete guide. */
+export const COLOR_PICKER_OPTIONS_GUIDE = [
+  {
+    title: "Action Mode",
+    description:
+      "Normal Mode keeps every color on the wheel after a spin. Elimination Mode removes the winner so later spins pick from remaining colors—use Restore All when you want the full palette back.",
+  },
+  {
+    title: "Color Wheel tab",
+    description:
+      "Pick a color combination (Single, Monochromatic, Complementary, Analogous, Triadic, and more), set Manual or Random pointer mode, and choose a primary color. This is the fastest way to build harmony-based palettes before you spin.",
+  },
+  {
+    title: "Result Show Mode & Alpha",
+    description:
+      "Control what appears after a spin: Color is always shown; optionally add Text, HEX, RGB, or RGBA. Alpha adjusts opacity when you need translucent swatches for design or overlays.",
+  },
+  {
+    title: "Manual tab",
+    description:
+      "Add a Custom Color by name and swatch, insert PW Colors / Basic Colors, or load Theme Colors (Birthday, Ocean, Neon, Forest, and more). Enable or disable individual colors under Current Colors.",
+  },
+  {
+    title: "Image tab",
+    description:
+      "Upload an image to extract a palette, then Insert All or curate which extracted colors stay enabled. Ideal when you want brand art, product photos, or classroom posters to drive the wheel.",
+  },
+  {
+    title: "AI-Powered tab",
+    description:
+      "Generate palettes from mood, style, and purpose; name colors with context; run the Color Blindness Simulator; and use Analysis or Learning tools when you want smarter naming and accessibility checks.",
+  },
+  {
+    title: "Confetti, Sound & Show stats",
+    description:
+      "Toggle celebration effects and on-wheel stats so spins stay clear for quiet classrooms or lively streams. Mute from the Color Wheel / Image tabs when you only need a silent pick.",
+  },
+  {
+    title: "Other Options & Share",
+    description:
+      "Import, Export, Share, Embed, QR Code, Fullscreen, and OBS Overlay help you reuse or broadcast the same color wheel. Save setups in My Wheels on this device for the next lesson or design session.",
   },
 ] as const
 

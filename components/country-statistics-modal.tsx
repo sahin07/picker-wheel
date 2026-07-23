@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X, Users, DollarSign, Globe, Languages } from "lucide-react"
 import type { Country } from "@/data/countries"
 import { formatPopulation, formatArea, formatGDP } from "@/data/countries"
+import { CountryFlagImage } from "@/components/country-flag-image"
 
 interface CountryStatisticsModalProps {
   isOpen: boolean
@@ -20,7 +21,11 @@ export default function CountryStatisticsModal({ isOpen, onClose, country }: Cou
       <Card className="w-full max-w-2xl max-h-[80vh] overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-3">
-            <span className="text-4xl">{country.flag}</span>
+            <CountryFlagImage
+              country={country}
+              width={80}
+              imgClassName="h-12 w-[4.5rem] rounded-md object-cover border border-slate-200 shadow-sm"
+            />
             <div>
               <CardTitle className="text-2xl">{country.name}</CardTitle>
               <p className="text-gray-600">{country.region}</p>

@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Maximize2, Brain, Sparkles, Target, Trophy, Palette, BarChart3, Users, Gamepad2 } from "lucide-react"
+import { Volume2, VolumeX, Maximize2, Minimize2, Brain, Sparkles, Target, Trophy, Palette, BarChart3, Users, Gamepad2 } from "lucide-react"
 import { useWheelManagerStore, CountryWheelData } from "@/stores/wheel-manager-store"
 import { useSettingsStore } from "@/stores/settings-store"
-import CountryResultsModal from "./country-results-modal"
+import PickerResultsModal from "./picker-results-modal"
 import Confetti from "react-confetti"
 import { Country } from "@/data/countries"
 import { createPortal } from "react-dom"
+import { drawCountryWheelLabel } from "@/lib/country-wheel-canvas"
+import { CountryFlagImage } from "@/components/country-flag-image"
 
 interface CountryAIWheelSectionProps {
   onOpenAchievements?: () => void;
@@ -24,6 +26,11 @@ interface CountryAIWheelSectionProps {
   isGameActive?: boolean;
   currentGameMode?: string;
   onSpinCompleted?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+  removeWinnerAfterSpin?: boolean;
+  /** When false, Results is rendered by the parent column (NBA/Pokemon placement). */
+  showResultsButton?: boolean;
 }
 
 export default function CountryAIWheelSection({
@@ -39,7 +46,11 @@ export default function CountryAIWheelSection({
   currentUser,
   isGameActive = false,
   currentGameMode,
-  onSpinCompleted
+  onSpinCompleted,
+  isFullscreen = false,
+  onToggleFullscreen,
+  removeWinnerAfterSpin = false,
+  showResultsButton = true,
 }: CountryAIWheelSectionProps) {
   // Subscribe to the current wheel using a Zustand selector
   const wheel = useWheelManagerStore(state => {
@@ -93,6 +104,7 @@ export default function CountryAIWheelSection({
   const [showConfetti, setShowConfetti] = useState(false);
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [windowDimensions, setWindowDimensions] = useState({ width: 800, height: 600 });
+  const [flagTick, setFlagTick] = useState(0);
 
   // Get window dimensions safely
   useEffect(() => {
@@ -106,6 +118,12 @@ export default function CountryAIWheelSection({
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  useEffect(() => {
+    const openResults = () => setShowResultsModal(true)
+    window.addEventListener("open-country-results", openResults)
+    return () => window.removeEventListener("open-country-results", openResults)
   }, []);
 
   // Animation loop for spinning - use manual wheel approach
@@ -193,6 +211,8 @@ export default function CountryAIWheelSection({
          themesCount: themes.length
        });
 
+       const labelMeta: Array<{ country: Country; startAngle: number; endAngle: number }> = []
+
        validCountries.forEach((country: Country, index: number) => {
          const startAngle = index * segmentAngle - Math.PI / 2; // Start from top like manual wheel
          const endAngle = startAngle + segmentAngle;
@@ -216,34 +236,26 @@ export default function CountryAIWheelSection({
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw content - use manual wheel approach
+        labelMeta.push({ country, startAngle, endAngle })
+      });
+
+      // Labels after fills so names aren't covered by the next segment
+      labelMeta.forEach(({ country, startAngle, endAngle }) => {
         ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.clip();
         ctx.rotate(startAngle + segmentAngle / 2);
-        
-        const textRadius = radius * 0.8; // Use same radius as manual wheel
-        
-        if (displayMode === "flag" || displayMode === "both") {
-          ctx.font = "20px Arial";
-          ctx.textAlign = "center";
-          ctx.fillStyle = "#ffffff";
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 2;
-          const flagToShow = typeof country.flag === 'string' && country.flag.trim().length > 0 ? country.flag : "🌎";
-          ctx.strokeText(flagToShow, textRadius, -8);
-          ctx.fillText(flagToShow, textRadius, -8);
-        }
-        
-        if (displayMode === "name" || displayMode === "both") {
-          ctx.font = "14px Arial";
-          ctx.textAlign = "center";
-          ctx.fillStyle = "#ffffff";
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 4;
-          const displayName = country.name.length > 14 ? country.name.substring(0, 14) + "..." : country.name;
-          ctx.strokeText(displayName, textRadius, 5);
-          ctx.fillText(displayName, textRadius, 5);
-        }
-        
+
+        drawCountryWheelLabel(ctx, country, displayMode || "both", radius * 0.72, {
+          textColor: "#ffffff",
+          strokeColor: "#000000",
+          mysteryNames: false,
+          onFlagReady: () => setFlagTick((t) => t + 1),
+        })
+
         ctx.restore();
       });
 
@@ -269,7 +281,7 @@ export default function CountryAIWheelSection({
     }
 
     ctx.restore();
-  }, [currentRotation, validCountries, displayMode, currentTheme, themes]);
+  }, [currentRotation, validCountries, displayMode, currentTheme, themes, flagTick]);
 
   const playSpinSound = () => {
     if (muted || !settings.confettiSound?.enableSound) return;
@@ -368,17 +380,15 @@ export default function CountryAIWheelSection({
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
+    onToggleFullscreen?.()
   };
 
   // Show confetti when a spin finishes and a result is selected
   useEffect(() => {
     if (selectedResult && !isSpinning) {
-      setShowConfetti(true);
+      if (settings.confettiSound?.enableConfetti !== false) {
+        setShowConfetti(true);
+      }
       // Play custom win sound if global sound is enabled and not locally muted
       if (settings.confettiSound?.enableSound && !muted) {
         console.log('Playing AI sound - Global enabled:', settings.confettiSound.enableSound, 'Local muted:', muted, 'Volume:', settings.confettiSound.soundVolume);
@@ -447,8 +457,8 @@ export default function CountryAIWheelSection({
         <div className="relative">
           <canvas
             ref={canvasRef}
-            width={600}
-            height={600}
+            width={680}
+            height={680}
             className="cursor-pointer drop-shadow-2xl rounded-full border-4 border-purple-200"
             onClick={!isSpinning ? handleSpin : undefined}
           />
@@ -458,40 +468,64 @@ export default function CountryAIWheelSection({
             <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-t-[30px] border-l-transparent border-r-transparent border-t-purple-600"></div>
           </div>
 
-          {/* Results Button */}
-          <div className="absolute top-4 left-4">
-            <Button variant="outline" size="sm" onClick={() => setShowResultsModal(true)} className="border-purple-300 text-purple-600 hover:bg-purple-50">
-              Results
-            </Button>
-          </div>
+          {/* Results Button — only when parent does not own column-level Results */}
+          {showResultsButton && (
+            <div className="absolute top-4 left-4 z-10">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowResultsModal(true)}
+                className="border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:px-3"
+              >
+                Results
+                {(data.recentResults?.length || 0) > 0 && (
+                  <span className="ml-2 rounded-full bg-slate-100 px-1.5 text-[10px] text-slate-700">
+                    {data.recentResults!.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+          )}
 
           {/* AI Status Indicator - Only show small indicator, not full overlay */}
           {isSpinning && (
-            <div className="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+            <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-purple-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
               AI Spinning...
             </div>
           )}
-        </div>
 
-        {/* AI Controls */}
-        <div className="flex items-center gap-4 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleMute}
-            className="border-purple-300 text-purple-600 hover:bg-purple-50"
-          >
-            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleFullscreen}
-            className="border-purple-300 text-purple-600 hover:bg-purple-50"
-          >
-            <Maximize2 className="h-4 w-4" />
-          </Button>
+          {/* Controls — mute + fullscreen bottom-left (NBA/Pokemon placement) */}
+          <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleMute()
+              }}
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+              title={muted ? "Unmute" : "Mute"}
+            >
+              {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            </Button>
+            {onToggleFullscreen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleFullscreen()
+                }}
+                className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* AI Spin Button */}
@@ -593,9 +627,14 @@ export default function CountryAIWheelSection({
       {selectedResult && !isSpinning && (
         <div className="text-center p-6 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border-2 border-purple-300 shadow-lg mb-4">
           <h3 className="text-lg font-semibold text-purple-800 mb-2">🤖 AI Selected Country!</h3>
-          <div className="flex items-center justify-center space-x-3">
-            <span className="text-4xl">{selectedResult.flag}</span>
-            <div>
+          <div className="flex items-center justify-center space-x-4">
+            <CountryFlagImage
+              country={selectedResult}
+              width={160}
+              className="drop-shadow-md"
+              imgClassName="h-16 w-auto rounded-md border border-white/80 object-cover shadow-md"
+            />
+            <div className="text-left">
               <p className="text-2xl font-bold text-purple-900">{selectedResult.name}</p>
               <p className="text-sm text-purple-700">{selectedResult.region}</p>
             </div>
@@ -609,20 +648,17 @@ export default function CountryAIWheelSection({
       )}
 
       {/* AI Results Modal */}
-      <CountryResultsModal
+      <PickerResultsModal
         isOpen={showResultsModal}
         onClose={() => setShowResultsModal(false)}
-        result={selectedResult}
         results={data.recentResults || []}
-        aiInsights={aiInsights}
-        isAI={true}
       />
 
       {/* AI Confetti */}
       {showConfetti && (
         <Confetti
-          width={600}
-          height={600}
+          width={680}
+          height={680}
           numberOfPieces={400}
           recycle={false}
           colors={['#8b5cf6', '#ec4899', '#6366f1', '#f59e0b', '#10b981']}

@@ -8,6 +8,7 @@ import {
   COLOR_PICKER_H1,
   COLOR_PICKER_HERO_INTRO,
   COLOR_PICKER_ON_THIS_PAGE,
+  COLOR_PICKER_OPTIONS_GUIDE,
   COLOR_PICKER_PATH,
   COLOR_PICKER_RELATED_TOOLS,
   COLOR_PICKER_USE_CASE_GROUPS,
@@ -114,6 +115,37 @@ export default function ColorPickerSeoSections() {
                   {point.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-600">{point.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          id="cp-options"
+          aria-labelledby="cp-options-heading"
+          className="mt-12 scroll-mt-24"
+        >
+          <h2
+            id="cp-options-heading"
+            className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+          >
+            How This Tool&apos;s Options Work
+          </h2>
+          <p className="mb-6 text-base leading-relaxed text-slate-600">
+            The Color Controls sidebar is where most settings live. Use this guide to understand
+            each option before you spin—so classroom palettes, design picks, and party colors behave
+            the way you expect.
+          </p>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {COLOR_PICKER_OPTIONS_GUIDE.map((option) => (
+              <li
+                key={option.title}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-spin-display mb-2 text-lg font-semibold text-slate-900">
+                  {option.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-600">{option.description}</p>
               </li>
             ))}
           </ul>

@@ -14,7 +14,7 @@ export default function MLBStatisticsModal({ isOpen, onClose, team }: MLBStatist
   if (!team) return null
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">

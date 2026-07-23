@@ -1067,10 +1067,10 @@ export function ColorPickerWheel({
       )}
 
       <div className="relative z-10 w-full">
-        <div className="grid items-start gap-6 lg:grid-cols-3">
+        <div className="mb-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Wheel column (left) */}
           <div
-            className={`relative overflow-hidden bg-white p-4 sm:p-6 ${
+            className={`relative overflow-x-hidden bg-white p-3 sm:p-6 ${
               isFullScreen
                 ? "lg:col-span-3"
                 : "rounded-lg border shadow-sm lg:col-span-2"
@@ -1081,7 +1081,7 @@ export function ColorPickerWheel({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowSpinHistory(true)}
-                className="absolute left-4 top-4 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+                className="absolute left-2 top-2 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:left-4 sm:top-4 sm:px-3"
               >
                 Results
                 {results[activeTab as keyof typeof results]?.length > 0 && (

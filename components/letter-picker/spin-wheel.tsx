@@ -115,13 +115,13 @@ export function SpinWheel({
           : "relative flex flex-col items-center space-y-4"
       }
     >
-      <div className="relative w-full max-w-[680px]">
+      <div className="relative mx-auto flex w-full max-w-[680px] flex-col items-center">
         {showResultsButton && !isFullscreen && onShowAllResults && (
           <Button
             variant="outline"
             size="sm"
             onClick={onShowAllResults}
-            className="absolute left-0 top-0 z-10 border-blue-500 bg-white px-3 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50"
+            className="absolute left-0 top-0 z-10 border-blue-500 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm hover:border-blue-600 hover:bg-gray-50 sm:px-3"
           >
             Results
             {totalSpins > 0 && (
@@ -133,8 +133,7 @@ export function SpinWheel({
         )}
 
         <div
-          className="relative mx-auto cursor-pointer"
-          style={{ width: "min(100%, 680px)" }}
+          className="relative w-full max-w-[680px] cursor-pointer overflow-visible"
           onClick={canClickSpin ? onSpin : undefined}
         >
           <WheelCanvas
@@ -148,7 +147,7 @@ export function SpinWheel({
             onSpinComplete={onSpinComplete}
           />
 
-          <div className="absolute bottom-4 left-4 z-20 flex flex-col space-y-2">
+          <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
             <Button
               variant="ghost"
               size="sm"
@@ -156,7 +155,7 @@ export function SpinWheel({
                 e.stopPropagation()
                 onMutedChange(!muted)
               }}
-              className="h-10 w-10 bg-white/90 p-0 shadow-md hover:bg-white"
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
               title={soundGloballyOff ? "Global sound disabled" : muted ? "Unmute" : "Mute"}
             >
               {soundGloballyOff || muted ? (
@@ -172,7 +171,7 @@ export function SpinWheel({
                 e.stopPropagation()
                 onToggleFullscreen()
               }}
-              className="h-10 w-10 bg-white/90 p-0 shadow-md hover:bg-white"
+              className="h-9 w-9 bg-white/90 p-0 shadow-md hover:bg-white sm:h-10 sm:w-10"
               title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             >
               {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
@@ -180,7 +179,7 @@ export function SpinWheel({
           </div>
 
           {isSpinning && (
-            <div className="absolute right-4 top-4 z-20 animate-pulse rounded-full bg-yellow-500 px-3 py-1 text-sm font-semibold text-white">
+            <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
               {manuallyStop ? "Click to Stop!" : "Spinning..."}
             </div>
           )}

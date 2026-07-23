@@ -514,24 +514,72 @@ export const nbaTeams: NBATeam[] = [
   }
 ]
 
-export function getNBATeamsByConference(conference: "Eastern" | "Western" | "all"): NBATeam[] {
+export type NBAConference = "Eastern" | "Western"
+export type NBADivision =
+  | "Atlantic"
+  | "Central"
+  | "Southeast"
+  | "Northwest"
+  | "Pacific"
+  | "Southwest"
+
+/** Conference filter (NBA uses Eastern/Western; field on teams is still `league`). */
+export function getNBATeamsByConference(
+  conference: NBAConference | "all",
+): NBATeam[] {
   if (conference === "all") return nbaTeams
-  return nbaTeams.filter(t => t.league === conference)
+  return nbaTeams.filter((t) => t.league === conference)
+}
+
+/** Alias for MLB-style call sites that filter by `league`. */
+export function getNBATeamsByLeague(
+  league: NBAConference | "all",
+): NBATeam[] {
+  return getNBATeamsByConference(league)
+}
+
+export function getNBATeamsByDivision(division: NBADivision | string): NBATeam[] {
+  return nbaTeams.filter((t) => t.division === division)
+}
+
+export function getNBATeamById(id: string): NBATeam | undefined {
+  return nbaTeams.find((t) => t.id === id)
+}
+
+export function getNBATeamsByConferenceAndDivision(
+  conference: NBAConference,
+  division: NBADivision | string,
+): NBATeam[] {
+  return nbaTeams.filter(
+    (t) => t.league === conference && t.division === division,
+  )
+}
+
+/** Alias matching MLB `getMLBTeamsByLeagueAndDivision` naming. */
+export function getNBATeamsByLeagueAndDivision(
+  league: NBAConference,
+  division: NBADivision | string,
+): NBATeam[] {
+  return getNBATeamsByConferenceAndDivision(league, division)
 }
 
 export const nbaConferences = [
   { id: "all", name: "All Teams", count: 30 },
-  { id: "Eastern", name: "Eastern", count: 15 },
-  { id: "Western", name: "Western", count: 15 }
+  { id: "Eastern", name: "Eastern Conference", count: 15 },
+  { id: "Western", name: "Western Conference", count: 15 },
 ]
 
-export const nbaDivisions: Array<{ id: string; name: string; league: "Eastern" | "Western" }> = [
+export const nbaDivisions: Array<{
+  id: NBADivision
+  name: string
+  league: NBAConference
+}> = [
   { id: "Atlantic", name: "Eastern Atlantic", league: "Eastern" },
   { id: "Central", name: "Eastern Central", league: "Eastern" },
   { id: "Southeast", name: "Eastern Southeast", league: "Eastern" },
   { id: "Northwest", name: "Western Northwest", league: "Western" },
   { id: "Pacific", name: "Western Pacific", league: "Western" },
-  { id: "Southwest", name: "Western Southwest", league: "Western" }
+  { id: "Southwest", name: "Western Southwest", league: "Western" },
 ]
 
 

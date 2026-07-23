@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
 
 const WHEEL_SIZE = 680
 
@@ -17,6 +17,12 @@ interface WheelCanvasProps {
   onSpinComplete?: () => void
 }
 
+export type WheelCanvasHandle = {
+  getCurrentRotation: () => number
+  /** Abort the in-flight spin animation and return the rotation at abort time. */
+  abortSpin: () => number
+}
+
 function getSegmentWeights(numbers: any[]): number[] {
   if (!numbers.length) return []
   if (typeof numbers[0] === "object" && numbers[0] !== null && "weight" in numbers[0]) {
@@ -31,16 +37,19 @@ function getSegmentAngles(numbers: any[]): number[] {
   return weights.map((w) => (w / total) * 2 * Math.PI)
 }
 
-export function WheelCanvas({
-  numbers,
-  isSpinning,
-  settings,
-  rotation = 0,
-  size = WHEEL_SIZE,
-  highlightIndex = null,
-  onRotationFrame,
-  onSpinComplete,
-}: WheelCanvasProps) {
+export const WheelCanvas = forwardRef<WheelCanvasHandle, WheelCanvasProps>(function WheelCanvas(
+  {
+    numbers,
+    isSpinning,
+    settings,
+    rotation = 0,
+    size = WHEEL_SIZE,
+    highlightIndex = null,
+    onRotationFrame,
+    onSpinComplete,
+  },
+  ref,
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number | null>(null)
   const currentRotationRef = useRef(0)
@@ -53,6 +62,18 @@ export function WheelCanvas({
   settingsRef.current = settings
   onFrameRef.current = onRotationFrame
   onCompleteRef.current = onSpinComplete
+
+  useImperativeHandle(ref, () => ({
+    getCurrentRotation: () => currentRotationRef.current,
+    abortSpin: () => {
+      spinTokenRef.current += 1
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+        animationRef.current = null
+      }
+      return currentRotationRef.current
+    },
+  }))
 
   const drawWheel = (rotationDegrees: number) => {
     const canvas = canvasRef.current
@@ -248,11 +269,11 @@ export function WheelCanvas({
       ref={canvasRef}
       width={size}
       height={size}
-      className="max-w-full h-auto drop-shadow-lg"
-      style={{ width: size, height: size }}
+      className="mx-auto h-auto w-full max-w-full drop-shadow-lg"
+      style={{ aspectRatio: "1 / 1" }}
     />
   )
-}
+})
 
 /** Resolve which number is under the 3 o'clock pointer for a given degree rotation (home-compatible). */
 export function resolveNumberFromRotation(

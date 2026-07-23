@@ -9,6 +9,12 @@ export interface SpinRecord {
   userQuestion?: string
 }
 
+/** Persist/rehydrate may store timestamps as ISO strings. */
+function asDate(value: Date | string | number): Date | null {
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 export interface AnalyticsData {
   totalSpins: number
   uniqueResults: number
@@ -113,17 +119,20 @@ export function analyzeSpinData(spinHistory: SpinRecord[]): AnalyticsData {
     
     // Count modes
     modeCounts.set(record.mode, (modeCounts.get(record.mode) || 0) + 1)
+
+    const timestamp = asDate(record.timestamp as Date | string | number)
+    if (!timestamp) return
     
     // Count time of day
-    const hour = record.timestamp.getHours()
+    const hour = timestamp.getHours()
     timeOfDayCounts.set(hour, (timeOfDayCounts.get(hour) || 0) + 1)
     
     // Count day of week
-    const day = record.timestamp.toLocaleDateString('en-US', { weekday: 'long' })
+    const day = timestamp.toLocaleDateString('en-US', { weekday: 'long' })
     dayOfWeekCounts.set(day, (dayOfWeekCounts.get(day) || 0) + 1)
     
     // Count daily
-    const date = record.timestamp.toLocaleDateString()
+    const date = timestamp.toLocaleDateString()
     dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1)
   })
 
@@ -174,7 +183,10 @@ export function analyzeSpinData(spinHistory: SpinRecord[]): AnalyticsData {
       spins,
       uniqueResults: new Set(
         spinHistory
-          .filter(record => record.timestamp.toLocaleDateString() === date)
+          .filter((record) => {
+            const ts = asDate(record.timestamp as Date | string | number)
+            return ts ? ts.toLocaleDateString() === date : false
+          })
           .map(record => record.result)
       ).size
     }))
@@ -228,7 +240,9 @@ function calculateWeeklyStats(spinHistory: SpinRecord[]) {
   }>()
 
   spinHistory.forEach(record => {
-    const weekStart = getWeekStart(record.timestamp)
+    const timestamp = asDate(record.timestamp as Date | string | number)
+    if (!timestamp) return
+    const weekStart = getWeekStart(timestamp)
     const weekKey = weekStart.toLocaleDateString()
     
     if (!weeklyData.has(weekKey)) {
@@ -264,7 +278,9 @@ function calculateMonthlyStats(spinHistory: SpinRecord[]) {
   }>()
 
   spinHistory.forEach(record => {
-    const monthKey = record.timestamp.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+    const timestamp = asDate(record.timestamp as Date | string | number)
+    if (!timestamp) return
+    const monthKey = timestamp.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
     
     if (!monthlyData.has(monthKey)) {
       monthlyData.set(monthKey, {

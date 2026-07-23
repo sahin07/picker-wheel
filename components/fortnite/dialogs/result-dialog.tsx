@@ -15,7 +15,7 @@ interface ResultDialogProps {
 
 export function ResultDialog({ results, onClose, open, wheelName }: ResultDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose() }}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-800 flex items-center gap-2">

@@ -31,7 +31,7 @@ export default function MLBFavoritesModal({ isOpen, onClose }: MLBFavoritesModal
 
   if (favoriteTeams.length === 0) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Favorite Teams</DialogTitle>
@@ -47,7 +47,7 @@ export default function MLBFavoritesModal({ isOpen, onClose }: MLBFavoritesModal
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Favorite Teams ({favoriteTeams.length})</DialogTitle>

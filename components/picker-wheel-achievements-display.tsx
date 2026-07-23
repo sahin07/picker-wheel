@@ -127,7 +127,7 @@ export default function PickerWheelAchievementsDisplay({
   }
 
   return (
-    <Dialog open={isVisible} onOpenChange={onClose}>
+    <Dialog open={isVisible} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

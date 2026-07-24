@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: FORTNITE_WHEEL_PAGE_TITLE,
     description: FORTNITE_WHEEL_PAGE_DESCRIPTION,
     url: FORTNITE_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [

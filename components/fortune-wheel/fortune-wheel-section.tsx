@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { WheelFeatureActions } from "@/components/wheel-feature-actions"
 import { WheelCanvas, resolveNumberFromRotation } from "@/components/wheel-canvas"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes"
@@ -26,6 +27,14 @@ type Props = {
   removeWinnerAfterSpin?: boolean
   showResultsButton?: boolean
   actionMode?: "normal" | "elimination" | "manual"
+  isGameActive?: boolean
+  currentGameModeName?: string
+  onOpenAchievements?: () => void
+  onOpenThemeSelector?: () => void
+  onOpenAnalytics?: () => void
+  onOpenSocialHub?: () => void
+  onOpenGameModes?: () => void
+  totalPoints?: number
 }
 
 const EMPTY: FortuneWheelData = {
@@ -64,16 +73,31 @@ export default function FortuneWheelSection({
   removeWinnerAfterSpin = false,
   showResultsButton = true,
   actionMode = "normal",
+  isGameActive = false,
+  currentGameModeName,
+  onOpenAchievements,
+  onOpenThemeSelector,
+  onOpenAnalytics,
+  onOpenSocialHub,
+  onOpenGameModes,
+  totalPoints = 0,
 }: Props) {
   const wheel = useWheelManagerStore(
     (state) =>
-      (state.wheelsByTool[state.currentTool] || []).find((item) => item.id === state.currentWheelId) || null,
+      (state.wheelsByTool["fortune-wheel"] || []).find(
+        (item) => item.id === state.currentWheelId,
+      ) ||
+      (state.wheelsByTool["fortune-wheel"] || [])[0] ||
+      null,
   )
   const data = (wheel?.data as FortuneWheelData | undefined) ?? EMPTY
+  const entries = Array.isArray(data.entries) ? data.entries : EMPTY.entries
   const confettiEnabled = useSettingsStore(
     (state) => state.settings.confettiSound?.enableConfetti !== false,
   )
-  const soundEnabled = useSettingsStore((state) => !!state.settings.confettiSound?.enableSound)
+  const soundEnabled = useSettingsStore(
+    (state) => state.settings.confettiSound?.enableSound !== false,
+  )
   const soundVolume = useSettingsStore((state) => state.settings.confettiSound?.soundVolume ?? 0.5)
   const mysteryResult = useSettingsStore((state) => !!state.settings.spinBehavior?.mysteryResult)
   const spinningDuration = useSettingsStore((state) => state.settings.spinBehavior?.spinningDuration ?? 10)
@@ -98,8 +122,8 @@ export default function FortuneWheelSection({
   )
 
   const activeEntries = useMemo(
-    () => data.entries.filter((entry) => entry.enabled !== false && entry.name.trim()),
-    [data.entries],
+    () => entries.filter((entry) => entry.enabled !== false && entry.name.trim()),
+    [entries],
   )
 
   const canvasItems = useMemo(
@@ -118,9 +142,13 @@ export default function FortuneWheelSection({
       if (!wheel) return
       const latest = useWheelManagerStore.getState().getCurrentWheel()
       const latestData = (latest?.data as FortuneWheelData | undefined) ?? data
-      useWheelManagerStore.getState().updateWheelData("fortune-wheel", wheel.id, { ...latestData, ...partial })
+      useWheelManagerStore.getState().updateWheelData("fortune-wheel", wheel.id, {
+        ...latestData,
+        entries: Array.isArray(latestData.entries) ? latestData.entries : entries,
+        ...partial,
+      })
     },
-    [data, wheel],
+    [data, entries, wheel],
   )
 
   useEffect(() => {
@@ -199,6 +227,7 @@ export default function FortuneWheelSection({
       setMysteryRevealed(!mysteryResult)
       const latest =
         (useWheelManagerStore.getState().getCurrentWheel()?.data as FortuneWheelData | undefined) ?? data
+      const latestEntries = Array.isArray(latest.entries) ? latest.entries : entries
       const spinRecord = {
         id: `spin-${Date.now()}`,
         timestamp: new Date(),
@@ -210,8 +239,8 @@ export default function FortuneWheelSection({
       }
       updateData({
         entries: removeWinnerAfterSpin
-          ? latest.entries.map((entry) => (entry.id === result.id ? { ...entry, enabled: false } : entry))
-          : latest.entries,
+          ? latestEntries.map((entry) => (entry.id === result.id ? { ...entry, enabled: false } : entry))
+          : latestEntries,
         selectedResult: result,
         totalSpins: (latest.totalSpins || 0) + 1,
         recentResults: [...(latest.recentResults || []), result].slice(-10),
@@ -226,6 +255,7 @@ export default function FortuneWheelSection({
       activeEntries,
       currentTheme,
       data,
+      entries,
       mysteryResult,
       onSpinCompleted,
       removeWinnerAfterSpin,
@@ -329,9 +359,13 @@ export default function FortuneWheelSection({
               size="sm"
               onClick={() => setMuted((value) => !value)}
               className="h-9 w-9 bg-white/90 p-0 shadow-md"
-              title={muted ? "Unmute" : "Mute"}
+              title={!soundEnabled ? "Global sound disabled" : muted ? "Unmute" : "Mute"}
             >
-              {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              {!soundEnabled || muted ? (
+                <VolumeX className={`h-5 w-5 ${!soundEnabled ? "text-gray-400" : ""}`} />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
             </Button>
             {onToggleFullscreen && (
               <Button
@@ -418,6 +452,30 @@ export default function FortuneWheelSection({
         {!canvasItems.length && (
           <p className="mt-4 text-sm text-slate-500">Add and enable at least one wedge to spin.</p>
         )}
+
+        <div className="mt-4 flex justify-center">
+          <div className="rounded-lg bg-gradient-to-r from-violet-700 to-amber-500 px-4 py-2 text-white shadow-lg">
+            <div className="text-center">
+              <div className="text-2xl font-bold">{data.totalSpins || 0}</div>
+              <div className="text-sm opacity-90">Total Spins</div>
+            </div>
+          </div>
+        </div>
+
+        {isGameActive && currentGameModeName && (
+          <div className="mt-3 w-full max-w-md rounded-lg border-2 border-violet-300 bg-gradient-to-r from-violet-100 to-amber-100 p-2.5 sm:p-3">
+            <p className="text-xs font-semibold text-violet-800 sm:text-sm">Playing: {currentGameModeName}</p>
+          </div>
+        )}
+
+        <WheelFeatureActions
+          totalPoints={totalPoints}
+          onOpenAchievements={onOpenAchievements}
+          onOpenThemeSelector={onOpenThemeSelector}
+          onOpenAnalytics={onOpenAnalytics}
+          onOpenSocialHub={onOpenSocialHub}
+          onOpenGameModes={onOpenGameModes}
+        />
       </div>
 
       <Dialog open={showResults} onOpenChange={setShowResults}>

@@ -65,6 +65,8 @@ interface WeightedInputPanelProps {
   onApplyPalette?: (colors: readonly string[]) => void
   currentTheme?: string
   themes?: typeof PICKER_WHEEL_THEMES
+  /** Desktop only: match left wheel column height; keeps inner scroll. */
+  desktopMaxHeight?: number | null
 }
 
 export default function WeightedInputPanel({
@@ -78,6 +80,7 @@ export default function WeightedInputPanel({
   onApplyPalette,
   currentTheme = "classic",
   themes = PICKER_WHEEL_THEMES,
+  desktopMaxHeight = null,
 }: WeightedInputPanelProps) {
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("inputs")
   const [bulkText, setBulkText] = useState("")
@@ -209,7 +212,10 @@ export default function WeightedInputPanel({
   }
 
   return (
-    <div className="flex h-full min-h-[28rem] flex-col overflow-hidden rounded-lg border bg-white shadow-sm">
+    <div
+      className="flex max-h-[min(70vh,36rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-white shadow-sm"
+      style={desktopMaxHeight != null ? { maxHeight: desktopMaxHeight } : undefined}
+    >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b bg-slate-50/80 px-3 py-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-slate-800">Weighted Controls</p>

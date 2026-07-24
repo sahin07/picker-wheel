@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     url: PAGE_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     type: "website",
     images: [
       { url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE },

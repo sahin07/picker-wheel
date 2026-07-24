@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: JJK_WHEEL_PAGE_TITLE,
     description: JJK_WHEEL_PAGE_DESCRIPTION,
     url: JJK_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     type: "website",
     images: [{ url: JJK_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: JJK_WHEEL_H1 }],
   },

@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: COLOR_PICKER_PAGE_TITLE,
     description: COLOR_PICKER_PAGE_DESCRIPTION,
     url: COLOR_PICKER_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [

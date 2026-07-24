@@ -12,7 +12,7 @@ export const SITE_METADATA_BASE = new URL(
 export const DEFAULT_OG_IMAGE_PATH = "/og/picker-wheel.svg"
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`
 
-export const SITE_NAME = "Picker Wheel"
+export const SITE_NAME = "Spinifywheel"
 
 export const DEFAULT_ROBOTS: NonNullable<Metadata["robots"]> = {
   index: true,

@@ -12,7 +12,8 @@ import {
   ChevronDown,
   Plus,
 } from "lucide-react";
-import MyWheelsMenu from "@/components/my-wheels-menu";
+import MyWheelsMenu from "@/components/my-wheels-menu"
+import { BrandLogo } from "@/components/brand-logo";
 import {
   Sheet,
   SheetContent,
@@ -142,14 +143,7 @@ export default function Header({ onOpenSettings, onOpenGames }: HeaderProps) {
       <div className="w-full px-3 sm:px-6 lg:px-8">
         <div className="relative flex h-16 w-full items-center justify-between gap-2">
           {/* Logo */}
-          <Link href="/" className="flex min-w-0 shrink items-center space-x-2">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500">
-              <div className="h-4 w-4 rounded-full bg-green-600"></div>
-            </div>
-            <span className="hidden font-spin-display text-xl font-bold text-gray-800 sm:inline">
-              Picker Wheel
-            </span>
-          </Link>
+          <BrandLogo />
 
           {/* Center: My Wheels + Create Wheel (lg+ — md width is too tight for center + right nav) */}
           <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex">

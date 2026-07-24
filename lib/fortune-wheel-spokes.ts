@@ -641,7 +641,7 @@ export const FORTUNE_WHEEL_SPOKES: Record<
     description:
       "Open a ready-made Jess Coleman Wheel of Fortune spin template inspired by trending search interest, then customize the entries, colors, and messages.",
     h1: "Jess Coleman Wheel of Fortune",
-    shortTitle: "Trending: Jess Coleman",
+    shortTitle: "Jess Coleman Wheel Picker",
     heroIntro:
       "This ready-made spin template responds to trending search interest around Jess Coleman. It is a customizable independent wheel with light starter entries.",
     keywords: [

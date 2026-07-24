@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: { absolute: PRIZE_WHEEL_PAGE_TITLE }, description: PRIZE_WHEEL_PAGE_DESCRIPTION,
   keywords: [...PRIZE_WHEEL_KEYWORDS], alternates: { canonical: PRIZE_WHEEL_URL }, robots: { index: true, follow: true },
   openGraph: { title: PRIZE_WHEEL_PAGE_TITLE, description: PRIZE_WHEEL_PAGE_DESCRIPTION, url: PRIZE_WHEEL_URL,
-    siteName: "Picker Wheel", locale: "en_US", type: "website",
+    siteName: "Spinifywheel", locale: "en_US", type: "website",
     images: [{ url: PRIZE_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: PRIZE_WHEEL_H1 }] },
   twitter: { card: "summary_large_image", title: PRIZE_WHEEL_PAGE_TITLE,
     description: PRIZE_WHEEL_PAGE_DESCRIPTION, images: [PRIZE_WHEEL_OG_IMAGE_URL] },

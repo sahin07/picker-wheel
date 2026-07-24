@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: NUMBER_PICKER_PAGE_TITLE,
     description: NUMBER_PICKER_PAGE_DESCRIPTION,
     url: NUMBER_PICKER_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [

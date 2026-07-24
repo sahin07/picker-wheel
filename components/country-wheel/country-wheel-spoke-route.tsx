@@ -39,7 +39,7 @@ export function countryWheelSpokeMetadata(spokeId: CountryWheelSpokeId): Metadat
       title: spoke.pageTitle,
       description: spoke.description,
       url,
-      siteName: "Picker Wheel",
+      siteName: "Spinifywheel",
       locale: "en_US",
       type: "website",
       images: [

@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: FORTNITE_CHALLENGE_HUB_PAGE_TITLE,
     description: FORTNITE_CHALLENGE_HUB_DESCRIPTION,
     url: FORTNITE_CHALLENGE_HUB_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [{ url: FORTNITE_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: FORTNITE_CHALLENGE_HUB_H1 }],

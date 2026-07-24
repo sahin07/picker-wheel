@@ -1,4 +1,6 @@
 import Link from "next/link"
+import { BrandLogo } from "@/components/brand-logo"
+import { SITE_NAME } from "@/lib/site-metadata"
 
 export default function Footer() {
   return (
@@ -6,9 +8,11 @@ export default function Footer() {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-4">
           <div>
-            <h3 className="mb-4 font-spin-display text-lg font-bold">
-              Picker Wheel
-            </h3>
+            <BrandLogo
+              variant="dark"
+              className="mb-4"
+              showWordmark
+            />
             <p className="text-sm font-medium text-gray-300">
               The ultimate decision-making tool for random choices. Fair, fun,
               and easy to use.
@@ -295,7 +299,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm font-medium text-gray-300">
-          <p>&copy; {new Date().getFullYear()} Picker Wheel. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</p>
           <p className="mt-2">
             Developed by{" "}
             <a

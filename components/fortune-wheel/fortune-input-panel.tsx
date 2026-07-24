@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { EyeOff, ImagePlus, List, MoreVertical, Palette, Plus, Shuffle, Trash2, Type } from "lucide-react"
+import { EyeOff, ImagePlus, List, MoreVertical, Palette, Plus, Shuffle, Trash2, Trophy, Type } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,9 +52,12 @@ type Props = {
   onOpenSettings?: () => void
   onToggleFullscreen?: () => void
   onOpenAnalytics?: () => void
+  onOpenAchievements?: () => void
   onThemeChange?: (themeId: string) => void
   currentTheme?: string
   themes?: typeof PICKER_WHEEL_THEMES
+  /** Desktop only: match left wheel column height; keeps inner scroll. */
+  desktopMaxHeight?: number | null
 }
 
 export default function FortuneInputPanel({
@@ -64,9 +67,11 @@ export default function FortuneInputPanel({
   onOpenSettings,
   onToggleFullscreen,
   onOpenAnalytics,
+  onOpenAchievements,
   onThemeChange,
   currentTheme = "classic",
   themes = PICKER_WHEEL_THEMES,
+  desktopMaxHeight = null,
 }: Props) {
   const [tab, setTab] = useState<Tab>("inputs")
   const [bulkText, setBulkText] = useState("")
@@ -76,7 +81,9 @@ export default function FortuneInputPanel({
   const { showToast } = useToast()
   const wheel = useWheelManagerStore(
     (state) =>
-      (state.wheelsByTool[state.currentTool] || []).find((item) => item.id === state.currentWheelId) || null,
+      (state.wheelsByTool["fortune-wheel"] || []).find((item) => item.id === state.currentWheelId) ||
+      (state.wheelsByTool["fortune-wheel"] || [])[0] ||
+      null,
   )
   const data = (wheel?.data as FortuneWheelData | undefined) ?? {
     entries: [],
@@ -180,8 +187,11 @@ export default function FortuneInputPanel({
   }
 
   return (
-    <div className="flex h-full min-h-[28rem] flex-col overflow-hidden rounded-lg border bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b bg-slate-50/80 px-3 py-2">
+    <div
+      className="flex max-h-[min(70vh,36rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-white shadow-sm"
+      style={desktopMaxHeight != null ? { maxHeight: desktopMaxHeight } : undefined}
+    >
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b bg-slate-50/80 px-3 py-2">
         <div>
           <p className="text-sm font-semibold text-slate-800">Fortune Controls</p>
           <p className="text-xs text-slate-500">
@@ -189,6 +199,17 @@ export default function FortuneInputPanel({
           </p>
         </div>
         <div className="flex items-center">
+          {onOpenAchievements && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-amber-600"
+              onClick={onOpenAchievements}
+              title="Achievements"
+            >
+              <Trophy className="h-4 w-4" />
+            </Button>
+          )}
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={shuffle} title="Shuffle">
             <Shuffle className="h-4 w-4" />
           </Button>
@@ -236,7 +257,7 @@ export default function FortuneInputPanel({
         ))}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3">
         {tab === "inputs" && (
           <div className="space-y-4">
             <div className="space-y-2">

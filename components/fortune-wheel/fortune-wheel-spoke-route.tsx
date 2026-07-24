@@ -10,7 +10,7 @@ export function fortuneWheelSpokeMetadata(spokeId: FortuneWheelSpokeId): Metadat
   return {
     title: { absolute: spoke.pageTitle }, description: spoke.description, keywords: [...spoke.keywords],
     alternates: { canonical: url }, robots: { index: true, follow: true },
-    openGraph: { title: spoke.pageTitle, description: spoke.description, url, siteName: "Picker Wheel",
+    openGraph: { title: spoke.pageTitle, description: spoke.description, url, siteName: "Spinifywheel",
       locale: "en_US", type: "website", images: [{ url: FORTUNE_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: spoke.h1 }] },
     twitter: { card: "summary_large_image", title: spoke.pageTitle, description: spoke.description, images: [FORTUNE_WHEEL_OG_IMAGE_URL] },
   }

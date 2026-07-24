@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: MLB_WHEEL_PAGE_TITLE,
     description: MLB_WHEEL_PAGE_DESCRIPTION,
     url: MLB_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [

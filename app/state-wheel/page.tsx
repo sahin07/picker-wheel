@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: STATE_WHEEL_PAGE_TITLE,
     description: STATE_WHEEL_PAGE_DESCRIPTION,
     url: STATE_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [

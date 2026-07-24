@@ -84,8 +84,11 @@ function WeightedWheelAppInner({
   const [activeUseCaseId, setActiveUseCaseId] = useState<WeightedWheelUseCaseId | null>(
     deepLink?.useCaseId ?? null,
   )
+  const [mounted, setMounted] = useState(false)
+  const [sidebarMaxHeight, setSidebarMaxHeight] = useState<number | null>(null)
   const searchParams = useSearchParams()
   const lastAppliedRef = useRef<WeightedWheelUseCaseId | null>(null)
+  const leftColRef = useRef<HTMLDivElement>(null)
 
   const { settings, loadFromDatabase: loadSettings, updateSettings } = useSettingsStore()
   const removeWinnerAfterSpin = useSettingsStore(
@@ -187,6 +190,32 @@ function WeightedWheelAppInner({
     const next = removeWinnerAfterSpin ? "elimination" : "normal"
     if (actionMode !== next) setActionMode(next)
   }, [actionMode, removeWinnerAfterSpin])
+
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    const el = leftColRef.current
+    if (!el || !showInputs || isFullscreen || viewMode !== "wheel") {
+      setSidebarMaxHeight(null)
+      return
+    }
+    const sync = () => {
+      if (typeof window === "undefined") return
+      if (window.matchMedia("(min-width: 1024px)").matches) {
+        setSidebarMaxHeight(Math.round(el.getBoundingClientRect().height))
+      } else {
+        setSidebarMaxHeight(null)
+      }
+    }
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    window.addEventListener("resize", sync)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener("resize", sync)
+    }
+  }, [mounted, showInputs, isFullscreen, viewMode, actionMode, currentTheme, entries.length])
 
   const syncActionMode = useCallback(
     (mode: "normal" | "elimination" | "manual") => {
@@ -302,11 +331,12 @@ function WeightedWheelAppInner({
 
           <div
             id="weighted-spin-wheel"
-            className="mb-6 grid min-w-0 gap-4 sm:mb-8 sm:gap-6 lg:grid-cols-3 lg:gap-8"
+            className="mb-6 grid min-w-0 items-start gap-4 sm:mb-8 sm:gap-6 lg:grid-cols-3 lg:gap-8"
           >
             {viewMode === "wheel" ? (
               <>
                 <div
+                  ref={leftColRef}
                   className={`relative min-w-0 overflow-x-hidden bg-white p-3 sm:p-6 ${
                     isFullscreen || !showInputs
                       ? "lg:col-span-3"
@@ -356,7 +386,7 @@ function WeightedWheelAppInner({
                   </div>
                 </div>
                 {showInputs && !isFullscreen && (
-                  <div className="min-w-0 self-start">
+                  <div className="min-w-0 self-start lg:col-span-1">
                     <WeightedInputPanel
                       actionMode={actionMode}
                       onActionModeChange={syncActionMode}
@@ -368,6 +398,7 @@ function WeightedWheelAppInner({
                       onThemeChange={selectTheme}
                       currentTheme={currentTheme}
                       themes={themes}
+                      desktopMaxHeight={sidebarMaxHeight}
                     />
                   </div>
                 )}

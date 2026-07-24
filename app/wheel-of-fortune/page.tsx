@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: FORTUNE_WHEEL_PAGE_TITLE,
     description: FORTUNE_WHEEL_PAGE_DESCRIPTION,
     url: FORTUNE_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [{ url: FORTUNE_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: FORTUNE_WHEEL_H1 }],

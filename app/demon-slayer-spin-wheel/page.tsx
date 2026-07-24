@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: DEMON_SLAYER_WHEEL_PAGE_TITLE,
     description: DEMON_SLAYER_WHEEL_PAGE_DESCRIPTION,
     url: DEMON_SLAYER_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     type: "website",
     images: [
       {

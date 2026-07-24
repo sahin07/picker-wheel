@@ -15,7 +15,7 @@ export function jjkWheelSpokeMetadata(spokeId: JjkWheelSpokeId): Metadata {
     robots: { index: true, follow: true },
     openGraph: {
       title: spoke.pageTitle, description: spoke.description, url,
-      siteName: "Picker Wheel", type: "website",
+      siteName: "Spinifywheel", type: "website",
       images: [{ url: JJK_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: spoke.h1 }],
     },
     twitter: { card: "summary_large_image", title: spoke.pageTitle, description: spoke.description, images: [JJK_WHEEL_OG_IMAGE_URL] },

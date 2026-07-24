@@ -4,10 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { createPortal } from "react-dom"
 import Confetti from "react-confetti"
-import { BarChart3, Gamepad2, Maximize2, Minimize2, Palette, Trophy, Users, Volume2, VolumeX } from "lucide-react"
+import { Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import PickerResultsModal from "@/components/picker-results-modal"
+import { WheelFeatureActions } from "@/components/wheel-feature-actions"
 import { WheelCanvas, resolveNumberFromRotation, type WheelCanvasHandle } from "@/components/wheel-canvas"
 import { getAllDemonSlayerEntries } from "@/data/demon-slayer-characters"
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes"
@@ -332,43 +333,14 @@ export default function DemonSlayerWheelSection({
       </div>
     )}
 
-    <div className="mb-2 grid w-full max-w-2xl grid-cols-5 gap-1.5 sm:gap-2">
-      {onOpenAchievements && (
-        <Button variant="outline" size="sm" onClick={onOpenAchievements}
-          className="h-auto min-w-0 border-yellow-300 bg-yellow-50 px-1.5 py-1.5 text-[10px] text-yellow-700 hover:bg-yellow-100 sm:px-2 sm:text-xs">
-          <Trophy className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
-          <span className="truncate">Achievements ({totalPoints})</span>
-        </Button>
-      )}
-      {onOpenThemeSelector && (
-        <Button variant="outline" size="sm" onClick={onOpenThemeSelector}
-          className="h-auto min-w-0 border-purple-300 bg-purple-50 px-1.5 py-1.5 text-[10px] text-purple-700 hover:bg-purple-100 sm:px-2 sm:text-xs">
-          <Palette className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
-          <span className="truncate">Themes</span>
-        </Button>
-      )}
-      {onOpenAnalytics && (
-        <Button variant="outline" size="sm" onClick={onOpenAnalytics}
-          className="h-auto min-w-0 border-green-300 bg-green-50 px-1.5 py-1.5 text-[10px] text-green-700 hover:bg-green-100 sm:px-2 sm:text-xs">
-          <BarChart3 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
-          <span className="truncate">Analytics</span>
-        </Button>
-      )}
-      {onOpenSocialHub && (
-        <Button variant="outline" size="sm" onClick={onOpenSocialHub}
-          className="h-auto min-w-0 border-orange-300 bg-orange-50 px-1.5 py-1.5 text-[10px] text-orange-700 hover:bg-orange-100 sm:px-2 sm:text-xs">
-          <Users className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
-          <span className="truncate">Social</span>
-        </Button>
-      )}
-      {onOpenGameModes && (
-        <Button variant="outline" size="sm" onClick={onOpenGameModes}
-          className="h-auto min-w-0 border-blue-300 bg-blue-50 px-1.5 py-1.5 text-[10px] text-blue-700 hover:bg-blue-100 sm:px-2 sm:text-xs">
-          <Gamepad2 className="mr-0.5 h-3 w-3 shrink-0 sm:mr-1" />
-          <span className="truncate">Games</span>
-        </Button>
-      )}
-    </div>
+    <WheelFeatureActions
+      totalPoints={totalPoints}
+      onOpenAchievements={onOpenAchievements}
+      onOpenThemeSelector={onOpenThemeSelector}
+      onOpenAnalytics={onOpenAnalytics}
+      onOpenSocialHub={onOpenSocialHub}
+      onOpenGameModes={onOpenGameModes}
+    />
 
     <PickerResultsModal
       isOpen={showResults}

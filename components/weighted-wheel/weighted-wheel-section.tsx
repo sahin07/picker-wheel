@@ -4,13 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Confetti from "react-confetti"
 import {
-  BarChart3,
-  Gamepad2,
   Maximize2,
   Minimize2,
-  Palette,
-  Trophy,
-  Users,
   Volume2,
   VolumeX,
 } from "lucide-react"
@@ -22,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { WheelFeatureActions } from "@/components/wheel-feature-actions"
 import { WheelCanvas, resolveNumberFromRotation } from "@/components/wheel-canvas"
 import { buildProbabilityStats } from "@/lib/giveaway-utils"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
@@ -352,23 +348,14 @@ export default function WeightedWheelSection({
           </p>
         )}
 
-        <div className="mb-4 mt-6 flex flex-wrap justify-center gap-2">
-          <Button variant="outline" size="sm" onClick={onOpenAchievements}>
-            <Trophy className="mr-1 h-3.5 w-3.5" /> Achievements ({totalPoints})
-          </Button>
-          <Button variant="outline" size="sm" onClick={onOpenThemeSelector}>
-            <Palette className="mr-1 h-3.5 w-3.5" /> Themes
-          </Button>
-          <Button variant="outline" size="sm" onClick={onOpenAnalytics}>
-            <BarChart3 className="mr-1 h-3.5 w-3.5" /> Analytics
-          </Button>
-          <Button variant="outline" size="sm" onClick={onOpenSocialHub}>
-            <Users className="mr-1 h-3.5 w-3.5" /> Social
-          </Button>
-          <Button variant="outline" size="sm" onClick={onOpenGameModes}>
-            <Gamepad2 className="mr-1 h-3.5 w-3.5" /> Games
-          </Button>
-        </div>
+        <WheelFeatureActions
+          totalPoints={totalPoints}
+          onOpenAchievements={onOpenAchievements}
+          onOpenThemeSelector={onOpenThemeSelector}
+          onOpenAnalytics={onOpenAnalytics}
+          onOpenSocialHub={onOpenSocialHub}
+          onOpenGameModes={onOpenGameModes}
+        />
 
         {canvasItems.length === 0 && (
           <p className="mt-3 text-center text-sm text-slate-500">

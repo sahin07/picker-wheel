@@ -249,7 +249,7 @@ export const FORTUNE_WHEEL_POPULAR_TEMPLATES: FortuneWheelLinkItem[] = [
     description: "Create an engaging giveaway or promotional prize spin.",
   },
   {
-    label: "Trending: Jess Coleman",
+    label: "Jess Coleman Wheel Picker",
     href: "/jess-coleman-wheel-of-fortune",
     description: "Open a customizable template inspired by trending search interest.",
   },

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: WEIGHTED_WHEEL_PAGE_TITLE,
     description: WEIGHTED_WHEEL_PAGE_DESCRIPTION,
     url: WEIGHTED_WHEEL_URL,
-    siteName: "Picker Wheel",
+    siteName: "Spinifywheel",
     locale: "en_US",
     type: "website",
     images: [{ url: WEIGHTED_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: WEIGHTED_WHEEL_H1 }],

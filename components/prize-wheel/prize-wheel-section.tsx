@@ -7,14 +7,27 @@ import Confetti from "react-confetti"
 import { Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { WheelFeatureActions } from "@/components/wheel-feature-actions"
 import { WheelCanvas, resolveNumberFromRotation } from "@/components/wheel-canvas"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
 import { useSettingsStore } from "@/stores/settings-store"
 import { useWheelManagerStore, type PrizeWheelData, type PrizeWheelEntry } from "@/stores/wheel-manager-store"
 
 type Props = {
-  currentTheme?: string; onSpinCompleted?: () => void; isFullscreen?: boolean
-  onToggleFullscreen?: () => void; removeWinnerAfterSpin?: boolean; showResultsButton?: boolean
+  currentTheme?: string
+  onSpinCompleted?: () => void
+  isFullscreen?: boolean
+  onToggleFullscreen?: () => void
+  removeWinnerAfterSpin?: boolean
+  showResultsButton?: boolean
+  isGameActive?: boolean
+  currentGameModeName?: string
+  onOpenAchievements?: () => void
+  onOpenThemeSelector?: () => void
+  onOpenAnalytics?: () => void
+  onOpenSocialHub?: () => void
+  onOpenGameModes?: () => void
+  totalPoints?: number
 }
 const EMPTY: PrizeWheelData = {
   entries: [], viewMode: "wheel", actionMode: "normal", isSpinning: false,
@@ -24,6 +37,9 @@ const EMPTY: PrizeWheelData = {
 export default function PrizeWheelSection({
   currentTheme = "classic", onSpinCompleted, isFullscreen = false,
   onToggleFullscreen, removeWinnerAfterSpin = false, showResultsButton = true,
+  isGameActive = false, currentGameModeName,
+  onOpenAchievements, onOpenThemeSelector, onOpenAnalytics, onOpenSocialHub, onOpenGameModes,
+  totalPoints = 0,
 }: Props) {
   const wheel = useWheelManagerStore((state) => {
     const prizeWheels = state.wheelsByTool["prize-wheel"] || []
@@ -181,6 +197,31 @@ export default function PrizeWheelSection({
           <p className="mt-1 text-2xl font-bold text-amber-950">{selectedResult.name}</p>
           {selectedResult.winMessage && <p className="mt-2 text-sm text-slate-700">{selectedResult.winMessage}</p>}
         </div>}
+
+        <div className="mt-4 flex justify-center">
+          <div className="rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 px-4 py-2 text-white shadow-lg">
+            <div className="text-center">
+              <div className="text-2xl font-bold">{data.totalSpins || 0}</div>
+              <div className="text-sm opacity-90">Total Spins</div>
+            </div>
+          </div>
+        </div>
+
+        {isGameActive && currentGameModeName && (
+          <div className="mt-3 w-full max-w-md rounded-lg border-2 border-amber-300 bg-gradient-to-r from-amber-100 to-rose-100 p-2.5 sm:p-3">
+            <p className="text-xs font-semibold text-amber-800 sm:text-sm">Playing: {currentGameModeName}</p>
+          </div>
+        )}
+
+        <WheelFeatureActions
+          totalPoints={totalPoints}
+          onOpenAchievements={onOpenAchievements}
+          onOpenThemeSelector={onOpenThemeSelector}
+          onOpenAnalytics={onOpenAnalytics}
+          onOpenSocialHub={onOpenSocialHub}
+          onOpenGameModes={onOpenGameModes}
+        />
+
         {!canvasItems.length && <p className="mt-4 text-sm text-slate-500">Add and enable at least one prize to spin.</p>}
       </div>
       <Dialog open={showResults} onOpenChange={setShowResults}>

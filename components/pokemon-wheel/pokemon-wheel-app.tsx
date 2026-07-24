@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { PanelRightOpen } from "lucide-react"
 import Confetti from "react-confetti"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import { ToolPageTitle } from "@/components/tool-favorite-star"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
@@ -1766,6 +1767,7 @@ function PokemonWheelAppInner({
             )}
           </div>
 
+          <ToolBreadcrumbs />
           {seoIntro}
           {seoSections}
         </main>

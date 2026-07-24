@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { useWheelPicker } from "@/hooks/use-wheel-picker"
 import { useGameModes } from "@/hooks/use-game-modes"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import { ToolPageTitle } from "@/components/tool-favorite-star"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
@@ -971,7 +972,8 @@ function InnerImagePickerWheelPage({
         </div>
       </main>
 
-      {seoIntro}
+      <ToolBreadcrumbs />
+          {seoIntro}
       {seoSections}
 
       <GameSelectionDialog

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, type ReactNode, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import { SpinWheel } from "@/components/letter-picker/spin-wheel"
 import { InputPanel } from "@/components/letter-picker/input-panel"
@@ -806,7 +807,8 @@ function LetterPickerWheelAppInner({
               )}
             </div>
 
-            {seoIntro}
+            <ToolBreadcrumbs />
+          {seoIntro}
             {seoSections}
           </main>
         )}

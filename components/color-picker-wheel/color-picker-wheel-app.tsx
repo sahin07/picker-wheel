@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, type ReactNode } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import { Badge } from "@/components/ui/badge"
 import { ColorPickerWheel } from "@/components/color-picker-wheel"
@@ -138,7 +139,8 @@ function ColorPickerWheelAppInner({
               deepLink={resolvedDeepLink}
             />
 
-            {seoIntro}
+            <ToolBreadcrumbs />
+          {seoIntro}
             {seoSections}
           </main>
 

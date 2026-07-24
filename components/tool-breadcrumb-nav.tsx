@@ -12,10 +12,13 @@ export function ToolBreadcrumbNav({
   crumbs,
   pathname,
   withSchema = true,
+  placement = "content",
 }: {
   crumbs: ToolBreadcrumbCrumb[]
   pathname: string
   withSchema?: boolean
+  /** `content` sits below the tool UI; `header` is the old top chrome style */
+  placement?: "content" | "header"
 }) {
   if (crumbs.length < 2) return null
 
@@ -33,15 +36,24 @@ export function ToolBreadcrumbNav({
     }),
   }
 
+  const shellClass =
+    placement === "header"
+      ? "w-full border-b border-gray-100 bg-slate-50/80"
+      : "mb-6 mt-2 w-full border-t border-slate-200 pt-4"
+  const navClass =
+    placement === "header"
+      ? "w-full px-3 py-2 sm:px-6 lg:px-8"
+      : "w-full py-1"
+
   return (
-    <div className="w-full border-b border-gray-100 bg-slate-50/80">
+    <div className={shellClass}>
       {withSchema && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       )}
-      <nav aria-label="Breadcrumb" className="w-full px-3 py-2 sm:px-6 lg:px-8">
+      <nav aria-label="Breadcrumb" className={navClass}>
         <ol className="flex flex-wrap items-center gap-1.5 font-spin-display text-xs font-semibold text-slate-500 sm:text-sm">
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1

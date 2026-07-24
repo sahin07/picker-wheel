@@ -41,6 +41,7 @@ export default function SpinWheelsCategoriesPage() {
       <ToolBreadcrumbNav
         pathname={SPIN_WHEELS_BASE_PATH}
         crumbs={getToolBreadcrumbTrail(SPIN_WHEELS_BASE_PATH)}
+        placement="header"
       />
 
       <main className="flex-1 py-12 md:py-16">

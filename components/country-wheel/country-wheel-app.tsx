@@ -10,6 +10,7 @@ import {
 } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import CountryWheelSection from "@/components/country-wheel-section"
 import CountryAIWheelSection from "@/components/country-ai-wheel-section"
@@ -599,7 +600,7 @@ function CountryWheelAppInner({
             )}
           </div>
 
-          {!isFullscreen && seoIntro}
+          {!isFullscreen && (<><ToolBreadcrumbs />{seoIntro}</>)}
           {!isFullscreen && seoSections}
         </main>
 

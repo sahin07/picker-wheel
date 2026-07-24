@@ -25,8 +25,6 @@ import {
   SPIN_WHEELS_BASE_PATH,
   type WheelItem,
 } from "@/lib/wheel-categories";
-import ToolBreadcrumbs from "@/components/tool-breadcrumbs";
-
 const CREATE_WHEEL_HREF = "/create-custom-wheel-spinner";
 
 function CreateWheelButton({ className }: { className?: string }) {
@@ -238,8 +236,6 @@ export default function Header({ onOpenSettings, onOpenGames }: HeaderProps) {
           </div>
         </div>
       </div>
-
-      <ToolBreadcrumbs />
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="right" className="flex w-[min(100%,20rem)] flex-col gap-0 p-0">

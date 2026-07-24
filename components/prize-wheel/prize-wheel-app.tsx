@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type React
 import { useSearchParams } from "next/navigation"
 import { PanelRightOpen } from "lucide-react"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
 import PickerWheelAnalyticsDisplay from "@/components/picker-wheel-analytics-display"
@@ -162,7 +163,7 @@ function PrizeWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubtitle, d
           onThemeChange={selectTheme} currentTheme={currentTheme} themes={themes} />
           {!entries.length && <p className="mt-3 text-center text-sm text-slate-500">Add prizes to build your wheel.</p>}</div>}
       </div>
-      {!isFullscreen && seoIntro}{!isFullscreen && seoSections}
+      {!isFullscreen && (<><ToolBreadcrumbs />{seoIntro}</>)}{!isFullscreen && seoSections}
     </main>
     {!isFullscreen && <Footer />}
     <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, type ReactNode } from "react"
 import dynamic from "next/dynamic"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import EnhancedWheelSection from "@/components/enhanced-wheel-section"
 import { HomeNamePickerTemplates } from "@/components/home/home-name-picker-templates"
 import { Button } from "@/components/ui/button"
@@ -715,6 +716,7 @@ export default function HomeWheelApp({
             />
           )}
 
+          <ToolBreadcrumbs />
           {seoIntro}
 
           <TemplateSection onSelectTemplate={setTemplateOptions} />

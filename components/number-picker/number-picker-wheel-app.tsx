@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, type ReactNode } from "react"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import { NumberPickerWheel } from "@/components/number-picker-wheel"
 import SettingsPanel from "@/components/settings-panel"
@@ -77,6 +78,7 @@ export default function NumberPickerWheelApp({
             <NumberPickerWheel openGamesSignal={openGamesSignal} />
           </Suspense>
 
+          <ToolBreadcrumbs />
           {seoIntro}
           {seoSections}
         </main>

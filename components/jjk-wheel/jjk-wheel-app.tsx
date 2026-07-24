@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { PanelRightOpen } from "lucide-react"
 import Footer from "@/components/footer"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import PickerWheelAchievementsDisplay from "@/components/picker-wheel-achievements-display"
 import PickerWheelAnalyticsDisplay from "@/components/picker-wheel-analytics-display"
 import PickerWheelGameModes from "@/components/picker-wheel-game-modes"
@@ -352,7 +353,7 @@ function JjkWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubtitle, dee
           </div>
         )}
       </div>
-      {!isFullscreen && seoIntro}{!isFullscreen && seoSections}
+      {!isFullscreen && (<><ToolBreadcrumbs />{seoIntro}</>)}{!isFullscreen && seoSections}
     </main>
     {!isFullscreen && showFooter && <Footer />}
     <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />

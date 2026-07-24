@@ -11,6 +11,7 @@ import {
 import { useSearchParams } from "next/navigation"
 import { PanelRightOpen } from "lucide-react"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
 import PickerWheelAchievementsDisplay from "@/components/picker-wheel-achievements-display"
@@ -390,7 +391,7 @@ function WeightedWheelAppInner({
             )}
           </div>
 
-          {!isFullscreen && seoIntro}
+          {!isFullscreen && (<><ToolBreadcrumbs />{seoIntro}</>)}
           {!isFullscreen && seoSections}
         </main>
         {!isFullscreen && <Footer />}

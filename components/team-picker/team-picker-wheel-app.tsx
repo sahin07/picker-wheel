@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
 import GeminiAIChat from "@/components/gemini-ai-chat"
@@ -160,7 +161,8 @@ function TeamPickerWheelAppInner({
           openGamesSignal={openGamesSignal}
         />
 
-        {seoIntro}
+        <ToolBreadcrumbs />
+          {seoIntro}
         {seoSections}
       </main>
 

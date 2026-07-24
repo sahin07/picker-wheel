@@ -92,6 +92,7 @@ export default async function SpinWheelCategoryPage({ params }: PageProps) {
       <ToolBreadcrumbNav
         pathname={categoryPath}
         crumbs={getToolBreadcrumbTrail(categoryPath)}
+        placement="header"
       />
 
       <main className="flex-1 py-10 md:py-14">

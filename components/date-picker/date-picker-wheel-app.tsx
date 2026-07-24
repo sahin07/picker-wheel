@@ -34,6 +34,7 @@ import type { DateRange } from "react-day-picker"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import { ToolPageTitle } from "@/components/tool-favorite-star"
 import Footer from "@/components/footer"
 import SettingsPanel from "@/components/settings-panel"
@@ -1885,6 +1886,7 @@ function InnerDatePickerWheelPage({
 
       {!isFullscreen && (
         <>
+          <ToolBreadcrumbs />
           {seoIntro}
           {seoSections}
           <Footer />

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Header from "@/components/header";
+import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs";
 import { ToolPageTitle } from "@/components/tool-favorite-star";
 import Footer from "@/components/footer";
 import PickerResultsModal from "@/components/picker-results-modal";
@@ -1935,7 +1936,7 @@ function LolWheelAppInner({
             )}
           </div>
 
-          {!isFullscreen && seoIntro}
+          {!isFullscreen && (<><ToolBreadcrumbs />{seoIntro}</>)}
           {!isFullscreen && seoSections}
         </main>
 

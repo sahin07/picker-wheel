@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import { ToolPageTitle } from "@/components/tool-favorite-star"
 import MLBWheelSection from "@/components/mlb-wheel-section"
@@ -630,6 +631,7 @@ function MlbWheelAppInner({
             )}
           </div>
 
+          <ToolBreadcrumbs />
           {seoIntro}
           {seoSections}
         </main>

@@ -296,6 +296,17 @@ export default function Footer() {
 
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm font-medium text-gray-300">
           <p>&copy; {new Date().getFullYear()} Picker Wheel. All rights reserved.</p>
+          <p className="mt-2">
+            Developed by{" "}
+            <a
+              href="https://solvebytez.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white underline-offset-2 hover:underline"
+            >
+              Solvebytez
+            </a>
+          </p>
         </div>
       </div>
     </footer>

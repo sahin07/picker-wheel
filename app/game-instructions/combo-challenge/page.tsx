@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Flame, Play, Trophy, Users, CheckCircle, Target, Zap, TrendingUp } from "lucide-react"
 
-export const metadata = {
-  title: 'Combo Challenge - How to Play | Picker Wheel Game Instructions',
-  description: 'Learn how to play Combo Challenge mode in our Picker Wheel tool. Chain spins for massive rewards with increasing multipliers!',
-  keywords: 'picker wheel, combo challenge, chain spins, multipliers, wheel spinner, decision maker, combo game',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/combo-challenge`
+const PAGE_TITLE = "Combo Challenge | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Combo Challenge—chain spins for bigger rewards."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function ComboChallengeInstructionsPage() {

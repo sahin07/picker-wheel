@@ -13,6 +13,7 @@ import {
   SPIN_WHEELS_BASE_PATH,
   WHEEL_CATEGORIES,
 } from "@/lib/wheel-categories"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
 
 type PageProps = {
   params: Promise<{ category: string }>
@@ -27,22 +28,63 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category: categoryId } = await params
+  const path = `${SPIN_WHEELS_BASE_PATH}/${categoryId}`
+  const url = `${HOME_SITE_URL}${path}`
 
   if (categoryId === ALL_WHEELS_ENTRY.id) {
+    const title = "All Wheels | Browse Every Picker Wheel Tool"
     return {
-      title: "All Wheels | Picker Wheel",
+      title: { absolute: title },
       description: ALL_WHEELS_ENTRY.description,
+      alternates: { canonical: url },
+      robots: { index: true, follow: true },
+      openGraph: {
+        title,
+        description: ALL_WHEELS_ENTRY.description,
+        url,
+        siteName: "Picker Wheel",
+        type: "website",
+        images: [
+          { url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: title },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description: ALL_WHEELS_ENTRY.description,
+        images: [HOME_OG_IMAGE_URL],
+      },
     }
   }
 
   const category = getCategoryById(categoryId)
   if (!category) {
-    return { title: "Category Not Found | Picker Wheel" }
+    return {
+      title: { absolute: "Category Not Found | Picker Wheel" },
+      robots: { index: false, follow: true },
+    }
   }
 
+  const title = `${category.title} Wheels | Picker Wheel Directory`
   return {
-    title: `${category.title} Wheels | Picker Wheel`,
+    title: { absolute: title },
     description: category.description,
+    alternates: { canonical: url },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description: category.description,
+      url,
+      siteName: "Picker Wheel",
+      type: "website",
+      images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: category.description,
+      images: [HOME_OG_IMAGE_URL],
+    },
   }
 }
 

@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Star, Play, Trophy, Users, CheckCircle, Timer } from "lucide-react"
 
-export const metadata = {
-  title: 'Collection Race - Picker Wheel Game Instructions',
-  description: 'Learn how to play Collection Race mode in our Picker Wheel tool. Collect all unique items as fast as possible!',
-  keywords: 'picker wheel, collection race, collection game, wheel spinner, decision maker, speed challenge',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/collection-race`
+const PAGE_TITLE = "Collection Race | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Collection Race—collect all unique wheel items as fast as possible."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function CollectionRaceInstructionsPage() {

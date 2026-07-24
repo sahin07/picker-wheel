@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Gamepad2, Play, Trophy, Users, CheckCircle, Target, Zap, DollarSign } from "lucide-react"
 
-export const metadata = {
-  title: 'Wheel Roulette - How to Play | Picker Wheel Game Instructions',
-  description: 'Learn how to play Wheel Roulette mode in our Picker Wheel tool. Bet on wheel outcomes and win big with strategic predictions!',
-  keywords: 'picker wheel, wheel roulette, betting game, prediction game, wheel spinner, decision maker, gambling simulation',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/wheel-roulette`
+const PAGE_TITLE = "Wheel Roulette | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Wheel Roulette—bet on wheel outcomes in roulette-style rounds."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function WheelRouletteInstructionsPage() {

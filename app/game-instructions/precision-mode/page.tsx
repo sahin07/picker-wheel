@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Crown, Play, Trophy, Users, CheckCircle, Target, Zap, Crosshair } from "lucide-react"
 
-export const metadata = {
-  title: 'Precision Mode - How to Play | Picker Wheel Game Instructions',
-  description: 'Learn how to play Precision Mode in our Picker Wheel tool. Hit specific targets for maximum points with pinpoint accuracy!',
-  keywords: 'picker wheel, precision mode, target practice, accuracy game, wheel spinner, decision maker, precision challenge',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/precision-mode`
+const PAGE_TITLE = "Precision Mode | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Precision Mode—hit specific targets for maximum points."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function PrecisionModeInstructionsPage() {

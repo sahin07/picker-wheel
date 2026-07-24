@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Clock, Play, Trophy, Users, CheckCircle, Zap, Timer, Target } from "lucide-react"
 
-export const metadata = {
-  title: 'Speed Challenge - How to Play | Picker Wheel Game Instructions',
-  description: 'Learn how to play Speed Challenge mode in our Picker Wheel tool. Make decisions under pressure with time-limited spinning!',
-  keywords: 'picker wheel, speed challenge, time pressure, fast decisions, wheel spinner, decision maker, speed game',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/speed-challenge`
+const PAGE_TITLE = "Speed Challenge | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Speed Challenge—make decisions under pressure."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function SpeedChallengeInstructionsPage() {

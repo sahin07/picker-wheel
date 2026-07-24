@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Grid3X3, Play, Trophy, Users, CheckCircle } from "lucide-react"
 
-export const metadata = {
-  title: 'Spin Bingo - Picker Wheel Game Instructions',
-  description: 'Learn how to play Spin Bingo mode in our Picker Wheel tool. Mark off items on your bingo card by spinning and get 3 in a row to win!',
-  keywords: 'picker wheel, spin bingo, bingo game, wheel spinner, decision maker, bingo challenge',
+import type { Metadata } from "next"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+
+const PAGE_URL = `${HOME_SITE_URL}/game-instructions/spin-bingo`
+const PAGE_TITLE = "Spin Bingo | Picker Wheel Game Instructions"
+const PAGE_DESCRIPTION = "Learn Spin Bingo—mark off bingo card items by spinning the picker wheel."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [{ url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
 }
 
 export default function SpinBingoInstructionsPage() {

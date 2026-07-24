@@ -26,5 +26,8 @@ export default function ToolBreadcrumbs() {
   }
 
   const crumbs = getToolBreadcrumbTrail(pathname)
-  return <ToolBreadcrumbNav crumbs={crumbs} pathname={pathname} />
+  // Tool pillars already emit BreadcrumbList JSON-LD — avoid duplicate schema here
+  return (
+    <ToolBreadcrumbNav crumbs={crumbs} pathname={pathname} withSchema={false} />
+  )
 }

@@ -1,40 +1,35 @@
-"use client"
+import type { Metadata } from "next"
+import CreateCustomWheelSpinnerClient from "./create-custom-wheel-client"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
 
-import { useState } from "react"
-import Header from "@/components/header"
-import SettingsPanel from "@/components/settings-panel"
-import CreateCustomWheelForm from "@/components/custom-wheel/create-form"
-import { PlusCircle } from "lucide-react"
-import { SettingsProvider } from "@/contexts/settings-context"
+const PAGE_URL = `${HOME_SITE_URL}/create-custom-wheel-spinner`
+const PAGE_TITLE = "Create Custom Wheel Spinner | Shareable Spin Wheel"
+const PAGE_DESCRIPTION =
+  "Create a custom spin wheel with your own options, save it on this device, and share a link—no account required."
+
+export const metadata: Metadata = {
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: PAGE_URL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: PAGE_URL,
+    siteName: "Picker Wheel",
+    type: "website",
+    images: [
+      { url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
+  },
+}
 
 export default function CreateCustomWheelSpinnerPage() {
-  const [showSettings, setShowSettings] = useState(false)
-
-  return (
-    <SettingsProvider>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50">
-        <Header onOpenSettings={() => setShowSettings(true)} />
-        <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-                <PlusCircle className="h-6 w-6" />
-              </span>
-              <div>
-                <h1 className="font-spin-display text-2xl font-bold text-slate-800">
-                  Create Custom Wheel
-                </h1>
-                <p className="text-sm text-slate-500">
-                  Name becomes the URL. Saved on this device — share links work without a database.
-                </p>
-              </div>
-            </div>
-
-            <CreateCustomWheelForm />
-          </div>
-        </main>
-        <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
-      </div>
-    </SettingsProvider>
-  )
+  return <CreateCustomWheelSpinnerClient />
 }

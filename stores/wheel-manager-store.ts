@@ -1,17 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { getStatesByCountry, State } from "@/data/states";
-import { Country, getCountriesByRegion } from "@/data/countries";
-import { mlbTeams } from "@/data/mlb-teams";
-import { nbaTeams } from "@/data/nba-teams";
-import {
-  getAllFortniteSkins,
-  getFortniteSkinCountsByRarity,
-} from "@/data/fortnite-skins";
-import { pokemonData } from "@/data/pokemon-data";
-import { lolChampions } from "@/data/lol-champions";
-import { jjkCharacters } from "@/data/jjk-characters";
-import { demonSlayerCharacters } from "@/data/demon-slayer-characters";
+import type { State } from "@/data/states";
+import type { Country } from "@/data/countries";
 import type { ActionMode, DisplayMode, JjkEntry, SpinResult } from "@/types/jjk-types";
 import type {
   ActionMode as DemonSlayerActionMode,
@@ -19,9 +9,52 @@ import type {
   DemonSlayerEntry,
   SpinResult as DemonSlayerSpinResult,
 } from "@/types/demon-slayer-types";
-import { ACHIEVEMENTS } from "@/lib/letter-picker-constants";
 import { PICKER_WHEEL_ACHIEVEMENTS } from "@/lib/picker-wheel-achievements";
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes";
+import {
+  buildHeavyToolSeedData,
+  needsHeavyDefaultHydration,
+} from "@/lib/tool-heavy-defaults";
+
+const HEAVY_TOOL_TYPES = new Set([
+  "state-wheel",
+  "country-wheel",
+  "mlb-wheel",
+  "nba-wheel",
+  "fortnite-wheel",
+  "pokemon-wheel",
+  "lol-wheel",
+  "jjk-wheel",
+  "demon-slayer-wheel",
+  "letter-picker-wheel",
+]);
+
+/** Fill heavy tool lists after create — keeps home bundle free of huge datasets. */
+function scheduleHeavyToolHydration(
+  toolType: string,
+  wheelId: string,
+  getState: () => WheelManagerStore,
+) {
+  if (!HEAVY_TOOL_TYPES.has(toolType)) return;
+  void (async () => {
+    try {
+      const seed = await buildHeavyToolSeedData(toolType);
+      if (!seed) return;
+      const state = getState();
+      const wheel = (state.wheelsByTool[toolType] || []).find((w) => w.id === wheelId);
+      if (!wheel?.data) return;
+      if (!needsHeavyDefaultHydration(toolType, wheel.data as Record<string, unknown>)) {
+        return;
+      }
+      state.updateWheelData(toolType, wheelId, {
+        ...(wheel.data as object),
+        ...seed,
+      });
+    } catch (error) {
+      console.error(`Failed to hydrate defaults for ${toolType}:`, error);
+    }
+  })();
+}
 
 export interface PickerWheelData {
   options: Array<{
@@ -890,7 +923,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
         } else if (toolType === "state-wheel") {
           data = {
             selectedCountry: "US",
-            selectedStates: getStatesByCountry("US").slice(),
+            selectedStates: [], // hydrated async — keeps home JS lean
             displayMode: "name",
             viewMode: "wheel",
             favoriteStates: [],
@@ -911,7 +944,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
         } else if (toolType === "country-wheel") {
           data = {
             selectedRegion: "all",
-            selectedCountries: getCountriesByRegion("all"),
+            selectedCountries: [], // hydrated async — keeps home JS lean
             displayMode: "name",
             viewMode: "wheel",
             favoriteCountries: [],
@@ -996,7 +1029,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             streak: 0,
             score: 0,
             spunLetters: [],
-            achievements: [...ACHIEVEMENTS],
+            achievements: [], // hydrated async from letter-picker constants
             wheelTitle: "Random Letter Picker",
             wheelDescription:
               "Generate random letters instantly for word games, Scrabble practice, classroom activities, and creative writing.",
@@ -1069,7 +1102,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
         } else if (toolType === "mlb-wheel") {
           data = {
             selectedLeague: "all",
-            selectedTeams: mlbTeams, // Initialize with all MLB teams
+            selectedTeams: [], // hydrated async
             displayMode: "name",
             viewMode: "wheel",
             favoriteTeams: [],
@@ -1090,7 +1123,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
         } else if (toolType === "nba-wheel") {
           data = {
             selectedConference: "all",
-            selectedTeams: nbaTeams,
+            selectedTeams: [], // hydrated async
             actionMode: "normal",
             displayMode: "name",
             viewMode: "wheel",
@@ -1110,15 +1143,9 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             spinHistory: [],
           } as NBAWheelData;
         } else if (toolType === "fortnite-wheel") {
-          const allSkins = getAllFortniteSkins();
-          const allSkinIds = allSkins.map((skin) => skin.id);
-          const stats: Record<string, number> = {
-            ...getFortniteSkinCountsByRarity(),
-          };
-
           data = {
             selectedRarity: "all",
-            selectedSkins: allSkinIds,
+            selectedSkins: [], // hydrated async
             displayMode: "emoji-name",
             actionMode: "normal",
             totalSpins: 0,
@@ -1143,18 +1170,8 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             enableConfetti: true,
             backgroundColor: "#ffffff",
             // AI Features
-            aiRecommendations: allSkins
-              .filter(
-                (skin) =>
-                  skin.season.includes("Marvel") ||
-                  skin.season.includes("DC") ||
-                  skin.season.includes("Star Wars") ||
-                  skin.rarity === "Legendary" ||
-                  skin.rarity === "Mythic"
-              )
-              .slice(0, 6)
-              .map((skin) => skin.id),
-            skinStats: stats,
+            aiRecommendations: [],
+            skinStats: {},
             aiQuery: "",
             aiResponse: "",
             aiLoading: false,
@@ -1186,17 +1203,9 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             },
           } as FortniteWheelData;
         } else if (toolType === "pokemon-wheel") {
-          const allPokemon = Object.values(pokemonData).flat();
-          const allPokemonIds = allPokemon.map((pokemon) => pokemon.id);
-          const stats: Record<string, number> = {};
-          Object.keys(pokemonData).forEach((generation) => {
-            stats[generation] =
-              pokemonData[generation as keyof typeof pokemonData].length;
-          });
-
           data = {
             selectedGeneration: "all",
-            selectedPokemon: allPokemonIds,
+            selectedPokemon: [], // hydrated async
             displayMode: "emoji-name",
             actionMode: "normal",
             totalSpins: 0,
@@ -1222,16 +1231,8 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             enableConfetti: true,
             backgroundColor: "#ffffff",
             // AI Features
-            aiRecommendations: allPokemon
-              .filter(
-                (pokemon) =>
-                  pokemon.isLegendary ||
-                  pokemon.isStarter ||
-                  pokemon.popularity === "high"
-              )
-              .slice(0, 6)
-              .map((pokemon) => pokemon.id),
-            pokemonStats: stats,
+            aiRecommendations: [],
+            pokemonStats: {},
             aiQuery: "",
             aiResponse: "",
             aiLoading: false,
@@ -1263,18 +1264,10 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             },
           } as PokemonWheelData;
         } else if (toolType === "lol-wheel") {
-          const allChampions = Object.values(lolChampions).flat();
-          const allChampionIds = allChampions.map((champion) => champion.id);
-          const stats: Record<string, number> = {};
-          Object.keys(lolChampions).forEach((role) => {
-            stats[role] =
-              lolChampions[role as keyof typeof lolChampions].length;
-          });
-
           data = {
             selectedRole: "all",
-            selectedChampions: allChampionIds,
-            championOrder: allChampionIds,
+            selectedChampions: [], // hydrated async
+            championOrder: [],
             displayMode: "emoji-name",
             actionMode: "normal",
             totalSpins: 0,
@@ -1299,17 +1292,8 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             enableConfetti: true,
             backgroundColor: "#ffffff",
             // AI Features
-            aiRecommendations: allChampions
-              .filter(
-                (champion) =>
-                  champion.popularity === "high" ||
-                  champion.isProPlay ||
-                  champion.role === "adc" ||
-                  champion.role === "mid"
-              )
-              .slice(0, 6)
-              .map((champion) => champion.id),
-            championStats: stats,
+            aiRecommendations: [],
+            championStats: {},
             aiQuery: "",
             aiResponse: "",
             aiLoading: false,
@@ -1343,10 +1327,9 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             },
           } as LoLWheelData;
         } else if (toolType === "jjk-wheel") {
-          const characterIds = jjkCharacters.map((character) => character.id);
           data = {
-            selectedCharacters: characterIds,
-            characterOrder: characterIds,
+            selectedCharacters: [], // hydrated async
+            characterOrder: [],
             customCharacters: [],
             displayMode: "emoji-name",
             actionMode: "normal",
@@ -1365,10 +1348,9 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             comparisonCharacters: [],
           } as JjkWheelData;
         } else if (toolType === "demon-slayer-wheel") {
-          const characterIds = demonSlayerCharacters.map((character) => character.id);
           data = {
-            selectedCharacters: characterIds,
-            characterOrder: characterIds,
+            selectedCharacters: [], // hydrated async
+            characterOrder: [],
             customCharacters: [],
             displayMode: "emoji-name",
             actionMode: "normal",
@@ -1497,6 +1479,8 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
 
           return newState;
         });
+
+        scheduleHeavyToolHydration(toolType, newWheel.id, get);
 
         return newWheel.id;
       },

@@ -4,14 +4,14 @@ import "./globals.css"
 
 const fredoka = Fredoka({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["500", "700"],
   variable: "--font-spin-display",
   display: "swap",
 })
 
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700"],
   variable: "--font-spin-body",
   display: "swap",
 })

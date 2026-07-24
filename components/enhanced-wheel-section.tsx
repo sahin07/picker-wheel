@@ -385,14 +385,28 @@ export default function EnhancedWheelSection({
     currentRotationRef.current = currentRotation
   }, [currentRotation])
 
-  // Show loading state during SSR and initial client render
+  // Show painted wheel-sized shell during SSR / before hydrate (improves LCP)
   if (!isClient) {
     return (
       <div
-        className="flex w-full max-w-[680px] flex-col items-center"
+        className="relative flex w-full max-w-[680px] flex-col items-center justify-center"
         style={{ aspectRatio: "1 / 1", maxHeight: "min(100vw - 2rem, 680px)" }}
-        aria-hidden
-      />
+        aria-busy="true"
+        aria-label="Loading wheel"
+      >
+        <div
+          className="relative w-[min(100%,680px)] overflow-hidden rounded-full shadow-lg"
+          style={{
+            aspectRatio: "1 / 1",
+            background:
+              "conic-gradient(#4ade80 0deg 60deg, #fbbf24 60deg 120deg, #f97316 120deg 180deg, #84cc16 180deg 240deg, #eab308 240deg 300deg, #22c55e 300deg 360deg)",
+          }}
+        >
+          <div className="absolute inset-[18%] rounded-full bg-white/90 shadow-inner" />
+          <div className="absolute left-1/2 top-0 z-10 h-0 w-0 -translate-x-1/2 border-l-[14px] border-r-[14px] border-t-[28px] border-l-transparent border-r-transparent border-t-red-500" />
+        </div>
+        <div className="mt-4 h-10 w-28 animate-pulse rounded-full bg-gray-200" />
+      </div>
     )
   }
 

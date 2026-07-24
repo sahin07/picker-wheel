@@ -60,13 +60,19 @@ export async function GET() {
   const provider =
     process.env.AI_PROVIDER ||
     process.env.NEXT_PUBLIC_AI_PROVIDER ||
-    "ollama"
+    "openrouter"
 
   return NextResponse.json({
     status: "AI API is running",
     provider,
-    providers: ["ollama", "openai", "gemini"],
+    providers: ["openrouter", "ollama", "openai", "gemini"],
     features: ["Chat", "Analysis", "Generator"],
+    openrouter: {
+      defaultUrl: "https://openrouter.ai/api/v1/chat/completions",
+      defaultModel: "nvidia/nemotron-3-ultra-550b-a55b:free",
+      setup:
+        "Create a key at https://openrouter.ai/keys, set AI_PROVIDER=openrouter and AI_API_KEY",
+    },
     ollama: {
       defaultUrl: "http://localhost:11434/v1/chat/completions",
       defaultModel: "llama3.2",

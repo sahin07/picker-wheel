@@ -27,7 +27,7 @@ export interface AIInputRequest {
   category: string
 }
 
-export type AIProvider = "ollama" | "openai" | "gemini"
+export type AIProvider = "ollama" | "openai" | "gemini" | "openrouter"
 
 export interface AIConfig {
   apiKey: string
@@ -70,6 +70,12 @@ class AIService {
       }
       if (this.config.apiKey) {
         headers.Authorization = `Bearer ${this.config.apiKey}`
+      }
+      // OpenRouter ranking / attribution headers (safe for OpenAI-compatible too)
+      if (this.baseUrl.includes("openrouter.ai")) {
+        headers["HTTP-Referer"] =
+          process.env.NEXT_PUBLIC_SITE_URL || "https://spinifywheel.com"
+        headers["X-Title"] = "Picker Wheel"
       }
 
       const response = await fetch(this.baseUrl, {
@@ -519,7 +525,7 @@ function getAIConfig(): AIConfig {
     model:
       process.env.AI_MODEL ||
       process.env.NEXT_PUBLIC_AI_MODEL ||
-      "llama3.2",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
     maxTokens: Number(
       process.env.AI_MAX_TOKENS || process.env.NEXT_PUBLIC_AI_MAX_TOKENS || 500
     ),
@@ -534,7 +540,7 @@ export function createAIService(): AIService {
   const provider = (
     process.env.AI_PROVIDER ||
     process.env.NEXT_PUBLIC_AI_PROVIDER ||
-    "ollama"
+    "openrouter"
   ).toLowerCase() as AIProvider
   const config = getAIConfig()
 
@@ -547,11 +553,24 @@ export function createAIService(): AIService {
         baseUrl:
           config.baseUrl || "https://api.openai.com/v1/chat/completions",
       })
+    case "openrouter":
+      return new AIService({
+        ...config,
+        model: config.model || "nvidia/nemotron-3-ultra-550b-a55b:free",
+        baseUrl:
+          config.baseUrl || "https://openrouter.ai/api/v1/chat/completions",
+      })
     case "ollama":
-    default:
       return new OllamaService(config)
+    default:
+      return new AIService({
+        ...config,
+        model: config.model || "nvidia/nemotron-3-ultra-550b-a55b:free",
+        baseUrl:
+          config.baseUrl || "https://openrouter.ai/api/v1/chat/completions",
+      })
   }
 }
 
-// Default to Ollama (local open-source models). Set AI_PROVIDER=gemini to use Gemini.
+// Default: OpenRouter free models. Set AI_PROVIDER=ollama for local, or gemini/openai as needed.
 export const aiService = createAIService()

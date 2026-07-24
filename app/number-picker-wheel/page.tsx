@@ -9,6 +9,7 @@ import {
   NUMBER_PICKER_H1,
   NUMBER_PICKER_HERO_INTRO,
   NUMBER_PICKER_KEYWORDS,
+  NUMBER_PICKER_OG_IMAGE_URL,
   NUMBER_PICKER_ON_THIS_PAGE,
   NUMBER_PICKER_PAGE_DESCRIPTION,
   NUMBER_PICKER_PAGE_TITLE,
@@ -43,11 +44,20 @@ export const metadata: Metadata = {
     siteName: "Picker Wheel",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: NUMBER_PICKER_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: NUMBER_PICKER_H1,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: NUMBER_PICKER_PAGE_TITLE,
     description: NUMBER_PICKER_PAGE_DESCRIPTION,
+    images: [NUMBER_PICKER_OG_IMAGE_URL],
   },
 }
 

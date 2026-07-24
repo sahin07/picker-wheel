@@ -7,6 +7,8 @@ export const IMAGE_PICKER_PATH = "/image-picker-wheel"
 
 export const IMAGE_PICKER_URL = `${IMAGE_PICKER_SITE_URL}${IMAGE_PICKER_PATH}`
 
+export const IMAGE_PICKER_OG_IMAGE_URL = `${IMAGE_PICKER_SITE_URL}/og/image-picker-wheel.svg`
+
 export const IMAGE_PICKER_PAGE_TITLE =
   "Image Picker Wheel | Spin a Random Image Wheel Online"
 

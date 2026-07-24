@@ -11,6 +11,8 @@ export const YES_NO_PICKER_LEGACY_PATH = "/yes-no-picker-wheel"
 
 export const YES_NO_PICKER_URL = `${YES_NO_PICKER_SITE_URL}${YES_NO_PICKER_PATH}`
 
+export const YES_NO_PICKER_OG_IMAGE_URL = `${YES_NO_PICKER_SITE_URL}/og/yes-or-no-wheel.svg`
+
 export const YES_NO_PICKER_PAGE_TITLE =
   "Yes or No Wheel | Free Online Decision Spinner"
 

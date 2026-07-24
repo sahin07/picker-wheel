@@ -4,7 +4,11 @@ import {
   ImagePickerSpokeSeoIntro,
   ImagePickerSpokeSeoSections,
 } from "@/components/image-picker/image-picker-spoke-seo"
-import { IMAGE_PICKER_PATH, IMAGE_PICKER_SITE_URL } from "@/lib/image-picker-seo"
+import {
+  IMAGE_PICKER_OG_IMAGE_URL,
+  IMAGE_PICKER_PATH,
+  IMAGE_PICKER_SITE_URL,
+} from "@/lib/image-picker-seo"
 import {
   getImagePickerSpoke,
   imageSpokeUrl,
@@ -38,11 +42,20 @@ export function imagePickerSpokeMetadata(spokeId: ImagePickerSpokeId): Metadata 
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: IMAGE_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [IMAGE_PICKER_OG_IMAGE_URL],
     },
   }
 }

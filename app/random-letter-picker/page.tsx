@@ -9,6 +9,7 @@ import {
   LETTER_PICKER_H1,
   LETTER_PICKER_HERO_INTRO,
   LETTER_PICKER_KEYWORDS,
+  LETTER_PICKER_OG_IMAGE_URL,
   LETTER_PICKER_ON_THIS_PAGE,
   LETTER_PICKER_PAGE_DESCRIPTION,
   LETTER_PICKER_PAGE_TITLE,
@@ -43,11 +44,20 @@ export const metadata: Metadata = {
     siteName: "Picker Wheel",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: LETTER_PICKER_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: LETTER_PICKER_H1,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: LETTER_PICKER_PAGE_TITLE,
     description: LETTER_PICKER_PAGE_DESCRIPTION,
+    images: [LETTER_PICKER_OG_IMAGE_URL],
   },
 }
 

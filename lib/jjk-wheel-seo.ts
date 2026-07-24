@@ -3,7 +3,7 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const JJK_WHEEL_PATH = "/jjk-spin-the-wheel"
 export const JJK_WHEEL_SITE_URL = HOME_SITE_URL
 export const JJK_WHEEL_URL = `${HOME_SITE_URL}${JJK_WHEEL_PATH}`
-export const JJK_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/placeholder.svg?text=JJK+Spin+Wheel+picker`
+export const JJK_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/og/jjk-spin-wheel.svg`
 export const JJK_WHEEL_PAGE_TITLE = "JJK Spin Wheel picker | Random Jujutsu Kaisen Character Picker"
 export const JJK_WHEEL_PAGE_DESCRIPTION =
   "Spin a free JJK wheel to pick a random Jujutsu Kaisen character, sorcerer, villain, cursed spirit, Domain Expansion, or cursed technique."

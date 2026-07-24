@@ -8,6 +8,7 @@ import {
   getAllArticleParams,
   getArticleByPath,
 } from "@/lib/articles"
+import { HOME_OG_IMAGE_URL } from "@/lib/home-seo"
 
 type Props = {
   params: Promise<{ category: string; slug: string }>
@@ -39,11 +40,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       authors: [ARTICLE_AUTHOR.name],
+      images: [
+        {
+          url: HOME_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.description,
+      images: [HOME_OG_IMAGE_URL],
     },
     other: {
       "article:author": ARTICLE_AUTHOR.name,

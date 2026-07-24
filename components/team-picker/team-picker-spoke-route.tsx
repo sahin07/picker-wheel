@@ -4,7 +4,11 @@ import {
   TeamPickerSpokeSeoIntro,
   TeamPickerSpokeSeoSections,
 } from "@/components/team-picker/team-picker-spoke-seo"
-import { TEAM_PICKER_PATH, TEAM_PICKER_SITE_URL } from "@/lib/team-picker-seo"
+import {
+  TEAM_PICKER_OG_IMAGE_URL,
+  TEAM_PICKER_PATH,
+  TEAM_PICKER_SITE_URL,
+} from "@/lib/team-picker-seo"
 import {
   getTeamPickerSpoke,
   teamSpokeUrl,
@@ -38,11 +42,20 @@ export function teamPickerSpokeMetadata(spokeId: TeamPickerSpokeId): Metadata {
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: TEAM_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [TEAM_PICKER_OG_IMAGE_URL],
     },
   }
 }

@@ -3,7 +3,7 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const DEMON_SLAYER_WHEEL_PATH = "/demon-slayer-spin-wheel"
 export const DEMON_SLAYER_WHEEL_SITE_URL = HOME_SITE_URL
 export const DEMON_SLAYER_WHEEL_URL = `${HOME_SITE_URL}${DEMON_SLAYER_WHEEL_PATH}`
-export const DEMON_SLAYER_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/placeholder.svg?text=Demon+Slayer+Spin+Wheel`
+export const DEMON_SLAYER_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/og/demon-slayer-spin-wheel.svg`
 export const DEMON_SLAYER_WHEEL_PAGE_TITLE = "Demon Slayer Spin Wheel | Random Character Picker"
 export const DEMON_SLAYER_WHEEL_PAGE_DESCRIPTION =
   "Spin the Demon Slayer Spin Wheel to randomly choose a Demon Slayer character. Create custom wheels with Hashira, demons, breathing styles, or your favorite characters for games, anime challenges, and fun."

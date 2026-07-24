@@ -10,6 +10,8 @@ export const COLOR_PICKER_LEGACY_PATH = "/wheel-of-colors"
 
 export const COLOR_PICKER_URL = `${COLOR_PICKER_SITE_URL}${COLOR_PICKER_PATH}`
 
+export const COLOR_PICKER_OG_IMAGE_URL = `${COLOR_PICKER_SITE_URL}/og/color-picker-wheel.svg`
+
 export const COLOR_PICKER_PAGE_TITLE =
   "Color Picker Wheel | Spin a Random Color Wheel Online"
 

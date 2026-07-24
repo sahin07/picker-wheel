@@ -9,6 +9,7 @@ import {
   YES_NO_PICKER_H1,
   YES_NO_PICKER_HERO_INTRO,
   YES_NO_PICKER_KEYWORDS,
+  YES_NO_PICKER_OG_IMAGE_URL,
   YES_NO_PICKER_ON_THIS_PAGE,
   YES_NO_PICKER_PAGE_DESCRIPTION,
   YES_NO_PICKER_PAGE_TITLE,
@@ -43,11 +44,20 @@ export const metadata: Metadata = {
     siteName: "Picker Wheel",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: YES_NO_PICKER_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: YES_NO_PICKER_H1,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: YES_NO_PICKER_PAGE_TITLE,
     description: YES_NO_PICKER_PAGE_DESCRIPTION,
+    images: [YES_NO_PICKER_OG_IMAGE_URL],
   },
 }
 

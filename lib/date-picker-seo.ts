@@ -6,6 +6,8 @@ export const DATE_PICKER_PATH = "/date-picker-wheel"
 
 export const DATE_PICKER_URL = `${DATE_PICKER_SITE_URL}${DATE_PICKER_PATH}`
 
+export const DATE_PICKER_OG_IMAGE_URL = `${DATE_PICKER_SITE_URL}/og/date-picker-wheel.svg`
+
 export const DATE_PICKER_PAGE_TITLE = "Date Picker Wheel | Spin a Random Date Online"
 
 export const DATE_PICKER_PAGE_DESCRIPTION =

@@ -6,6 +6,8 @@ export const HOME_PATH = "/"
 
 export const HOME_URL = `${HOME_SITE_URL}${HOME_PATH === "/" ? "/" : HOME_PATH}`
 
+export const HOME_OG_IMAGE_URL = `${HOME_SITE_URL}/og/picker-wheel.svg`
+
 export const HOME_PAGE_TITLE =
   "Random Name Wheel Picker | Spin the Wheel Online Free"
 

@@ -10,6 +10,8 @@ export const LETTER_PICKER_LEGACY_PATH = "/letter-picker-wheel"
 
 export const LETTER_PICKER_URL = `${LETTER_PICKER_SITE_URL}${LETTER_PICKER_PATH}`
 
+export const LETTER_PICKER_OG_IMAGE_URL = `${LETTER_PICKER_SITE_URL}/og/letter-picker.svg`
+
 export const LETTER_PICKER_PAGE_TITLE =
   "Random Letter Picker | Spin the Alphabet Wheel Online"
 

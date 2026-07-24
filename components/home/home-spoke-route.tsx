@@ -4,7 +4,7 @@ import {
   HomeSpokeSeoIntro,
   HomeSpokeSeoSections,
 } from "@/components/home/home-spoke-seo"
-import { HOME_PATH, HOME_SITE_URL } from "@/lib/home-seo"
+import { HOME_PATH, HOME_SITE_URL, HOME_OG_IMAGE_URL } from "@/lib/home-seo"
 import {
   getHomeNameSpoke,
   homeSpokeUrl,
@@ -38,11 +38,20 @@ export function homeSpokeMetadata(spokeId: HomeNameSpokeId): Metadata {
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: HOME_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [HOME_OG_IMAGE_URL],
     },
   }
 }

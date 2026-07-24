@@ -6,6 +6,8 @@ export const NUMBER_PICKER_PATH = "/number-picker-wheel"
 
 export const NUMBER_PICKER_URL = `${NUMBER_PICKER_SITE_URL}${NUMBER_PICKER_PATH}`
 
+export const NUMBER_PICKER_OG_IMAGE_URL = `${NUMBER_PICKER_SITE_URL}/og/number-picker-wheel.svg`
+
 export const NUMBER_PICKER_PAGE_TITLE =
   "Random Number Picker Wheel | Spin a Random Number Online"
 

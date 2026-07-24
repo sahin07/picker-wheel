@@ -4,7 +4,10 @@ import {
   NumberPickerSpokeSeoIntro,
   NumberPickerSpokeSeoSections,
 } from "@/components/number-picker/number-picker-spoke-seo"
-import { NUMBER_PICKER_SITE_URL } from "@/lib/number-picker-seo"
+import {
+  NUMBER_PICKER_OG_IMAGE_URL,
+  NUMBER_PICKER_SITE_URL,
+} from "@/lib/number-picker-seo"
 import {
   getNumberPickerSpoke,
   spokeUrl,
@@ -38,11 +41,20 @@ export function numberPickerSpokeMetadata(spokeId: NumberPickerSpokeId): Metadat
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: NUMBER_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [NUMBER_PICKER_OG_IMAGE_URL],
     },
   }
 }

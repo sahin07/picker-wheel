@@ -4,7 +4,11 @@ import {
   ColorPickerSpokeSeoIntro,
   ColorPickerSpokeSeoSections,
 } from "@/components/color-picker-wheel/color-picker-spoke-seo"
-import { COLOR_PICKER_PATH, COLOR_PICKER_SITE_URL } from "@/lib/color-picker-seo"
+import {
+  COLOR_PICKER_OG_IMAGE_URL,
+  COLOR_PICKER_PATH,
+  COLOR_PICKER_SITE_URL,
+} from "@/lib/color-picker-seo"
 import {
   colorSpokeUrl,
   getColorPickerSpoke,
@@ -38,11 +42,20 @@ export function colorPickerSpokeMetadata(spokeId: ColorPickerSpokeId): Metadata 
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: COLOR_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [COLOR_PICKER_OG_IMAGE_URL],
     },
   }
 }

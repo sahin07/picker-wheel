@@ -4,7 +4,11 @@ import {
   YesNoPickerSpokeSeoIntro,
   YesNoPickerSpokeSeoSections,
 } from "@/components/yes-no-picker-wheel/yes-no-picker-spoke-seo"
-import { YES_NO_PICKER_PATH, YES_NO_PICKER_SITE_URL } from "@/lib/yes-no-picker-seo"
+import {
+  YES_NO_PICKER_OG_IMAGE_URL,
+  YES_NO_PICKER_PATH,
+  YES_NO_PICKER_SITE_URL,
+} from "@/lib/yes-no-picker-seo"
 import {
   getYesNoPickerSpoke,
   yesNoSpokeUrl,
@@ -38,11 +42,20 @@ export function yesNoPickerSpokeMetadata(spokeId: YesNoPickerSpokeId): Metadata 
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: YES_NO_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [YES_NO_PICKER_OG_IMAGE_URL],
     },
   }
 }

@@ -4,7 +4,11 @@ import {
   LetterPickerSpokeSeoIntro,
   LetterPickerSpokeSeoSections,
 } from "@/components/letter-picker/letter-picker-spoke-seo"
-import { LETTER_PICKER_PATH, LETTER_PICKER_SITE_URL } from "@/lib/letter-picker-seo"
+import {
+  LETTER_PICKER_OG_IMAGE_URL,
+  LETTER_PICKER_PATH,
+  LETTER_PICKER_SITE_URL,
+} from "@/lib/letter-picker-seo"
 import {
   getLetterPickerSpoke,
   letterSpokeUrl,
@@ -38,11 +42,20 @@ export function letterPickerSpokeMetadata(spokeId: LetterPickerSpokeId): Metadat
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: LETTER_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [LETTER_PICKER_OG_IMAGE_URL],
     },
   }
 }

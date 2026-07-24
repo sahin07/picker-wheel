@@ -13,6 +13,8 @@ export const TEAM_PICKER_ALT_PATH = "/random-team-picker"
 
 export const TEAM_PICKER_URL = `${TEAM_PICKER_SITE_URL}${TEAM_PICKER_PATH}`
 
+export const TEAM_PICKER_OG_IMAGE_URL = `${TEAM_PICKER_SITE_URL}/og/team-picker-wheel.svg`
+
 export const TEAM_PICKER_PAGE_TITLE =
   "Team Picker Wheel | Create Random Teams Online"
 

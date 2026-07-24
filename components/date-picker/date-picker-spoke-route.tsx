@@ -4,7 +4,11 @@ import {
   DatePickerSpokeSeoIntro,
   DatePickerSpokeSeoSections,
 } from "@/components/date-picker/date-picker-spoke-seo"
-import { DATE_PICKER_PATH, DATE_PICKER_SITE_URL } from "@/lib/date-picker-seo"
+import {
+  DATE_PICKER_OG_IMAGE_URL,
+  DATE_PICKER_PATH,
+  DATE_PICKER_SITE_URL,
+} from "@/lib/date-picker-seo"
 import {
   dateSpokeUrl,
   getDatePickerSpoke,
@@ -38,11 +42,20 @@ export function datePickerSpokeMetadata(spokeId: DatePickerSpokeId): Metadata {
       siteName: "Picker Wheel",
       locale: "en_US",
       type: "website",
+      images: [
+        {
+          url: DATE_PICKER_OG_IMAGE_URL,
+          width: 1200,
+          height: 630,
+          alt: spoke.h1,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: spoke.pageTitle,
       description: spoke.description,
+      images: [DATE_PICKER_OG_IMAGE_URL],
     },
   }
 }

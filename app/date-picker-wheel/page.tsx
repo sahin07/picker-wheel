@@ -9,6 +9,7 @@ import {
   DATE_PICKER_H1,
   DATE_PICKER_HERO_INTRO,
   DATE_PICKER_KEYWORDS,
+  DATE_PICKER_OG_IMAGE_URL,
   DATE_PICKER_ON_THIS_PAGE,
   DATE_PICKER_PAGE_DESCRIPTION,
   DATE_PICKER_PAGE_TITLE,
@@ -43,11 +44,20 @@ export const metadata: Metadata = {
     siteName: "Picker Wheel",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: DATE_PICKER_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: DATE_PICKER_H1,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: DATE_PICKER_PAGE_TITLE,
     description: DATE_PICKER_PAGE_DESCRIPTION,
+    images: [DATE_PICKER_OG_IMAGE_URL],
   },
 }
 

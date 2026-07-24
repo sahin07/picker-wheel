@@ -10,7 +10,7 @@ import {
   ARTICLES_URL,
   getArticlesByCategory,
 } from "@/lib/articles"
-import { HOME_SITE_URL } from "@/lib/home-seo"
+import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
 
 const PAGE_TITLE = "Picker Wheel Articles | Guides for Spin Wheels & Random Pickers"
 const PAGE_DESCRIPTION =
@@ -27,11 +27,15 @@ export const metadata: Metadata = {
     url: ARTICLES_URL,
     siteName: "Picker Wheel",
     type: "website",
+    images: [
+      { url: HOME_OG_IMAGE_URL, width: 1200, height: 630, alt: PAGE_TITLE },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
+    images: [HOME_OG_IMAGE_URL],
   },
 }
 

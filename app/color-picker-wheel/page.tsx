@@ -9,6 +9,7 @@ import {
   COLOR_PICKER_H1,
   COLOR_PICKER_HERO_INTRO,
   COLOR_PICKER_KEYWORDS,
+  COLOR_PICKER_OG_IMAGE_URL,
   COLOR_PICKER_ON_THIS_PAGE,
   COLOR_PICKER_PAGE_DESCRIPTION,
   COLOR_PICKER_PAGE_TITLE,
@@ -43,11 +44,20 @@ export const metadata: Metadata = {
     siteName: "Picker Wheel",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: COLOR_PICKER_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: COLOR_PICKER_H1,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: COLOR_PICKER_PAGE_TITLE,
     description: COLOR_PICKER_PAGE_DESCRIPTION,
+    images: [COLOR_PICKER_OG_IMAGE_URL],
   },
 }
 

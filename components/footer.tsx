@@ -148,6 +148,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/changelog" className="text-gray-300 hover:text-white">
+                  Changelog
+                </Link>
+              </li>
+              <li>
                 <Link
                   href="/articles/board-games/spin-wheel-for-board-game-nights"
                   className="text-gray-300 hover:text-white"

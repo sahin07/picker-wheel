@@ -323,8 +323,11 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         id: "sharing-and-embed",
         question: "Can I share or embed a wheel?",
         answer: [
-          "Public share links and website embeds are not available yet. For now, the practical approach is to build the wheel on the device you will use during the activity, or recreate the same option list on another device.",
-          "We know sharing matters for teachers and streamers, and it is on our roadmap. Until then, we prefer to be clear rather than promise a feature that is not ready.",
+          "To share an exact option list, open Create Custom Wheel in the header—that builds a packed /w/… link with your entries included.",
+          "Other Options also has Share (copies the current tool page URL) and Embed for iframe snippets. Page-URL share does not pack your personal list; use Create Custom Wheel when recipients need the same options.",
+        ],
+        links: [
+          { label: "Create Custom Wheel", href: "/create-custom-wheel-spinner" },
         ],
       },
       {
@@ -959,16 +962,38 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         id: "remove-winner-after-spin",
         question: "Can I remove the winner after each spin?",
         answer: [
-          "Yes. After someone or something is selected, you can remove that entry so it will not come up again. This is the usual approach for multi-winner giveaways, team drafts, and “everyone gets a turn” classroom draws.",
+          "Yes. Turn on Remove Winner After Spin in Settings or Manage so the winning entry leaves the wheel automatically. Many tools also offer Action Mode or Game Mode → Elimination. That is the usual approach for multi-winner giveaways, team drafts, and “everyone gets a turn” classroom draws.",
         ],
         steps: [
           {
             parts: [
-              { type: "text", value: "After the result appears, click " },
+              { type: "text", value: "Open " },
+              { type: "chip", label: "Settings", variant: "gray" },
+              {
+                type: "text",
+                value: " or Manage and enable ",
+              },
+              {
+                type: "chip",
+                label: "Remove Winner After Spin",
+                variant: "amber",
+              },
+              {
+                type: "text",
+                value: ", then spin again.",
+              },
+            ],
+          },
+          {
+            parts: [
+              {
+                type: "text",
+                value: "You can still delete an option manually with ",
+              },
               { type: "chip", label: "Remove", variant: "red" },
               {
                 type: "text",
-                value: " next to that option in the Inputs list, then spin again.",
+                value: " in the Inputs list if you only need a one-off edit.",
               },
             ],
           },
@@ -1024,20 +1049,23 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
         id: "can-i-share-my-wheel",
         question: "Can I share my wheel with other people?",
         answer: [
-          "Sharing is available through the Share control on the wheel so friends, classmates, coworkers, or family can use the same list. Link-based sharing continues to improve, and the goal is to make remote meetings, classrooms, and online games easy to run from one shared wheel.",
-          "Until a shared link is opened on another device, keep a saved copy on the computer or phone you plan to use live.",
+          "To share the exact same option list, open Create Custom Wheel in the header. That builds a packed /w/… link with your entries included.",
+          "Other Options → Share only copies the current tool page URL (not your personal list). My Wheels keeps lists on this device only.",
         ],
         steps: [
           {
             parts: [
-              { type: "text", value: "Use " },
-              { type: "chip", label: "Share", variant: "green" },
+              { type: "text", value: "Open " },
+              { type: "chip", label: "Create Custom Wheel", variant: "green" },
               {
                 type: "text",
-                value: " in the header when you are ready for others to join the same list.",
+                value: " in the header, then create and copy the custom wheel link.",
               },
             ],
           },
+        ],
+        links: [
+          { label: "Create Custom Wheel", href: "/create-custom-wheel-spinner" },
         ],
       },
       {

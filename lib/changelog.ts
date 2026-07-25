@@ -19,6 +19,33 @@ export type ChangelogEntry = {
  */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    version: "v1.8",
+    date: "Jul 25, 2026",
+    isoDate: "2026-07-25",
+    title: "Question-intent pages and richer starter lists",
+    summary:
+      "This release adds conversational what-* decision pages, upgrades key template spokes for question search intent, and fills starter wheels with more useful defaults.",
+    groups: [
+      {
+        type: "Added",
+        items: [
+          "Launched conversational decision pages: What Should I Do, What Movie Should I Watch, What Should I Draw, What Anime Should I Watch, and What Pokémon Should I Choose.",
+          "Added redirects from What Should I Eat and What Game Should I Play to the existing food and game-night spokes.",
+        ],
+      },
+      {
+        type: "Improved",
+        items: [
+          "Rewrote six template spokes with question-intent titles, tips, FAQs, and visible updated dates (food, visit country, game night, who goes first, pastel color, should I).",
+          "Standardized spoke SEO blocks with tips checklists, related decision links, and a single page H1.",
+          "Expanded starter lists across food, game night, pastel colors, presentation order, and the new what-* wheels so pages are useful on arrival.",
+          "Clarified home and help FAQ copy for Remove Winner After Spin and Create Custom Wheel share links.",
+          "Explicitly allowed major AI crawlers (GPTBot, ClaudeBot, PerplexityBot, and others) in robots.txt while keeping /api/ and /w/ private.",
+        ],
+      },
+    ],
+  },
+  {
     version: "v1.7",
     date: "Jul 24, 2026",
     isoDate: "2026-07-24",

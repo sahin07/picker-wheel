@@ -198,13 +198,6 @@ export function SidebarOtherOptions({
     showToast("Duplicate entries removed!", "success")
   }
 
-  const openObsHelp = () => {
-    copyText(
-      `${pageUrl}\n\nOBS setup: Add a Browser Source and paste this URL. Use fullscreen for a clean overlay.`,
-      "OBS URL copied!",
-    )
-  }
-
   const comingSoon = () => showToast("Live API integration is coming soon. Use CSV import for now.", "info")
 
   return (
@@ -257,16 +250,26 @@ export function SidebarOtherOptions({
               Fullscreen
             </Button>
           ) : (
-            <Button variant="outline" className="justify-start h-9 text-xs" onClick={openObsHelp}>
+            <Button
+              variant="outline"
+              className="justify-start h-9 text-xs opacity-60"
+              disabled
+              title="OBS / streamer mode coming soon"
+            >
               <Monitor className="w-3.5 h-3.5 mr-1.5" />
-              OBS
+              OBS (soon)
             </Button>
           )}
         </div>
         {onToggleFullscreen && (
-          <Button variant="outline" className="justify-start h-9 text-xs w-full mt-2" onClick={openObsHelp}>
+          <Button
+            variant="outline"
+            className="justify-start h-9 text-xs w-full mt-2 opacity-60"
+            disabled
+            title="OBS / streamer mode coming soon"
+          >
             <Monitor className="w-3.5 h-3.5 mr-1.5" />
-            OBS Overlay URL
+            OBS Overlay (soon)
           </Button>
         )}
       </div>

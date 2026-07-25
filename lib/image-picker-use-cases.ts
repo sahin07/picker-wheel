@@ -135,6 +135,16 @@ const FOOD_ENTRIES: PresetEntry[] = [
   { text: "Vegan Bowl", emoji: "🥦", color: "#16A34A", bg: "#DCFCE7" },
   { text: "Breakfast", emoji: "🥞", color: "#F59E0B", bg: "#FEF3C7" },
   { text: "Leftovers", emoji: "🥡", color: "#78716C", bg: "#F5F5F4" },
+  { text: "Pho", emoji: "🍜", color: "#F97316", bg: "#FFEDD5" },
+  { text: "Falafel", emoji: "🧆", color: "#65A30D", bg: "#ECFCCB" },
+  { text: "Biryani", emoji: "🍚", color: "#D97706", bg: "#FEF3C7" },
+  { text: "Poke Bowl", emoji: "🍱", color: "#0EA5E9", bg: "#E0F2FE" },
+  { text: "Wings", emoji: "🍗", color: "#EF4444", bg: "#FEE2E2" },
+  { text: "Noodles", emoji: "🍝", color: "#F59E0B", bg: "#FEF3C7" },
+  { text: "BBQ", emoji: "🍖", color: "#B91C1C", bg: "#FEE2E2" },
+  { text: "Smoothie", emoji: "🥤", color: "#A855F7", bg: "#F3E8FF" },
+  { text: "Dessert", emoji: "🍰", color: "#DB2777", bg: "#FCE7F3" },
+  { text: "Your Choice", emoji: "✨", color: "#6366F1", bg: "#E0E7FF" },
 ]
 
 const CAR_LOGO_ENTRIES: PresetEntry[] = [

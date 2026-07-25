@@ -347,7 +347,12 @@ export const HOME_EEAT_SECTIONS = [
   {
     id: "home-eeat-fairness",
     title: "Best practices for fair drawings",
-    body: "Before spinning for a giveaway or classroom helper, scan for duplicate names if every person should have one equal chance. Remove blanks, disable anyone who already won when you need unique winners, and announce the result while everyone can see the wheel.",
+    body: "Before spinning for a giveaway or classroom helper, scan for duplicate names if every person should have one equal chance. Turn on Remove Winner After Spin in Settings or Manage (or Action Mode / Game Mode where available) so prior winners leave automatically. Announce the result while everyone can see the spinner.",
+  },
+  {
+    id: "home-eeat-share",
+    title: "How to share an exact list",
+    body: "My Wheels keeps lists on this device. To send someone the exact same options, use Create Custom Wheel in the header—the packed link at /w/… includes your entries so recipients spin the same list without rebuilding it.",
   },
   {
     id: "home-eeat-when-not",
@@ -419,7 +424,12 @@ export const HOME_FEATURES_REAL = [
   {
     title: "Remove winner after spin",
     description:
-      "Turn on elimination-style behavior so each winner leaves the wheel—ideal for unique classroom helpers or multi-prize giveaways.",
+      "Turn on Remove Winner After Spin in Settings or Manage (or Action Mode / Game Mode on tools that have it) so each winner leaves the list—ideal for unique classroom helpers or multi-prize giveaways.",
+  },
+  {
+    title: "Share this exact list",
+    description:
+      "Use Create Custom Wheel in the header to pack your options into a shareable /w/… link—recipients get the same list without rebuilding it.",
   },
   {
     title: "Multi-winner draw",
@@ -682,7 +692,7 @@ export const HOME_FAQ_ITEMS: HomeFaqItem[] = [
   {
     question: "Can I remove winners after each spin?",
     answer:
-      "Yes. Turn on Remove Winner After Spin in Settings or Manage so the winning name leaves the wheel. That keeps classroom helpers and multi-prize giveaways unique.",
+      "Yes. Turn on Remove Winner After Spin in Settings or Manage so the winning name leaves the wheel. On many tools you can also use Action Mode or Game Mode → Elimination. That keeps classroom helpers and multi-prize giveaways unique.",
   },
   {
     question: "Can I save my name picker?",
@@ -692,7 +702,7 @@ export const HOME_FAQ_ITEMS: HomeFaqItem[] = [
   {
     question: "Can I share my custom wheel?",
     answer:
-      "You can send people to this Random Name Picker page to build the same kind of list. To share an exact option list via link, create a Custom Spin Wheel—those pages store the entries in a shareable URL.",
+      "Yes. Open Create Custom Wheel in the header to pack your exact options into a shareable /w/… link so others spin the same list. Sharing only the tool page URL does not include your personal entries.",
   },
   {
     question: "Is this useful for classrooms?",

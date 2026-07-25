@@ -9,6 +9,9 @@ import {
   WHEEL_CATEGORIES,
 } from "@/lib/wheel-categories"
 
+/** Build at deploy time so `app/` is available and robots get a stable sitemap */
+export const dynamic = "force-static"
+
 /** Alias / legacy routes that redirect — do not list in the sitemap */
 const EXCLUDED_SEGMENTS = new Set([
   "api",
@@ -26,6 +29,8 @@ const EXCLUDED_SEGMENTS = new Set([
 ])
 
 function collectAppRoutes(dir: string, segments: string[] = []): string[] {
+  if (!fs.existsSync(dir)) return []
+
   const entries = fs.readdirSync(dir, { withFileTypes: true })
   const routes: string[] = []
 
@@ -61,7 +66,8 @@ function priorityFor(route: string): number {
     route === "/privacy-policy" ||
     route === "/terms-of-service" ||
     route === "/cookie-policy" ||
-    route === "/contact-us"
+    route === "/contact-us" ||
+    route === "/changelog"
   ) {
     return 0.4
   }
@@ -80,7 +86,8 @@ function changeFrequencyFor(
     route === "/help" ||
     route === "/privacy-policy" ||
     route === "/terms-of-service" ||
-    route === "/cookie-policy"
+    route === "/cookie-policy" ||
+    route === "/changelog"
   ) {
     return "monthly"
   }
@@ -89,7 +96,14 @@ function changeFrequencyFor(
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const appDir = path.join(process.cwd(), "app")
-  const staticRoutes = collectAppRoutes(appDir)
+
+  let staticRoutes: string[] = ["/"]
+  try {
+    staticRoutes = collectAppRoutes(appDir)
+  } catch (error) {
+    console.error("[sitemap] Failed to scan app routes:", error)
+  }
+
   const articleRoutes = getAllArticleParams().map(
     (item) => `/articles/${item.category}/${item.slug}`,
   )

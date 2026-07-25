@@ -18,7 +18,7 @@ export default function MLBFavoritesModal({ isOpen, onClose }: MLBFavoritesModal
     return wheels.find(w => w.id === state.currentWheelId) || null;
   });
   const data = (wheel?.data as MLBWheelData) ?? { favoriteTeams: [] }
-  const { favoriteTeams } = data
+  const favoriteTeams = Array.isArray(data.favoriteTeams) ? data.favoriteTeams : []
   const { updateWheelData } = useWheelManagerStore()
 
   const removeFromFavorites = (teamId: string) => {

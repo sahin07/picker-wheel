@@ -74,7 +74,7 @@ class AIService {
       // OpenRouter ranking / attribution headers (safe for OpenAI-compatible too)
       if (this.baseUrl.includes("openrouter.ai")) {
         headers["HTTP-Referer"] =
-          process.env.NEXT_PUBLIC_SITE_URL || "https://spinifywheel.com"
+          process.env.NEXT_PUBLIC_SITE_URL || "https://www.spinifywheel.com"
         headers["X-Title"] = "Picker Wheel"
       }
 

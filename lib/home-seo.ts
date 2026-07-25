@@ -1,5 +1,5 @@
 export const HOME_SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://spinifywheel.com"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.spinifywheel.com"
 
 /** Pillar path for the Random Name Picker hub */
 export const HOME_PATH = "/"

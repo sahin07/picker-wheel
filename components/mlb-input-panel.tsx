@@ -183,7 +183,10 @@ const MLBInputPanel = React.memo(({
   const data: MLBWheelData = {
     ...defaultData,
     ...rawData,
-    selectedTeams: Array.isArray(rawData?.selectedTeams) ? rawData.selectedTeams : []
+    selectedTeams: Array.isArray(rawData?.selectedTeams) ? rawData.selectedTeams : [],
+    favoriteTeams: Array.isArray(rawData?.favoriteTeams) ? rawData.favoriteTeams : [],
+    comparisonTeams: Array.isArray(rawData?.comparisonTeams) ? rawData.comparisonTeams : [],
+    recentResults: Array.isArray(rawData?.recentResults) ? rawData.recentResults : [],
   }
 
   const { updateWheelData } = useWheelManagerStore()

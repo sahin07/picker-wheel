@@ -18,7 +18,7 @@ export default function MLBComparisonModal({ isOpen, onClose }: MLBComparisonMod
     return wheels.find(w => w.id === state.currentWheelId) || null;
   });
   const data = (wheel?.data as MLBWheelData) ?? { comparisonTeams: [] }
-  const { comparisonTeams } = data
+  const comparisonTeams = Array.isArray(data.comparisonTeams) ? data.comparisonTeams : []
   const { updateWheelData } = useWheelManagerStore()
 
   const removeFromComparison = (teamId: string) => {

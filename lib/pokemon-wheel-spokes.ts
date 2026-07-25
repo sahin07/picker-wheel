@@ -310,6 +310,51 @@ export const POKEMON_WHEEL_SPOKES: Record<PokemonWheelSpokeId, PokemonWheelSpoke
       ],
     },
   }),
+  choose: finalize({
+    id: "choose",
+    path: "/what-pokemon-should-i-choose",
+    pageTitle: "What Pokémon Should I Choose? | Free Pokémon Choice Wheel",
+    description:
+      "Can't decide which Pokémon to pick? Spin this free choice wheel loaded with fan favorites for a fair pick—teams, nicknames, art subjects, and challenge runs.",
+    h1: "Which Pokémon Should You Choose?",
+    shortTitle: "What Pokémon Should I Choose?",
+    heroIntro:
+      "Torn between favorites for your team, your next drawing, or a challenge run? Spin once for a fair pick from popular Pokémon, then trim the wheel to your actual shortlist.",
+    keywords: [
+      "what pokemon should i choose",
+      "which pokemon should i pick",
+      "pokemon choice wheel",
+      "random pokemon chooser",
+      "pokemon decision spinner",
+    ],
+    articleTitle: "How to choose a Pokémon with a spin",
+    articleIntro: [
+      "“Which Pokémon should I choose?” comes up everywhere—team slots, plushie shopping, art subjects, and starter debates. This page loads the Pokémon Picker Wheel with high-popularity picks so one visible spin settles it.",
+      "The starter pool is only a demo. Cut it down to your real shortlist—three team candidates, five art subjects—so the spin decides between options you already like. Updated: July 25, 2026.",
+    ],
+    uniqueSection: {
+      title: "Tips for better choice spins",
+      intro: "The wheel is fair; make the pool honest and the result will feel right.",
+      points: [
+        {
+          title: "Shortlist first",
+          description:
+            "Remove everything you would not actually pick, then spin once and commit.",
+        },
+        {
+          title: "Rank with elimination",
+          description:
+            "Spin repeatedly with remove-winner on to turn a shortlist into a ranked order.",
+        },
+        {
+          title: "Theme the pool",
+          description:
+            "Swap in starters, one type, or one generation using the templates on the main hub.",
+        },
+      ],
+    },
+    faqLabel: "Pokémon Choice Wheel",
+  }),
   types: finalize({
     id: "types",
     path: "/pokemon-type-picker-wheel",

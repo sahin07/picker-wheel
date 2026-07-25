@@ -33,6 +33,10 @@ export type ImagePickerSpokeSeo = {
   faq: readonly ImagePickerSpokeFaq[]
   siblingIds: readonly ImagePickerSpokeId[]
   deepLink: ImagePickerDeepLink
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
 }
 
 const SPOKE_PATHS: Record<ImagePickerSpokeId, string> = {
@@ -132,7 +136,72 @@ export const IMAGE_PICKER_SPOKES: Record<ImagePickerSpokeId, ImagePickerSpokeSeo
   emoji: buildSpoke("emoji"),
   logo: buildSpoke("logo"),
   flag: buildSpoke("flag"),
-  food: buildSpoke("food"),
+  food: {
+    ...buildSpoke("food"),
+    pageTitle: "What Should I Eat? | Free Random Food Wheel Spinner",
+    description:
+      "Can't decide what to eat? Spin this free What Should I Eat wheel for a fair food pick—pizza, sushi, tacos, and more. Customize the list, remove winners, and spin again.",
+    keywords: [
+      "what should i eat",
+      "what should i eat wheel",
+      "random food picker",
+      "food decision wheel",
+      "what to eat spinner",
+      "meal picker wheel",
+    ],
+    h1: "What Should I Eat?",
+    shortTitle: "What Should I Eat?",
+    heroIntro:
+      "Stuck between takeout and leftovers? Spin the wheel above for a fair food pick from a ready list of meal ideas. Remove anything you will not eat, add your favorites, then spin once and commit for tonight.",
+    audience: "Families & roommates",
+    articleTitle: "How to decide what to eat with a spin",
+    articleIntro: [
+      "“What should I eat?” is one of the most common everyday debates. This template page opens the Image Picker Wheel already loaded with meal options so you can stop scrolling delivery apps and pick something visible to the whole group.",
+      "Unlike a blank food list, the wheel starts useful on arrival. Unlike a yes/no spinner, every slice is a real meal idea you can edit, hide, or replace with restaurants near you.",
+    ],
+    uniqueSection: {
+      title: "Built for meal decisions",
+      body: "This food template starts with real meal ideas instead of a blank list, so the group can watch one fair spin and move on. Customize restaurants, diet limits, or leftovers anytime.",
+    },
+    tips: [
+      "Delete options nobody will accept before the first spin.",
+      "Turn on remove-winner when planning several meals this week.",
+      "Rename slices to real restaurants nearby for takeout nights.",
+      "Keep only diet-matching options on the wheel so the result stays usable.",
+    ],
+    faq: [
+      {
+        question: "What is the What Should I Eat wheel?",
+        answer:
+          "It is a free food decision spinner preloaded with meal ideas. Spin once for a fair pick, then customize the list for your household or group.",
+      },
+      {
+        question: "Can I add my own restaurants or recipes?",
+        answer:
+          "Yes. Rename slices, upload your own images, or paste a custom list so the wheel matches places and meals you actually order.",
+      },
+      {
+        question: "How do I stop the same meal from winning twice?",
+        answer:
+          "Turn on remove-winner after spin so each selected meal leaves the wheel until you reset the list.",
+      },
+      {
+        question: "Is this the same as the main Image Picker Wheel?",
+        answer:
+          "It uses the same Image Picker Wheel tool with a food template already loaded. The main Image Picker hub still lists every visual template.",
+      },
+      {
+        question: "Is it free?",
+        answer: "Yes. You can spin What Should I Eat online for free with no signup.",
+      },
+    ],
+    deepLink: {
+      preset: "food",
+      toolTitle: "What Should I Eat?",
+      toolDescription: "Spin food options for meal decisions",
+    },
+    updatedAt: "2026-07-25",
+  },
   "car-logo": buildSpoke("car-logo"),
   fruit: buildSpoke("fruit"),
   dinosaur: buildSpoke("dinosaur"),

@@ -133,6 +133,7 @@ function ColorPickerSpokeJsonLd({ spokeId }: { spokeId: ColorPickerSpokeId }) {
     headline: spoke.articleTitle,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     author: {
       "@type": "Organization",
       name: "Picker Wheel",
@@ -154,6 +155,7 @@ function ColorPickerSpokeJsonLd({ spokeId }: { spokeId: ColorPickerSpokeId }) {
     headline: spoke.h1,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     isPartOf: {
       "@type": "WebSite",
       "@id": `${COLOR_PICKER_SITE_URL}/#website`,

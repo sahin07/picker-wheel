@@ -21,7 +21,8 @@ export function FortuneWheelSpokeJsonLd({ spokeId }: { spokeId: FortuneWheelSpok
   const schemas = [
     { "@context": "https://schema.org", "@type": "WebApplication", "@id": `${url}#app`, name: spoke.h1,
       url, description: spoke.description, applicationCategory: "GameApplication", operatingSystem: "Any",
-      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}) },
     { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: spoke.faq.map((item) => ({
       "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer },
     })) },

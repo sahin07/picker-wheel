@@ -123,6 +123,18 @@ const FOOD_ENTRIES: PresetEntry[] = [
   { text: "Salad", emoji: "🥗", color: "#22C55E", bg: "#DCFCE7" },
   { text: "Ice Cream", emoji: "🍦", color: "#EC4899", bg: "#FCE7F3" },
   { text: "Ramen", emoji: "🍜", color: "#EA580C", bg: "#FFEDD5" },
+  { text: "Fried Chicken", emoji: "🍗", color: "#D97706", bg: "#FEF3C7" },
+  { text: "Sandwich", emoji: "🥪", color: "#CA8A04", bg: "#FEF9C3" },
+  { text: "Soup", emoji: "🍲", color: "#B45309", bg: "#FFEDD5" },
+  { text: "Burrito", emoji: "🌯", color: "#C2410C", bg: "#FFEDD5" },
+  { text: "Stir Fry", emoji: "🥘", color: "#DC2626", bg: "#FEE2E2" },
+  { text: "Curry", emoji: "🍛", color: "#EA580C", bg: "#FFEDD5" },
+  { text: "Dumplings", emoji: "🥟", color: "#F59E0B", bg: "#FEF3C7" },
+  { text: "Steak", emoji: "🥩", color: "#991B1B", bg: "#FEE2E2" },
+  { text: "Seafood", emoji: "🦞", color: "#E11D48", bg: "#FFE4E6" },
+  { text: "Vegan Bowl", emoji: "🥦", color: "#16A34A", bg: "#DCFCE7" },
+  { text: "Breakfast", emoji: "🥞", color: "#F59E0B", bg: "#FEF3C7" },
+  { text: "Leftovers", emoji: "🥡", color: "#78716C", bg: "#F5F5F4" },
 ]
 
 const CAR_LOGO_ENTRIES: PresetEntry[] = [
@@ -214,9 +226,9 @@ export const IMAGE_PICKER_USE_CASES: ImagePickerUseCase[] = [
   {
     id: "food",
     label: "Food Image Wheel",
-    description: "Spin food photos when you cannot decide what to eat.",
+    description: "Spin food options when you cannot decide what to eat.",
     accent: "orange",
-    toolTitle: "Food Image Wheel",
+    toolTitle: "What Should I Eat?",
     toolDescription: "Spin food options for meal decisions",
     items: toWheelItems(FOOD_ENTRIES, "food"),
   },

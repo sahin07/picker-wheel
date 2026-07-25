@@ -6,6 +6,7 @@ export type PokemonWheelUseCaseId =
   | "all"
   | "picker"
   | "favorites"
+  | "choose"
   | "types"
   | "gen1"
   | "gen2"
@@ -237,6 +238,20 @@ export const POKEMON_WHEEL_USE_CASES: PokemonWheelUseCase[] = [
       pokemon: favoritePollTargets(),
       displayMode: "emoji-name",
       templateParam: "favorites",
+      typeFilter: null,
+      curatedOnly: "favorites",
+    },
+  },
+  {
+    id: "choose",
+    label: "Pokémon Choice Wheel",
+    description: "Settle which Pokémon to pick with one fair spin.",
+    accent: "indigo",
+    config: {
+      selectedGeneration: "all",
+      pokemon: favoritePollTargets(),
+      displayMode: "emoji-name",
+      templateParam: "choose",
       typeFilter: null,
       curatedOnly: "favorites",
     },

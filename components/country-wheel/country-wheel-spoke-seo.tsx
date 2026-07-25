@@ -8,6 +8,11 @@ import {
   getCountrySpokeSiblings,
   type CountryWheelSpokeSeo,
 } from "@/lib/country-wheel-spokes"
+import {
+  SpokeIntentRelatedSection,
+  SpokeTipsSection,
+  SpokeUpdatedLabel,
+} from "@/components/spoke-seo-blocks"
 
 export function CountryWheelSpokeSeoIntro({ spoke }: { spoke: CountryWheelSpokeSeo }) {
   return (
@@ -24,6 +29,7 @@ export function CountryWheelSpokeSeoIntro({ spoke }: { spoke: CountryWheelSpokeS
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {spoke.heroIntro}
       </p>
+      <SpokeUpdatedLabel updatedAt={spoke.updatedAt} />
     </section>
   )
 }
@@ -35,6 +41,8 @@ export function CountryWheelSpokeSeoSections({ spoke }: { spoke: CountryWheelSpo
     { id: "country-spoke-guide", label: "Guide" },
     { id: "country-spoke-options", label: "Features & options" },
     { id: "country-spoke-unique", label: spoke.uniqueSection.title },
+    ...(spoke.tips?.length ? [{ id: "country-spoke-tips", label: "Tips" }] : []),
+    { id: "country-spoke-intent", label: "Related decisions" },
     { id: "country-spoke-cluster", label: "Related country templates" },
     { id: "country-spoke-faq", label: "FAQ" },
   ]
@@ -198,6 +206,9 @@ export function CountryWheelSpokeSeoSections({ spoke }: { spoke: CountryWheelSpo
             ))}
           </ul>
         </section>
+
+        <SpokeTipsSection tips={spoke.tips} id="country-spoke-tips" />
+        <SpokeIntentRelatedSection currentPath={spoke.path} id="country-spoke-intent" />
 
         {/* Siblings / cluster */}
         <section

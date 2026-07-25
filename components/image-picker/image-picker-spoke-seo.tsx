@@ -4,6 +4,11 @@ import {
   getImageSpokeSiblings,
   type ImagePickerSpokeSeo,
 } from "@/lib/image-picker-spokes"
+import {
+  SpokeIntentRelatedSection,
+  SpokeTipsSection,
+  SpokeUpdatedLabel,
+} from "@/components/spoke-seo-blocks"
 
 export function ImagePickerSpokeSeoIntro({ spoke }: { spoke: ImagePickerSpokeSeo }) {
   return (
@@ -20,6 +25,7 @@ export function ImagePickerSpokeSeoIntro({ spoke }: { spoke: ImagePickerSpokeSeo
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {spoke.heroIntro}
       </p>
+      <SpokeUpdatedLabel updatedAt={spoke.updatedAt} />
       <p className="mt-3 text-center text-sm text-slate-500">
         Audience: {spoke.audience} ·{" "}
         <Link
@@ -38,6 +44,8 @@ export function ImagePickerSpokeSeoSections({ spoke }: { spoke: ImagePickerSpoke
   const toc = [
     { id: "ip-spoke-guide", label: "Guide" },
     { id: "ip-spoke-unique", label: spoke.uniqueSection.title },
+    ...(spoke.tips?.length ? [{ id: "ip-spoke-tips", label: "Tips" }] : []),
+    { id: "ip-spoke-intent", label: "Related decisions" },
     { id: "ip-spoke-cluster", label: "Related image wheels" },
     { id: "ip-spoke-faq", label: "FAQ" },
   ]
@@ -106,7 +114,11 @@ export function ImagePickerSpokeSeoSections({ spoke }: { spoke: ImagePickerSpoke
           </h2>
           <p className="text-base leading-relaxed text-slate-600">{spoke.uniqueSection.body}</p>
         </section>
+
+        <SpokeTipsSection tips={spoke.tips} id="ip-spoke-tips" />
       </article>
+
+      <SpokeIntentRelatedSection currentPath={spoke.path} id="ip-spoke-intent" />
 
       <section
         id="ip-spoke-cluster"

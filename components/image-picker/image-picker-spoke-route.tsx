@@ -135,6 +135,7 @@ function ImagePickerSpokeJsonLd({ spokeId }: { spokeId: ImagePickerSpokeId }) {
     headline: spoke.h1,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     isPartOf: {
       "@type": "WebSite",
       "@id": `${IMAGE_PICKER_SITE_URL}/#website`,

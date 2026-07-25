@@ -7,6 +7,11 @@ import {
   getYesNoSpokeSiblings,
   type YesNoPickerSpokeSeo,
 } from "@/lib/yes-no-picker-spokes"
+import {
+  SpokeIntentRelatedSection,
+  SpokeTipsSection,
+  SpokeUpdatedLabel,
+} from "@/components/spoke-seo-blocks"
 
 export function YesNoPickerSpokeSeoIntro({ spoke }: { spoke: YesNoPickerSpokeSeo }) {
   return (
@@ -23,6 +28,7 @@ export function YesNoPickerSpokeSeoIntro({ spoke }: { spoke: YesNoPickerSpokeSeo
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {spoke.heroIntro}
       </p>
+      <SpokeUpdatedLabel updatedAt={spoke.updatedAt} />
     </section>
   )
 }
@@ -33,7 +39,9 @@ export function YesNoPickerSpokeSeoSections({ spoke }: { spoke: YesNoPickerSpoke
     { id: "yn-popular-wheels", label: "Popular decision wheels" },
     { id: "yn-spoke-guide", label: "Guide" },
     { id: "yn-spoke-unique", label: spoke.uniqueSection.title },
+    ...(spoke.tips?.length ? [{ id: "yn-spoke-tips", label: "Tips" }] : []),
     { id: "yn-spoke-eeat", label: "How this tool works" },
+    { id: "yn-spoke-intent", label: "Related decisions" },
     { id: "yn-spoke-cluster", label: "Related decision wheels" },
     { id: "yn-spoke-faq", label: "FAQ" },
   ]
@@ -149,6 +157,8 @@ export function YesNoPickerSpokeSeoSections({ spoke }: { spoke: YesNoPickerSpoke
           </ul>
         </section>
 
+        <SpokeTipsSection tips={spoke.tips} id="yn-spoke-tips" />
+
         <section
           id="yn-spoke-eeat"
           aria-labelledby="yn-spoke-eeat-heading"
@@ -189,6 +199,8 @@ export function YesNoPickerSpokeSeoSections({ spoke }: { spoke: YesNoPickerSpoke
             games—not medical, legal, or financial advice.
           </p>
         </section>
+
+        <SpokeIntentRelatedSection currentPath={spoke.path} id="yn-spoke-intent" />
 
         <section
           id="yn-spoke-cluster"

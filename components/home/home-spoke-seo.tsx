@@ -4,6 +4,11 @@ import {
   getHomeSpokeSiblings,
   type HomeNameSpokeSeo,
 } from "@/lib/home-name-picker-spokes"
+import {
+  SpokeIntentRelatedSection,
+  SpokeTipsSection,
+  SpokeUpdatedLabel,
+} from "@/components/spoke-seo-blocks"
 
 export function HomeSpokeSeoIntro({ spoke }: { spoke: HomeNameSpokeSeo }) {
   return (
@@ -20,6 +25,7 @@ export function HomeSpokeSeoIntro({ spoke }: { spoke: HomeNameSpokeSeo }) {
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {spoke.heroIntro}
       </p>
+      <SpokeUpdatedLabel updatedAt={spoke.updatedAt} />
       <p className="mt-3 text-center text-sm text-slate-500">
         Audience: {spoke.audience} ·{" "}
         <Link
@@ -38,6 +44,8 @@ export function HomeSpokeSeoSections({ spoke }: { spoke: HomeNameSpokeSeo }) {
   const toc = [
     { id: "home-spoke-guide", label: "Guide" },
     { id: "home-spoke-unique", label: spoke.uniqueSection.title },
+    ...(spoke.tips?.length ? [{ id: "home-spoke-tips", label: "Tips" }] : []),
+    { id: "home-spoke-intent", label: "Related decisions" },
     { id: "home-spoke-cluster", label: "Related name pickers" },
     { id: "home-spoke-faq", label: "FAQ" },
   ]
@@ -109,7 +117,11 @@ export function HomeSpokeSeoSections({ spoke }: { spoke: HomeNameSpokeSeo }) {
           </h2>
           <p className="text-base leading-relaxed text-slate-600">{spoke.uniqueSection.body}</p>
         </section>
+
+        <SpokeTipsSection tips={spoke.tips} id="home-spoke-tips" />
       </article>
+
+      <SpokeIntentRelatedSection currentPath={spoke.path} id="home-spoke-intent" />
 
       <section
         id="home-spoke-cluster"

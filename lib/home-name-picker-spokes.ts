@@ -37,6 +37,10 @@ export type HomeNameSpokeSeo = {
   faq: readonly HomeNameSpokeFaq[]
   siblingIds: readonly HomeNameSpokeId[]
   deepLink: HomeNameDeepLink
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
 }
 
 const SPOKE_COPY: Record<
@@ -119,24 +123,25 @@ const SPOKE_COPY: Record<
   },
   presentation: {
     path: "/presentation-order-picker",
-    h1: "Presentation Order Picker",
+    h1: "Who Goes First?",
     audience: "Schools & meetings",
     keywords: [
-      "presentation order picker",
+      "who goes first",
       "who goes first spinner",
+      "presentation order picker",
       "presentation order wheel",
       "meeting speaker picker",
-      "random name picker",
+      "speaking order spinner",
     ],
     heroIntro:
-      "Decide who presents first without debate. This page loads a presentation-order template on the Random Name Picker—replace the sample groups or names, then spin a fair speaking sequence.",
+      "Decide who goes first without debate. This page loads a presentation-order template on the Random Name Picker—replace the sample names or groups, then spin a fair speaking sequence everyone can watch.",
     articleIntro: [
-      "The Presentation Order Picker is for classrooms, meetings, and workshops that need a transparent speaking order. Sample groups load first; swap them for student names, team labels, or agenda speakers.",
-      "Spin with remove-winner on to build a full order: first spin is who goes first, next spin is second, and so on. Fullscreen mode helps when the whole room needs to see the result.",
+      "“Who goes first?” stalls classrooms, meetings, and workshops. This Who Goes First page opens a Random Name Picker preset so the room sees one transparent spin instead of arguing over order.",
+      "Swap in student names, team labels, or agenda speakers. Spin with remove-winner on to build a full order: first spin is who goes first, next spin is second, and so on.",
     ],
     uniqueSection: {
-      title: "Building a fair speaking order",
-      body: "List every speaker or group before you start. Enable remove-winner so each name appears once in the sequence. If someone is absent, disable their slice and continue—re-enable them later without rebuilding the list.",
+      title: "Built for speaking order",
+      body: "Use this template when the room needs a transparent sequence everyone can watch—class presentations, meeting agendas, or workshop demos.",
     },
   },
 }
@@ -202,7 +207,52 @@ export const HOME_NAME_SPOKES: Record<HomeNameSpokeId, HomeNameSpokeSeo> = {
   classroom: buildSpoke("classroom"),
   giveaway: buildSpoke("giveaway"),
   "secret-santa": buildSpoke("secret-santa"),
-  presentation: buildSpoke("presentation"),
+  presentation: {
+    ...buildSpoke("presentation"),
+    pageTitle: "Who Goes First? | Free Presentation Order Spinner",
+    description:
+      "Who goes first? Spin this free presentation order picker for a fair speaking sequence. Replace sample names, remove winners, and build the full order in front of the room.",
+    shortTitle: "Who Goes First?",
+    articleTitle: "How to decide who goes first with a spin",
+    faq: [
+      {
+        question: "What is the Who Goes First spinner?",
+        answer:
+          "It is a Random Name Picker page preloaded for presentation order. Spin once to choose who presents first, then keep spinning with remove-winner to build the full sequence.",
+      },
+      {
+        question: "Can I replace the sample names?",
+        answer:
+          "Yes. Edit the list, paste your own names in the Text tab, or clear and rebuild. Sample names are only a starting point.",
+      },
+      {
+        question: "How do I build a full speaking order?",
+        answer:
+          "Enable remove-winner, then spin repeatedly. Each result is the next speaker until the list is empty.",
+      },
+      {
+        question: "Is every name equally likely?",
+        answer:
+          "Yes, when weights are equal. Duplicate names or higher weights increase that entry’s chance.",
+      },
+      {
+        question: "Is it free?",
+        answer: "Yes. You can use Who Goes First online for free with no signup.",
+      },
+    ],
+    deepLink: {
+      templateId: "presentation",
+      toolTitle: "Who Goes First?",
+      toolDescription: getHomeNameTemplate("presentation")!.description,
+    },
+    updatedAt: "2026-07-25",
+    tips: [
+      "List every speaker or group before the first spin.",
+      "Enable remove-winner so each name appears once in the sequence.",
+      "Disable absent speakers instead of deleting them—re-enable later.",
+      "Use fullscreen when projecting so the whole room sees the order.",
+    ],
+  },
 }
 
 export function getHomeNameSpoke(id: HomeNameSpokeId): HomeNameSpokeSeo {

@@ -700,6 +700,7 @@ function InnerImagePickerWheelPage({
           <ToolPageTitle
             title={shortTitle ?? IMAGE_PICKER_SHORT_TITLE}
             toolType="image-picker-wheel"
+            as={seoIntro ? "p" : "h1"}
           />
           <p className="text-gray-600">
             {toolSubtitle ?? "Upload pictures and select one visually at random"}

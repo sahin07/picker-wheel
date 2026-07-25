@@ -88,6 +88,12 @@ export type CountryWheelSpokeSeo = {
 
   accent: CountryWheelUseCaseAccent
 
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
+
 }
 
 
@@ -466,23 +472,33 @@ export const COUNTRY_WHEEL_SPOKES: Record<CountryWheelSpokeId, CountryWheelSpoke
 
     accent: "indigo",
 
-    pageTitle: "Random Country to Visit Picker Wheel | Where Should I Travel Spinner",
+    pageTitle: "What Country Should I Visit? | Free Random Travel Spinner",
 
-    description: "Spin a random country to visit next—fair picks for travel inspiration.",
+    description:
+      "What country should I visit next? Spin this free travel picker for a fair destination from a visit-ready shortlist. Customize the pool, remove winners, and plan your next trip.",
 
-    h1: "Random Country to Visit Picker Wheel",
+    h1: "What Country Should I Visit?",
 
-    shortTitle: "Visit Picker Wheel",
+    shortTitle: "What Country Should I Visit?",
 
-    heroIntro: "Cannot decide where to go? Spin a random country to visit from a travel-friendly shortlist.",
+    heroIntro:
+      "Stuck on where to travel next? Spin once for a fair country pick from a travel-friendly shortlist. Remove places you will not visit, add dream destinations, then share the result with your group.",
 
-    keywords: ["random country to visit picker", "where to travel spinner", "visit country picker wheel"],
+    keywords: [
+      "what country should i visit",
+      "where should i travel",
+      "random country to visit",
+      "travel destination spinner",
+      "visit country picker wheel",
+    ],
 
-    articleTitle: "Random country to visit",
+    articleTitle: "How to pick your next country with a spin",
 
     articleIntro: [
 
-      "This spoke focuses on visit-next energy—same fair spinner, travel-oriented pool.",
+      "“What country should I visit?” is a classic travel debate. This page opens the Country Picker Wheel on a visit-focused shortlist so you get inspiration without scrolling endless destination lists.",
+
+      "Edit the pool for budget, season, or trip style. Use remove-winner when ranking several options across planning rounds.",
 
     ],
 
@@ -490,7 +506,7 @@ export const COUNTRY_WHEEL_SPOKES: Record<CountryWheelSpokeId, CountryWheelSpoke
 
       title: "Built for visit-next picks",
 
-      intro: "Use when the only question is which country to visit next.",
+      intro: "Keep the question simple: which country to visit next—then shape the pool to match real trip constraints.",
 
       points: [
 
@@ -503,6 +519,43 @@ export const COUNTRY_WHEEL_SPOKES: Record<CountryWheelSpokeId, CountryWheelSpoke
       ],
 
     },
+
+    tips: [
+      "Remove countries that are off-limits for budget, visas, or timing before you spin.",
+      "Use remove-winner across rounds to build a short ranked list for the group.",
+      "Share results history so everyone sees the same destination pick.",
+      "Add dream destinations so every slice is a place you would actually visit.",
+    ],
+
+    faq: [
+      {
+        question: "What is the What Country Should I Visit wheel?",
+        answer:
+          "It is a free Country Picker Wheel template focused on travel destinations. Spin for a fair country pick from a visit-ready shortlist.",
+      },
+      {
+        question: "Can I add my own dream destinations?",
+        answer:
+          "Yes. Edit the country list on the wheel so every slice is a place your group would actually consider.",
+      },
+      {
+        question: "How do I avoid repeating the same country?",
+        answer:
+          "Enable remove-winner so each selected country leaves the wheel until you reset.",
+      },
+      {
+        question: "Is this the same as the main Country Picker Wheel?",
+        answer: `It uses the same tool with a visit template loaded. Open the hub at ${COUNTRY_WHEEL_PATH} for all regions and templates.`,
+      },
+      {
+        question: "Is it free?",
+        answer: "Yes. You can spin What Country Should I Visit online for free with no signup.",
+      },
+    ],
+
+    faqLabel: "What Country Should I Visit?",
+
+    updatedAt: "2026-07-25",
 
   }),
 

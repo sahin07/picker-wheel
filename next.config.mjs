@@ -31,6 +31,16 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+      {
+        source: "/what-should-i-eat",
+        destination: "/food-wheel",
+        permanent: true,
+      },
+      {
+        source: "/what-game-should-i-play",
+        destination: "/game-night-wheel-of-fortune",
+        permanent: true,
+      },
     ]
   },
 }

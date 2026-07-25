@@ -56,6 +56,10 @@ export type YesNoPickerSpokeSeo = {
   faq: readonly YesNoPickerSpokeFaq[]
   siblingIds: readonly YesNoPickerSpokeId[]
   deepLink: YesNoPickerDeepLink
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
 }
 
 export function yesNoSpokeUrl(path: string): string {
@@ -332,29 +336,30 @@ export const YES_NO_PICKER_SPOKES: Record<YesNoPickerSpokeId, YesNoPickerSpokeSe
   "should-i": {
     id: "should-i",
     path: "/should-i-wheel",
-    pageTitle: "Should I Wheel | Spin “Should I…?” Decisions Online",
+    pageTitle: "Should I Do It? | Free Should I Decision Spinner",
     description:
-      "Stuck on “Should I…?” Spin our free Should I Wheel for a random yes or no answer—with optional AI context for light guidance.",
-    h1: "Should I Wheel",
-    shortTitle: "Should I Wheel",
+      "Should I do it? Spin this free Should I Wheel for a random yes or no—with optional AI context for light guidance on everyday dilemmas.",
+    h1: "Should I Do It?",
+    shortTitle: "Should I Do It?",
     heroIntro:
-      "Should I order takeout? Should I start that project? Spin the Should I Wheel for a quick yes or no. Add a short question for light AI context, then let the spinner decide.",
+      "Should I order takeout? Should I start that project? Spin Should I Do It for a quick yes or no. Add a short question for light AI context, then let the spinner decide.",
     keywords: [
+      "should i do it",
       "should i wheel",
       "should i spinner",
       "should i decide",
       "should i or shouldnt i",
       "random should i",
     ],
-    articleTitle: "Answer “Should I…?” with a Spin",
+    articleTitle: "How to answer “Should I…?” with a spin",
     articleIntro: [
-      "“Should I…?” questions pile up all day. A Should I Wheel turns that loop into one clear spin—YES or NO—so you can stop circling the same dilemma.",
-      "This page opens in AI-friendly decision mode: type a short should-I question for light context, then spin. Guidance here is for fun and momentum, not professional advice.",
+      "“Should I do it?” questions pile up all day. This page turns that loop into one clear spin—YES or NO—so you can stop circling the same dilemma.",
+      "Type a short should-I question for light AI context, then spin. Guidance here is for fun and momentum, not professional advice.",
       "For binary spins without AI, use the Yes No Wheel. For three outcomes, try the Maybe Wheel.",
     ],
     uniqueSection: {
-      title: "Classic Should-I Moments",
-      intro: "These are the low-stakes questions people spin most often.",
+      title: "Classic Should-I moments",
+      intro: "These are the low-stakes questions people spin most often—keep stakes light and the question short.",
       points: [
         {
           title: "Food & plans",
@@ -374,6 +379,12 @@ export const YES_NO_PICKER_SPOKES: Record<YesNoPickerSpokeId, YesNoPickerSpokeSe
         },
       ],
     },
+    tips: [
+      "Keep the question short and low-stakes before you spin.",
+      "Use light AI context for momentum, not medical, legal, or money decisions.",
+      "Switch to manual Yes/No when you do not want AI notes.",
+      "Spin once and commit—rerolling forever is the same as not deciding.",
+    ],
     eeat: {
       experience:
         "Framed around the exact phrase people search—“should I”—with a spinner that matches that intent.",
@@ -384,7 +395,7 @@ export const YES_NO_PICKER_SPOKES: Record<YesNoPickerSpokeId, YesNoPickerSpokeSe
     },
     faq: [
       {
-        question: "What is a Should I Wheel?",
+        question: "What is the Should I Do It wheel?",
         answer:
           "It is a decision spinner optimized for “Should I…?” questions, giving a random yes or no (with optional AI notes).",
       },
@@ -398,17 +409,23 @@ export const YES_NO_PICKER_SPOKES: Record<YesNoPickerSpokeId, YesNoPickerSpokeSe
         answer: "Yes. Switch to manual mode or use the Yes No Wheel for a plain binary spin.",
       },
       {
+        question: "When should I not use this?",
+        answer:
+          "Skip it for health, money, legal, or any high-stakes choice. Use judgment—not randomness—for those.",
+      },
+      {
         question: "Is it free?",
-        answer: "Yes.",
+        answer: "Yes. You can spin Should I Do It online for free with no signup.",
       },
     ],
     siblingIds: siblingsExcept("should-i"),
     deepLink: {
       mode: "ai-advice",
-      toolTitle: "Should I Wheel",
+      toolTitle: "Should I Do It?",
       toolDescription: "Ask “Should I…?” then spin for YES or NO.",
       resultTitle: "Should you?",
     },
+    updatedAt: "2026-07-25",
   },
 
   "either-or": {

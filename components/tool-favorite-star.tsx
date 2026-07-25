@@ -52,12 +52,23 @@ type ToolPageTitleProps = {
   title: ReactNode
   toolType?: string
   className?: string
+  /**
+   * Use `p` on spoke pages that already render an SEO H1 below the tool,
+   * so the page keeps a single H1.
+   */
+  as?: "h1" | "p"
 }
 
-/** Tool page H1 with a favorite star beside the title */
-export function ToolPageTitle({ title, toolType, className }: ToolPageTitleProps) {
+/** Tool page title with a favorite star beside the label */
+export function ToolPageTitle({
+  title,
+  toolType,
+  className,
+  as = "h1",
+}: ToolPageTitleProps) {
+  const Tag = as
   return (
-    <h1
+    <Tag
       className={cn(
         "mb-2 inline-flex items-center justify-center gap-1.5 text-4xl font-bold text-gray-800",
         className,
@@ -65,6 +76,6 @@ export function ToolPageTitle({ title, toolType, className }: ToolPageTitleProps
     >
       <span>{title}</span>
       <ToolFavoriteStar toolType={toolType} />
-    </h1>
+    </Tag>
   )
 }

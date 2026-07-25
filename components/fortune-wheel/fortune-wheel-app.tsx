@@ -365,6 +365,7 @@ function FortuneWheelAppInner({
                 <ToolPageTitle
                   title={shortTitle ?? FORTUNE_WHEEL_SHORT_TITLE}
                   toolType="fortune-wheel"
+                  as={seoIntro ? "p" : "h1"}
                 />
                 <p className="text-gray-600">
                   {toolSubtitle ?? "A dramatic equal-odds game-show spinner"}

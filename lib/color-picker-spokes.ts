@@ -54,6 +54,10 @@ export type ColorPickerSpokeSeo = {
   siblingIds: readonly ColorPickerSpokeId[]
   deepLink: ColorPickerDeepLink
   audience: string
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
 }
 
 export function colorSpokeUrl(path: string): string {
@@ -229,37 +233,75 @@ export const COLOR_PICKER_SPOKES: Record<ColorPickerSpokeId, ColorPickerSpokeSeo
   pastel: {
     id: "pastel",
     path: "/pastel-color-wheel",
-    pageTitle: "Pastel Color Wheel | Soft Random Color Spinner",
+    pageTitle: "What Color Should I Choose? | Free Pastel Color Spinner",
     description:
-      "Spin a pastel color wheel for soft random colors. Ideal for designers, moodboards, gentle art prompts, and calm classroom crafts.",
-    h1: "Pastel Color Wheel",
-    shortTitle: "Pastel Color Wheel",
+      "What color should I choose? Spin this free pastel color wheel for soft random colors—ideal for moodboards, crafts, calm design accents, and gentle creative prompts.",
+    h1: "What Color Should I Choose?",
+    shortTitle: "What Color Should I Choose?",
     heroIntro:
-      "Spin soft pastel colors when you want gentle inspiration—moodboards, spring crafts, or calm design accents without harsh neons.",
-    keywords: ["pastel color wheel", "pastel color picker", "soft color spinner", "pastel palette spinner"],
-    articleTitle: "Spin Soft Pastel Colors",
+      "Need a soft color fast? Spin this pastel wheel for gentle inspiration—moodboards, spring crafts, or calm design accents without harsh neons. Customize the palette anytime.",
+    keywords: [
+      "what color should i choose",
+      "pastel color wheel",
+      "pastel color picker",
+      "soft color spinner",
+      "random pastel color",
+      "what color should i pick",
+    ],
+    articleTitle: "How to choose a color with a pastel spin",
     articleIntro: [
-      "Pastel wheels favor soft pinks, mints, lilacs, and peaches. Designers use them for moodboards; teachers use them for spring craft themes.",
-      "Want higher energy? Try the neon color wheel. Prefer fundamentals? Open primary or secondary wheels.",
+      "“What color should I choose?” stalls moodboards and craft nights. This page opens a pastel Color Picker Wheel so you get a soft, fair pick without debating every swatch.",
+      "Pastels favor pinks, mints, lilacs, and peaches. Want higher energy? Try neon. Prefer fundamentals? Open primary or secondary wheels.",
     ],
     uniqueSection: {
-      title: "Pastels for Designers",
-      intro: "Soft palettes help when you need calm accents fast.",
+      title: "Pastels for designers and crafts",
+      intro: "Soft palettes help when you need calm accents fast—keep the list usable and remove colors you will not use.",
       points: [
         { title: "Moodboards", description: "Spin a pastel accent for layouts and invitations." },
         { title: "UI brainstorming", description: "Explore soft accents before committing in Figma." },
         { title: "Craft themes", description: "Pick pastel materials for classroom projects." },
       ],
     },
-    faq: spokeFaq("Pastel Color Wheel", "Designers"),
+    tips: [
+      "Remove colors you will not use before spinning.",
+      "Spin once for a moodboard accent, then build around that pick.",
+      "Switch to Manual mode to rename or add your own soft swatches.",
+      "Try neon when you need higher energy; primary/secondary for fundamentals.",
+    ],
+    faq: [
+      {
+        question: "What is the What Color Should I Choose wheel?",
+        answer:
+          "It is a free pastel Color Picker Wheel template. Spin for a soft random color when you need gentle inspiration.",
+      },
+      {
+        question: "Can I edit the colors after opening this page?",
+        answer:
+          "Yes. Switch to Manual mode to rename, add, or remove colors. Your edits stay on this device in My Wheels if you save the wheel.",
+      },
+      {
+        question: "Is this the same as a designer color picker?",
+        answer:
+          "No. This page randomly spins a color from a list. A precision color picker tool selects an exact hex value for design work—different intent.",
+      },
+      {
+        question: "Where is the main Color Picker Wheel?",
+        answer: `Open the Color Picker Wheel pillar at ${COLOR_PICKER_PATH} for spectrum spin, image sampling, AI tools, and all palette templates.`,
+      },
+      {
+        question: "Is it free?",
+        answer: "Yes. You can spin What Color Should I Choose online for free with no signup.",
+      },
+    ],
     siblingIds: ["neon", "warm", "cool", "css", "basic"],
     deepLink: {
       palette: "pastel",
       tab: "manual",
-      toolTitle: "Pastel Color Wheel",
+      toolTitle: "What Color Should I Choose?",
       toolDescription: "Spin soft pastel colors",
     },
     audience: "Designers",
+    updatedAt: "2026-07-25",
   },
   neon: {
     id: "neon",

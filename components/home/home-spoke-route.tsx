@@ -131,6 +131,7 @@ function HomeSpokeJsonLd({ spokeId }: { spokeId: HomeNameSpokeId }) {
     headline: spoke.h1,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     isPartOf: {
       "@type": "WebSite",
       "@id": `${HOME_SITE_URL}/#website`,

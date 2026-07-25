@@ -4,6 +4,11 @@ import {
   getColorSpokeSiblings,
   type ColorPickerSpokeSeo,
 } from "@/lib/color-picker-spokes"
+import {
+  SpokeIntentRelatedSection,
+  SpokeTipsSection,
+  SpokeUpdatedLabel,
+} from "@/components/spoke-seo-blocks"
 
 export function ColorPickerSpokeSeoIntro({ spoke }: { spoke: ColorPickerSpokeSeo }) {
   return (
@@ -20,6 +25,7 @@ export function ColorPickerSpokeSeoIntro({ spoke }: { spoke: ColorPickerSpokeSeo
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {spoke.heroIntro}
       </p>
+      <SpokeUpdatedLabel updatedAt={spoke.updatedAt} />
       <p className="mt-3 text-center text-sm text-slate-500">
         Audience: {spoke.audience} ·{" "}
         <Link href={COLOR_PICKER_PATH} className="text-emerald-700 underline-offset-2 hover:underline">
@@ -35,6 +41,8 @@ export function ColorPickerSpokeSeoSections({ spoke }: { spoke: ColorPickerSpoke
   const toc = [
     { id: "cp-spoke-guide", label: "Guide" },
     { id: "cp-spoke-unique", label: spoke.uniqueSection.title },
+    ...(spoke.tips?.length ? [{ id: "cp-spoke-tips", label: "Tips" }] : []),
+    { id: "cp-spoke-intent", label: "Related decisions" },
     { id: "cp-spoke-cluster", label: "Related color wheels" },
     { id: "cp-spoke-faq", label: "FAQ" },
   ]
@@ -113,6 +121,9 @@ export function ColorPickerSpokeSeoSections({ spoke }: { spoke: ColorPickerSpoke
             ))}
           </ul>
         </section>
+
+        <SpokeTipsSection tips={spoke.tips} id="cp-spoke-tips" />
+        <SpokeIntentRelatedSection currentPath={spoke.path} id="cp-spoke-intent" />
 
         <section
           id="cp-spoke-cluster"

@@ -138,6 +138,7 @@ function YesNoPickerSpokeJsonLd({ spokeId }: { spokeId: YesNoPickerSpokeId }) {
     headline: spoke.articleTitle,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     author: {
       "@type": "Organization",
       name: "Picker Wheel",
@@ -165,6 +166,7 @@ function YesNoPickerSpokeJsonLd({ spokeId }: { spokeId: YesNoPickerSpokeId }) {
     headline: spoke.h1,
     description: spoke.heroIntro,
     inLanguage: "en-US",
+    ...(spoke.updatedAt ? { dateModified: spoke.updatedAt } : {}),
     isPartOf: {
       "@type": "WebSite",
       "@id": `${YES_NO_PICKER_SITE_URL}/#website`,

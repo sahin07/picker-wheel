@@ -26,6 +26,10 @@ export type FortuneWheelSpokeId =
   | "icebreaker"
   | "jess-coleman"
   | "rainey-dorbor"
+  | "what-to-do"
+  | "movie-watch"
+  | "draw-prompt"
+  | "anime-watch"
 
 export type FortuneWheelDeepLink = {
   useCaseId: FortuneWheelUseCaseId
@@ -57,6 +61,10 @@ export type FortuneWheelSpokeSeo = {
   siblingIds: readonly FortuneWheelSpokeId[]
   deepLink: FortuneWheelDeepLink
   accent: FortuneWheelUseCaseAccent
+  /** ISO date (YYYY-MM-DD) for freshness / dateModified */
+  updatedAt?: string
+  /** Actionable checklist tips for the spoke SEO template */
+  tips?: readonly string[]
 }
 
 export function fortuneSpokeUrl(path: string): string {
@@ -74,6 +82,10 @@ const ALL_SPOKE_IDS: FortuneWheelSpokeId[] = [
   "icebreaker",
   "jess-coleman",
   "rainey-dorbor",
+  "what-to-do",
+  "movie-watch",
+  "draw-prompt",
+  "anime-watch",
 ]
 
 const USE_CASE_BY_SPOKE: Record<FortuneWheelSpokeId, FortuneWheelUseCaseId> = {
@@ -87,6 +99,10 @@ const USE_CASE_BY_SPOKE: Record<FortuneWheelSpokeId, FortuneWheelUseCaseId> = {
   icebreaker: "icebreaker",
   "jess-coleman": "jess-coleman",
   "rainey-dorbor": "rainey-dorbor",
+  "what-to-do": "what-to-do",
+  "movie-watch": "movie-watch",
+  "draw-prompt": "draw-prompt",
+  "anime-watch": "anime-watch",
 }
 
 function configFor(id: FortuneWheelUseCaseId): FortuneWheelUseCaseConfig {
@@ -506,29 +522,30 @@ export const FORTUNE_WHEEL_SPOKES: Record<
   "game-night": finalize({
     id: "game-night",
     path: "/game-night-wheel-of-fortune",
-    pageTitle: "Game Night Wheel of Fortune | Free Game Picker Spinner",
+    pageTitle: "What Game Should We Play? | Free Game Night Spinner",
     description:
-      "Use a free Game Night Wheel of Fortune to choose charades, trivia, drawing, dance-offs, wild cards, and more. Add your own games and spin online.",
-    h1: "Game Night Wheel of Fortune",
-    shortTitle: "Game Night Wheel",
+      "What game should we play? Spin this free Game Night wheel for charades, trivia, drawing, dance-offs, and more. Add your own games and settle the debate fairly.",
+    h1: "What Game Should We Play?",
+    shortTitle: "What Game Should We Play?",
     heroIntro:
-      "Skip the debate over what to play next. Spin for charades, trivia, drawing, a dance-off, a wild card, or a free pass, then add your group's favorite games.",
+      "Skip the debate over what to play next. Spin for a fair game pick from party activities and wild-card twists, then replace slices with your group's real board games, video games, or house challenges.",
     keywords: [
-      "game night wheel of fortune",
+      "what game should we play",
+      "game night wheel",
       "game picker wheel",
       "family game night spinner",
-      "party game generator",
       "random game wheel",
+      "what should we play",
     ],
-    articleTitle: "Let the wheel choose your next game",
+    articleTitle: "How to pick the next game with a spin",
     articleIntro: [
-      "The game-night preset combines familiar group activities with wild-card and free-pass outcomes. Replace them with board games, video games, mini challenges, teams, or round modifiers.",
-      "Use winner removal to play each activity once, or leave every choice active when repeats are welcome. Result messages can hold time limits, scoring rules, or setup instructions.",
+      "“What game should we play?” stalls more game nights than setup time. This page opens a Wheel of Fortune template with ready activities so the group can watch one fair spin and move on.",
+      "Replace starter labels with board games, video games, or mini challenges. Use winner removal to play each option once. Result messages can hold time limits, scoring rules, or setup notes.",
     ],
     uniqueSection: {
       title: "Keep game night moving",
       intro:
-        "Use one wheel to settle choices and introduce variety between rounds.",
+        "Keep the question simple—what should we play?—then shape the list to what you can start in the next five minutes.",
       points: [
         {
           title: "Pick the activity",
@@ -547,7 +564,18 @@ export const FORTUNE_WHEEL_SPOKES: Record<
         },
       ],
     },
+    tips: [
+      "Only list games your group can start in the next five minutes.",
+      "Replace starter labels with your real board games, video games, or house challenges.",
+      "Turn on remove-winner so each game gets a turn before repeats.",
+      "Use wild-card slices for teams, time limits, or house rules.",
+    ],
     faq: [
+      {
+        question: "What is the What Game Should We Play wheel?",
+        answer:
+          "It is a free Game Night spinner preloaded with party activities. Spin once for a fair pick, then customize the list for your group.",
+      },
       {
         question: "Can I add board games and video games?",
         answer:
@@ -563,8 +591,13 @@ export const FORTUNE_WHEEL_SPOKES: Record<
         answer:
           "Enable winner removal so a selected game leaves the wheel for later spins.",
       },
+      {
+        question: "Is it free?",
+        answer: "Yes. You can spin What Game Should We Play online for free with no signup.",
+      },
     ],
     accent: "violet",
+    updatedAt: "2026-07-25",
   }),
   icebreaker: finalize({
     id: "icebreaker",
@@ -768,6 +801,306 @@ export const FORTUNE_WHEEL_SPOKES: Record<
     ],
     accent: "rose",
   }),
+  "what-to-do": finalize({
+    id: "what-to-do",
+    path: "/what-should-i-do",
+    pageTitle: "What Should I Do? | Free Random Activity Wheel",
+    description:
+      "Bored and can't decide what to do? Spin this free activity wheel for a fair random pick—walks, mini projects, quick workouts, and more. Edit the list and spin again.",
+    h1: "Stuck on What to Do Next?",
+    shortTitle: "What Should I Do?",
+    heroIntro:
+      "Bored, restless, or stuck between chores and fun? Spin once for a fair activity pick from a ready-made idea list. Remove anything that doesn't fit right now, add your own ideas, then commit to the result.",
+    keywords: [
+      "what should i do",
+      "what to do wheel",
+      "random activity picker",
+      "i'm bored wheel",
+      "activity decision spinner",
+      "what should i do today",
+    ],
+    articleTitle: "How to decide what to do with a spin",
+    articleIntro: [
+      "“What should I do?” is the classic boredom loop: you scroll, you snack, and an hour disappears. This page opens a Wheel of Fortune template loaded with quick, doable activities so one spin replaces the endless debate.",
+      "Every slice is a real activity you can start in minutes—no equipment lists, no big plans. Edit the wheel for your mood: keep it all indoor on a rainy day, or load it with outdoor ideas for the weekend. Updated: July 25, 2026.",
+    ],
+    uniqueSection: {
+      title: "Tips for beating boredom with the wheel",
+      intro:
+        "The wheel works best when every slice is something you would actually do in the next half hour.",
+      points: [
+        {
+          title: "Match your energy",
+          description:
+            "Before spinning, remove high-effort options if you are tired—or remove the lazy ones when you need momentum.",
+        },
+        {
+          title: "Use elimination rounds",
+          description:
+            "Turn on remove-winner to work through several activities across a free afternoon.",
+        },
+        {
+          title: "Build themed lists",
+          description:
+            "Save separate wheels for rainy days, family time, or five-minute breaks between tasks.",
+        },
+      ],
+    },
+    faq: [
+      {
+        question: "What is the What Should I Do wheel?",
+        answer:
+          "It is a free activity spinner preloaded with quick, doable ideas. Spin once for a fair pick, then customize the list for your day.",
+      },
+      {
+        question: "Can I add my own activities?",
+        answer:
+          "Yes. Rename, add, or remove entries so every slice fits your time, energy, and location.",
+      },
+      {
+        question: "How do I stop the same activity repeating?",
+        answer:
+          "Enable remove-winner so each selected activity leaves the wheel until you reset the list.",
+      },
+      {
+        question: "Does the wheel work for groups?",
+        answer:
+          "Yes. Load family or friend-friendly activities and let everyone watch the same fair spin.",
+      },
+      {
+        question: "Is it free?",
+        answer:
+          "Yes. You can spin the What Should I Do wheel online for free with no signup.",
+      },
+    ],
+    accent: "teal",
+    updatedAt: "2026-07-25",
+  }),
+  "movie-watch": finalize({
+    id: "movie-watch",
+    path: "/what-movie-should-i-watch",
+    pageTitle: "What Movie Should I Watch? | Free Movie Picker Wheel",
+    description:
+      "Can't pick a movie? Spin this free movie picker wheel loaded with well-known favorites across moods. Swap in your own watchlist and let the spin decide movie night.",
+    h1: "Which Movie Should You Watch?",
+    shortTitle: "What Movie Should I Watch?",
+    heroIntro:
+      "Tired of scrolling streaming menus longer than the movie itself? Spin once for a fair pick from well-known favorites, or paste in your own watchlist and let the wheel end the debate.",
+    keywords: [
+      "what movie should i watch",
+      "movie picker wheel",
+      "random movie picker",
+      "movie night spinner",
+      "what to watch wheel",
+      "movie decision wheel",
+    ],
+    articleTitle: "How to pick tonight's movie with a spin",
+    articleIntro: [
+      "“What movie should I watch?” eats more of movie night than the opening credits. This page opens a wheel preloaded with widely loved films across moods—action, animation, comedy, and classics—so one visible spin settles it.",
+      "The starter titles are just a demo pool. Replace them with your streaming watchlist, a franchise marathon order, or the three movies your group is arguing about. Updated: July 25, 2026.",
+    ],
+    uniqueSection: {
+      title: "Tips for faster movie decisions",
+      intro:
+        "A fair spin beats twenty minutes of trailer-hopping—especially with more than one person on the couch.",
+      points: [
+        {
+          title: "Shortlist first",
+          description:
+            "Trim the wheel to movies everyone present would actually accept, then spin once and commit.",
+        },
+        {
+          title: "Run a marathon order",
+          description:
+            "Load a series and use remove-winner to spin the watch order for a weekend marathon.",
+        },
+        {
+          title: "Settle group ties",
+          description:
+            "Give each person two slices for their pick—the spin stays fair and visible to everyone.",
+        },
+      ],
+    },
+    faq: [
+      {
+        question: "What is the What Movie Should I Watch wheel?",
+        answer:
+          "It is a free movie decision spinner preloaded with well-known films. Spin once for a fair pick, then customize the list to your watchlist.",
+      },
+      {
+        question: "Can I use my own streaming watchlist?",
+        answer:
+          "Yes. Replace the starter titles with anything from your queue so every slice is watchable tonight.",
+      },
+      {
+        question: "Does the wheel stream or link to movies?",
+        answer:
+          "No. It only picks the title—you watch it on whatever service or format you already use.",
+      },
+      {
+        question: "How do I avoid rewatching the same pick?",
+        answer:
+          "Turn on remove-winner so chosen movies leave the wheel across multiple movie nights.",
+      },
+      {
+        question: "Is it free?",
+        answer:
+          "Yes. You can spin the movie picker wheel online for free with no signup.",
+      },
+    ],
+    accent: "indigo",
+    updatedAt: "2026-07-25",
+  }),
+  "draw-prompt": finalize({
+    id: "draw-prompt",
+    path: "/what-should-i-draw",
+    pageTitle: "What Should I Draw? | Free Drawing Prompt Wheel",
+    description:
+      "Out of drawing ideas? Spin this free drawing prompt wheel for a random subject—characters, scenes, and objects. Beat the blank page and start sketching.",
+    h1: "What Should You Draw Next?",
+    shortTitle: "What Should I Draw?",
+    heroIntro:
+      "The blank page wins when you have zero ideas and infinite options. Spin once for a random drawing prompt—an object, a scene, or a character twist—then start sketching before you can overthink it.",
+    keywords: [
+      "what should i draw",
+      "drawing prompt wheel",
+      "random drawing ideas",
+      "art prompt spinner",
+      "sketch idea generator",
+      "drawing idea wheel",
+    ],
+    articleTitle: "How to find your next drawing idea with a spin",
+    articleIntro: [
+      "“What should I draw?” is the question that ends more sketch sessions than bad erasers. This page opens a wheel loaded with varied prompts—cozy scenes, character mashups, everyday objects—so the decision takes one spin instead of one hour.",
+      "Treat the result as a starting point, not a rule: add your own style, combine two spins into one piece, or reroll once if the prompt truly doesn't spark anything. Updated: July 25, 2026.",
+    ],
+    uniqueSection: {
+      title: "Tips for better drawing prompt spins",
+      intro:
+        "Prompts work best when they remove the decision but leave the creativity to you.",
+      points: [
+        {
+          title: "Set a timer",
+          description:
+            "Spin, then sketch the result in 15 minutes. Speed kills perfectionism and builds output.",
+        },
+        {
+          title: "Combine two spins",
+          description:
+            "Spin twice and merge the results—a retro car in an enchanted forest beats either alone.",
+        },
+        {
+          title: "Build a streak list",
+          description:
+            "Use remove-winner for a 30-day challenge where every prompt appears exactly once.",
+        },
+      ],
+    },
+    faq: [
+      {
+        question: "What is the What Should I Draw wheel?",
+        answer:
+          "It is a free drawing prompt spinner preloaded with varied subjects. Spin once for a random idea, then sketch it your way.",
+      },
+      {
+        question: "Can I add my own prompts?",
+        answer:
+          "Yes. Replace or extend the list with prompts for your medium, skill level, or current art challenge.",
+      },
+      {
+        question: "Is it good for daily practice?",
+        answer:
+          "Yes. Enable remove-winner and spin daily so each prompt appears once across a challenge month.",
+      },
+      {
+        question: "Does it work for classrooms and art clubs?",
+        answer:
+          "Yes. Project the wheel so the whole group sees the same fair prompt for a shared session.",
+      },
+      {
+        question: "Is it free?",
+        answer:
+          "Yes. You can spin the drawing prompt wheel online for free with no signup.",
+      },
+    ],
+    accent: "rose",
+    updatedAt: "2026-07-25",
+  }),
+  "anime-watch": finalize({
+    id: "anime-watch",
+    path: "/what-anime-should-i-watch",
+    pageTitle: "What Anime Should I Watch? | Free Anime Picker Wheel",
+    description:
+      "Can't choose your next anime? Spin this free anime picker wheel loaded with popular series. Add your own backlog and let a fair spin pick your next watch.",
+    h1: "Which Anime Should You Watch Next?",
+    shortTitle: "What Anime Should I Watch?",
+    heroIntro:
+      "Your backlog grows faster than you can watch. Spin once for a fair pick from popular series—or load your own plan-to-watch list and let the wheel choose your next binge.",
+    keywords: [
+      "what anime should i watch",
+      "anime picker wheel",
+      "random anime picker",
+      "anime backlog spinner",
+      "anime decision wheel",
+      "next anime to watch",
+    ],
+    articleTitle: "How to pick your next anime with a spin",
+    articleIntro: [
+      "“What anime should I watch?” gets harder every season—the backlog only grows. This page opens a wheel preloaded with widely loved series across genres so one visible spin picks your next watch.",
+      "The starter list is a demo pool of popular titles. Swap in your actual plan-to-watch list, a genre-only shortlist, or the three shows your friends keep recommending. Updated: July 25, 2026.",
+    ],
+    uniqueSection: {
+      title: "Tips for clearing your anime backlog",
+      intro:
+        "A spin removes the decision cost—the biggest reason backlogs never shrink.",
+      points: [
+        {
+          title: "Load your real backlog",
+          description:
+            "Paste your plan-to-watch list so every slice is something you already intended to start.",
+        },
+        {
+          title: "Match your time budget",
+          description:
+            "Keep a short-series wheel for busy weeks and a long-runner wheel for holidays.",
+        },
+        {
+          title: "Spin with friends",
+          description:
+            "Group watch? Everyone adds two titles, then one fair spin picks the season's shared show.",
+        },
+      ],
+    },
+    faq: [
+      {
+        question: "What is the What Anime Should I Watch wheel?",
+        answer:
+          "It is a free anime decision spinner preloaded with popular series. Spin once for a fair pick, then load your own backlog.",
+      },
+      {
+        question: "Can I add my own plan-to-watch list?",
+        answer:
+          "Yes. Replace the starter titles with your backlog so the wheel picks from shows you actually want to start.",
+      },
+      {
+        question: "Does the wheel stream anime?",
+        answer:
+          "No. It only picks the title—you watch it on your usual streaming service.",
+      },
+      {
+        question: "How is this different from the character wheels?",
+        answer:
+          "Character wheels like Demon Slayer and JJK spin characters from one series. This wheel picks which series to watch next.",
+      },
+      {
+        question: "Is it free?",
+        answer:
+          "Yes. You can spin the anime picker wheel online for free with no signup.",
+      },
+    ],
+    accent: "violet",
+    updatedAt: "2026-07-25",
+  }),
 }
 
 export function getFortuneWheelSpoke(
@@ -796,6 +1129,10 @@ const POPULAR_SPOKE_IDS: FortuneWheelSpokeId[] = [
   "custom",
   "holiday",
   "game-night",
+  "what-to-do",
+  "movie-watch",
+  "draw-prompt",
+  "anime-watch",
   "jess-coleman",
   "rainey-dorbor",
 ]

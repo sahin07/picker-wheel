@@ -1,4 +1,6 @@
 // AI Service for Live API Integration
+import { HOME_SITE_URL } from "@/lib/home-seo"
+
 export interface AIResponse {
   message: string
   recommendedSkins?: string[]
@@ -73,8 +75,7 @@ class AIService {
       }
       // OpenRouter ranking / attribution headers (safe for OpenAI-compatible too)
       if (this.baseUrl.includes("openrouter.ai")) {
-        headers["HTTP-Referer"] =
-          process.env.NEXT_PUBLIC_SITE_URL || "https://www.spinifywheel.com"
+        headers["HTTP-Referer"] = HOME_SITE_URL
         headers["X-Title"] = "Picker Wheel"
       }
 

@@ -1,5 +1,19 @@
-export const HOME_SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.spinifywheel.com"
+/** Canonical production origin (www). */
+const PRODUCTION_SITE_URL = "https://www.spinifywheel.com"
+
+/**
+ * Prefer NEXT_PUBLIC_SITE_URL when set, but never advertise the old Vercel
+ * preview host as the live canonical — that breaks robots.txt / sitemap SEO.
+ */
+function resolveSiteUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "")
+  if (!fromEnv || fromEnv.includes("picker-wheel-alpha.vercel.app")) {
+    return PRODUCTION_SITE_URL
+  }
+  return fromEnv
+}
+
+export const HOME_SITE_URL = resolveSiteUrl()
 
 /** Pillar path for the Random Name Picker hub */
 export const HOME_PATH = "/"

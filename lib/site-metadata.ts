@@ -14,6 +14,9 @@ export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`
 
 export const SITE_NAME = "Spinifywheel"
 
+/** Public support / contact email used across legal and contact pages */
+export const SITE_SUPPORT_EMAIL = "spinifywheel@gmail.com"
+
 export const DEFAULT_ROBOTS: NonNullable<Metadata["robots"]> = {
   index: true,
   follow: true,

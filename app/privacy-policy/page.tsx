@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Footer from "@/components/footer"
 import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+import { SITE_SUPPORT_EMAIL } from "@/lib/site-metadata"
 
 const SITE_URL = HOME_SITE_URL
 const PATH = "/privacy-policy"
@@ -334,10 +335,10 @@ export default function PrivacyPolicyPage() {
               <p className="mt-3 text-base leading-relaxed">
                 Questions about privacy? Email us at{" "}
                 <a
-                  href="mailto:support@spinifywheel.com"
+                  href={`mailto:${SITE_SUPPORT_EMAIL}`}
                   className="font-semibold text-green-700 hover:underline"
                 >
-                  support@spinifywheel.com
+                  {SITE_SUPPORT_EMAIL}
                 </a>{" "}
                 or use our{" "}
                 <Link href="/contact-us" className="font-semibold text-green-700 hover:underline">

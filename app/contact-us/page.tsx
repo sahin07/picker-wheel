@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Footer from "@/components/footer"
 import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
+import { SITE_SUPPORT_EMAIL } from "@/lib/site-metadata"
 
 const SITE_URL = HOME_SITE_URL
 const PATH = "/contact-us"
@@ -9,7 +10,7 @@ const PAGE_URL = `${SITE_URL}${PATH}`
 const PAGE_TITLE = "Contact Us | Picker Wheel"
 const PAGE_DESCRIPTION =
   "Contact Picker Wheel for support, privacy questions, AdSense or partnership inquiries, and feedback about our free spin wheel tools."
-const SUPPORT_EMAIL = "support@spinifywheel.com"
+const SUPPORT_EMAIL = SITE_SUPPORT_EMAIL
 
 export const metadata: Metadata = {
   title: { absolute: PAGE_TITLE },

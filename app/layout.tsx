@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Fredoka, Nunito } from "next/font/google"
+import Script from "next/script"
 import {
   DEFAULT_OG_IMAGE_URL,
   DEFAULT_ROBOTS,
@@ -70,6 +71,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-RL0J5PEKRX"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-RL0J5PEKRX');
+          `}
+        </Script>
+      </head>
       <body
         className="font-spin-body antialiased"
         suppressHydrationWarning={true}

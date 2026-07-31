@@ -5,10 +5,9 @@ import {
   useEffect,
   useRef,
   useCallback,
-  Suspense,
   type ReactNode,
 } from "react"
-import { useSearchParams } from "next/navigation"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
@@ -89,7 +88,6 @@ function CountryWheelAppInner({
   )
   const deepLinkAppliedRef = useRef(false)
   const lastAppliedUseCaseRef = useRef<CountryWheelUseCaseId | null>(null)
-  const searchParams = useSearchParams()
 
   const {
     currentSession,
@@ -177,15 +175,25 @@ function CountryWheelAppInner({
     deepLinkAppliedRef.current = true
   }, [])
 
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    const id =
-      deepLink?.useCaseId ??
-      countryWheelUseCaseFromTemplate(searchParams.get("template"))
-    if (!id) return
-    if (lastAppliedUseCaseRef.current === id && deepLinkAppliedRef.current) return
-    const timer = window.setTimeout(() => applyUseCasePreset(id), 0)
+    if (!deepLink?.useCaseId) return
+    if (lastAppliedUseCaseRef.current === deepLink.useCaseId && deepLinkAppliedRef.current) return
+    const timer = window.setTimeout(() => applyUseCasePreset(deepLink.useCaseId), 0)
     return () => window.clearTimeout(timer)
-  }, [deepLink?.useCaseId, searchParams, applyUseCasePreset])
+  }, [deepLink?.useCaseId, applyUseCasePreset])
+
+  // Pillar ?template= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const id = countryWheelUseCaseFromTemplate(params.get("template"))
+      if (!id) return
+      if (lastAppliedUseCaseRef.current === id && deepLinkAppliedRef.current) return
+      applyUseCasePreset(id)
+    },
+    [deepLink, applyUseCasePreset],
+  )
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -217,9 +225,7 @@ function CountryWheelAppInner({
           wheel = getCurrentWheel()
         }
 
-        const presetId =
-          deepLink?.useCaseId ||
-          countryWheelUseCaseFromTemplate(searchParams.get("template"))
+        const presetId = deepLink?.useCaseId
 
         if (presetId) {
           // Always re-apply after hydrate so persist cannot leave an empty first paint
@@ -419,8 +425,10 @@ function CountryWheelAppInner({
   }
 
   return (
-    <ToastProvider>
-      <div
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider>
+        <div
         className={`min-h-screen transition-colors duration-300 ${
           isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""
         }`}
@@ -663,14 +671,11 @@ function CountryWheelAppInner({
           }}
         />
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </>
   )
 }
 
 export default function CountryWheelApp(props: CountryWheelAppProps) {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#a8b5a0]" />}>
-      <CountryWheelAppInner {...props} />
-    </Suspense>
-  )
+  return <CountryWheelAppInner {...props} />
 }

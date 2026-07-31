@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, Suspense, type ReactNode } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -174,7 +174,6 @@ function FortniteWheelAppInner({
     deepLink?.useCaseId ?? null,
   )
   const deepLinkAppliedRef = useRef(false)
-  const searchParams = useSearchParams()
 
   // Game session management
   const {
@@ -258,27 +257,31 @@ function FortniteWheelAppInner({
     setForceUpdate((p) => p + 1)
   }, [])
 
-  // Spoke deepLink + pillar ?template= / ?rarity=
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    if (deepLinkAppliedRef.current) return
+    if (!deepLink || deepLinkAppliedRef.current) return
     const timer = window.setTimeout(() => {
       if (deepLinkAppliedRef.current) return
-      const applyId = (id: FortniteWheelUseCaseId) => {
-        applyUseCasePreset(id)
-        deepLinkAppliedRef.current = true
-      }
-      if (deepLink) {
-        applyId(deepLink.useCaseId)
-        return
-      }
-      const id = fortniteWheelUseCaseFromTemplate(
-        searchParams.get("template"),
-        searchParams.get("rarity"),
-      )
-      if (id) applyId(id)
+      applyUseCasePreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
     }, 150)
     return () => window.clearTimeout(timer)
-  }, [deepLink, searchParams, applyUseCasePreset])
+  }, [deepLink, applyUseCasePreset])
+
+  // Pillar ?template= / ?rarity= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const id = fortniteWheelUseCaseFromTemplate(
+        params.get("template"),
+        params.get("rarity"),
+      )
+      if (!id) return
+      applyUseCasePreset(id)
+      deepLinkAppliedRef.current = true
+    },
+    [deepLink, applyUseCasePreset],
+  )
 
   // AI Features
   const [aiRecommendations, setAiRecommendations] = useState<Skin[]>([])
@@ -1553,6 +1556,8 @@ function FortniteWheelAppInner({
   }, [spinResult, achievements, themes, totalPoints, allResults, actionMode, currentTheme, settings.spinBehavior.spinningDuration])
 
   return (
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
       <div 
         className="min-h-screen overflow-x-hidden transition-colors duration-300"
         style={{ 
@@ -1945,17 +1950,14 @@ function FortniteWheelAppInner({
         />
 
       </div>
+    </>
   )
 }
 
 export default function FortniteWheelApp(props: FortniteWheelAppProps) {
   return (
     <ToastProvider>
-      <Suspense fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}>
-        <FortniteWheelAppInner {...props} />
-      </Suspense>
+      <FortniteWheelAppInner {...props} />
     </ToastProvider>
   )
 }
-
-

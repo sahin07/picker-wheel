@@ -1,7 +1,7 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import { PanelRightOpen } from "lucide-react"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
@@ -81,8 +81,8 @@ function PrizeWheelAppInner({
   )
   const [mounted, setMounted] = useState(false)
   const [sidebarMaxHeight, setSidebarMaxHeight] = useState<number | null>(null)
-  const searchParams = useSearchParams()
   const lastApplied = useRef<PrizeWheelUseCaseId | null>(null)
+  const deepLinkAppliedRef = useRef(false)
   const lastGameSpin = useRef<string | null>(null)
   const leftColRef = useRef<HTMLDivElement>(null)
   const { settings, loadFromDatabase: loadSettings, updateSettings } = useSettingsStore()
@@ -160,8 +160,11 @@ function PrizeWheelAppInner({
         createNewWheel("prize-wheel", "My Prize Wheel")
         wheel = getCurrentWheel()
       }
-      const preset = deepLink?.useCaseId || prizeWheelUseCaseFromTemplate(searchParams.get("template"))
-      if (preset) applyPreset(preset)
+      const preset = deepLink?.useCaseId
+      if (preset) {
+        applyPreset(preset)
+        deepLinkAppliedRef.current = true
+      }
       else if (wheel?.toolType === "prize-wheel" && !(wheel.data as PrizeWheelData).entries?.length) {
         applyPreset("custom")
       }
@@ -183,12 +186,27 @@ function PrizeWheelAppInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    const preset = deepLink?.useCaseId || prizeWheelUseCaseFromTemplate(searchParams.get("template"))
-    if (!preset || lastApplied.current === preset) return
-    const timer = window.setTimeout(() => applyPreset(preset), 0)
+    if (!deepLink?.useCaseId || deepLinkAppliedRef.current) return
+    const timer = window.setTimeout(() => {
+      applyPreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
+    }, 0)
     return () => window.clearTimeout(timer)
-  }, [applyPreset, deepLink?.useCaseId, searchParams])
+  }, [applyPreset, deepLink?.useCaseId])
+
+  // Pillar ?template= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const preset = prizeWheelUseCaseFromTemplate(params.get("template"))
+      if (!preset || lastApplied.current === preset) return
+      applyPreset(preset)
+      deepLinkAppliedRef.current = true
+    },
+    [applyPreset, deepLink],
+  )
 
   useEffect(() => {
     if (actionMode === "manual") return
@@ -343,8 +361,10 @@ function PrizeWheelAppInner({
   ])
 
   return (
-    <ToastProvider>
-      <div
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider>
+        <div
         className={`min-h-screen transition-colors ${isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""}`}
         style={{
           backgroundColor: settings.appearance.backgroundColor || "#a8b5a0",
@@ -547,14 +567,11 @@ function PrizeWheelAppInner({
           }}
         />
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </>
   )
 }
 
 export default function PrizeWheelApp(props: PrizeWheelAppProps) {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#a8b5a0]" />}>
-      <PrizeWheelAppInner {...props} />
-    </Suspense>
-  )
+  return <PrizeWheelAppInner {...props} />
 }

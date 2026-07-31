@@ -1,7 +1,7 @@
 "use client"
 
-import { Suspense, useState, useEffect, useCallback, type ReactNode } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useCallback, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
@@ -41,22 +41,26 @@ function ColorPickerWheelAppInner({
   shortTitle,
   toolSubtitle,
 }: ColorPickerWheelAppProps) {
-  const searchParams = useSearchParams()
   const [showSettings, setShowSettings] = useState(false)
   const [openGamesSignal, setOpenGamesSignal] = useState(0)
   const [openAchievementsSignal, setOpenAchievementsSignal] = useState(0)
   const [activeUseCaseId, setActiveUseCaseId] = useState<ColorPickerUseCaseId | null>(null)
   const [appliedDeepLink, setAppliedDeepLink] = useState<ColorPickerDeepLink | undefined>(deepLink)
+  const [queryDeepLink, setQueryDeepLink] = useState<Pick<ColorPickerDeepLink, "tab" | "combination">>({})
   const { settings, loadFromDatabase: loadSettings } = useSettingsStore()
-
-  const queryTab = parseColorPickerSeoTab(searchParams.get("tab"))
-  const queryCombo = parseColorPickerSeoCombo(searchParams.get("combo"))
 
   const resolvedDeepLink: ColorPickerDeepLink = {
     ...appliedDeepLink,
-    tab: appliedDeepLink?.tab ?? queryTab ?? undefined,
-    combination: appliedDeepLink?.combination ?? queryCombo ?? undefined,
+    tab: appliedDeepLink?.tab ?? queryDeepLink.tab ?? undefined,
+    combination: appliedDeepLink?.combination ?? queryDeepLink.combination ?? undefined,
   }
+
+  const onSearchParams = useCallback((params: URLSearchParams) => {
+    setQueryDeepLink({
+      tab: parseColorPickerSeoTab(params.get("tab")) ?? undefined,
+      combination: parseColorPickerSeoCombo(params.get("combo")) ?? undefined,
+    })
+  }, [])
 
   useEffect(() => {
     loadSettings()
@@ -77,7 +81,9 @@ function ColorPickerWheelAppInner({
   }, [])
 
   return (
-    <SettingsProvider>
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <SettingsProvider>
       <ToastProvider>
         <div
           className="min-h-screen transition-colors duration-300"
@@ -150,16 +156,11 @@ function ColorPickerWheelAppInner({
           <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
         </div>
       </ToastProvider>
-    </SettingsProvider>
+      </SettingsProvider>
+    </>
   )
 }
 
 export default function ColorPickerWheelApp(props: ColorPickerWheelAppProps) {
-  return (
-    <Suspense
-      fallback={<div className="min-h-[480px] animate-pulse rounded-lg bg-slate-100" />}
-    >
-      <ColorPickerWheelAppInner {...props} />
-    </Suspense>
-  )
+  return <ColorPickerWheelAppInner {...props} />
 }

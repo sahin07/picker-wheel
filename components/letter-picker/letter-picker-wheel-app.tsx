@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef, type ReactNode, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
@@ -71,7 +71,6 @@ function LetterPickerWheelAppInner({
   shortTitle,
   toolSubtitle,
 }: LetterPickerWheelAppProps) {
-  const searchParams = useSearchParams()
   const [showSettings, setShowSettings] = useState(false)
   const [showTitleModal, setShowTitleModal] = useState(false)
   const [showGameModes, setShowGameModes] = useState(false)
@@ -264,30 +263,30 @@ function LetterPickerWheelAppInner({
   }, [deepLink])
 
   // Popular Letter Wheels / deep links: ?preset=vowels&style=lowercase or ?mode=classroom
-  useEffect(() => {
+  const onSearchParams = useCallback((params: URLSearchParams) => {
     if (isSpinningRef.current) return
-    const key = searchParams.toString()
+    const key = params.toString()
     if (!key || key === lastUrlKeyRef.current) return
     lastUrlKeyRef.current = key
 
-    const mode = searchParams.get("mode") as LetterPickerUseCaseId | null
+    const mode = params.get("mode") as LetterPickerUseCaseId | null
     if (mode && getLetterPickerUseCase(mode)) {
       applyUseCasePreset(mode)
       return
     }
 
-    const styleRaw = searchParams.get("style")
+    const styleRaw = params.get("style")
     const style: StyleOption =
       styleRaw === "uppercase" || styleRaw === "lowercase" || styleRaw === "mixed"
         ? styleRaw
         : "uppercase"
 
-    const preset = searchParams.get("preset") as LetterPickerSeoPreset | null
+    const preset = params.get("preset") as LetterPickerSeoPreset | null
     if (!preset) return
 
     setActiveUseCaseId(null)
     applyLetterSet(preset, style)
-  }, [searchParams])
+  }, [])
 
   // Align local spin duration with Header Settings (seconds → ms)
   useEffect(() => {
@@ -664,7 +663,9 @@ function LetterPickerWheelAppInner({
   })
 
   return (
-    <ToastProvider>
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider>
       {showConfetti && (
         <Confetti
           width={window.innerWidth}
@@ -946,14 +947,11 @@ function LetterPickerWheelAppInner({
 
         {!isFullscreen && <Footer />}
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </>
   )
 }
 
 export default function LetterPickerWheelApp(props: LetterPickerWheelAppProps) {
-  return (
-    <Suspense fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}>
-      <LetterPickerWheelAppInner {...props} />
-    </Suspense>
-  )
+  return <LetterPickerWheelAppInner {...props} />
 }

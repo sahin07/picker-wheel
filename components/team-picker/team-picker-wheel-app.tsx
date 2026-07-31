@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, type ReactNode, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
@@ -47,9 +47,9 @@ function TeamPickerWheelAppInner({
     deepLink?.useCaseId ?? null,
   )
   const deepLinkAppliedRef = useRef(false)
+  const pendingSearchParamsRef = useRef<URLSearchParams | null>(null)
   const { settings, loadFromDatabase: loadSettings } = useSettingsStore()
   const { setCurrentTool, getCurrentWheel, createNewWheel } = useWheelManagerStore()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     loadSettings()
@@ -88,8 +88,11 @@ function TeamPickerWheelAppInner({
         return
       }
 
-      const groupsRaw = searchParams.get("groups")
-      const template = searchParams.get("template")
+      const params = pendingSearchParamsRef.current
+      if (!params) return
+
+      const groupsRaw = params.get("groups")
+      const template = params.get("template")
       if (!template && !groupsRaw) return
 
       const groups = groupsRaw ? Number.parseInt(groupsRaw, 10) : NaN
@@ -101,11 +104,22 @@ function TeamPickerWheelAppInner({
       applyId(id)
     }
     window.addEventListener("team-picker-hydrated", onHydrated)
-    return () => window.removeEventListener("team-picker-hydrated", onHydrated)
-  }, [deepLink, searchParams, applyUseCasePreset])
+    window.addEventListener("team-picker-search-params", onHydrated)
+    return () => {
+      window.removeEventListener("team-picker-hydrated", onHydrated)
+      window.removeEventListener("team-picker-search-params", onHydrated)
+    }
+  }, [deepLink, applyUseCasePreset])
+
+  const onSearchParams = useCallback((params: URLSearchParams) => {
+    pendingSearchParamsRef.current = params
+    window.dispatchEvent(new Event("team-picker-search-params"))
+  }, [])
 
   return (
-    <div
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <div
       className="min-h-screen overflow-x-hidden transition-colors duration-300"
       style={{
         backgroundColor: settings.appearance.backgroundColor,
@@ -171,6 +185,7 @@ function TeamPickerWheelAppInner({
       <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <GeminiAIChat hideFloatingButton />
     </div>
+    </>
   )
 }
 
@@ -178,11 +193,7 @@ export default function TeamPickerWheelApp(props: TeamPickerWheelAppProps) {
   return (
     <SettingsProvider>
       <ToastProvider>
-        <Suspense
-          fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}
-        >
-          <TeamPickerWheelAppInner {...props} />
-        </Suspense>
+        <TeamPickerWheelAppInner {...props} />
       </ToastProvider>
     </SettingsProvider>
   )

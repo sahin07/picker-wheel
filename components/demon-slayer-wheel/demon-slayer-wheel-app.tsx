@@ -1,7 +1,7 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react"
-import { useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import { PanelRightOpen } from "lucide-react"
 import Footer from "@/components/footer"
 import Header from "@/components/header"
@@ -70,10 +70,10 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
   const [, setStoreReady] = useState(0)
   const [activeUseCaseId, setActiveUseCaseId] = useState<DemonSlayerWheelUseCaseId | null>(deepLink?.useCaseId ?? null)
   const lastApplied = useRef<DemonSlayerWheelUseCaseId | null>(null)
+  const deepLinkAppliedRef = useRef(false)
   const lastGameSpin = useRef<string | null>(null)
   const leftColRef = useRef<HTMLDivElement>(null)
   const [sidebarMaxHeight, setSidebarMaxHeight] = useState<number | null>(null)
-  const searchParams = useSearchParams()
   const { settings, loadFromDatabase: loadSettings, updateSettings } = useSettingsStore()
   const removeWinnerAfterSpin = useSettingsStore((state) => state.settings.spinBehavior?.removeWinnerAfterSpin)
   const { getCurrentWheel, updateWheelData } = useWheelManagerStore()
@@ -135,8 +135,11 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
         store.createNewWheel("demon-slayer-wheel", "Demon Slayer Spin Wheel")
         current = store.getCurrentWheel()
       }
-      const preset = deepLink?.useCaseId || demonSlayerWheelUseCaseFromTemplate(searchParams.get("template"))
-      if (preset) applyPreset(preset)
+      const preset = deepLink?.useCaseId
+      if (preset) {
+        applyPreset(preset)
+        deepLinkAppliedRef.current = true
+      }
       const latest = store.getCurrentWheel()?.data as DemonSlayerWheelData | undefined
       if (latest?.currentTheme) setCurrentTheme(latest.currentTheme)
       if (latest?.actionMode) setActionMode(latest.actionMode)
@@ -161,12 +164,27 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    const preset = deepLink?.useCaseId || demonSlayerWheelUseCaseFromTemplate(searchParams.get("template"))
-    if (!preset || lastApplied.current === preset) return
-    const timer = window.setTimeout(() => applyPreset(preset), 0)
+    if (!deepLink?.useCaseId || deepLinkAppliedRef.current) return
+    const timer = window.setTimeout(() => {
+      applyPreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
+    }, 0)
     return () => window.clearTimeout(timer)
-  }, [applyPreset, deepLink?.useCaseId, searchParams])
+  }, [applyPreset, deepLink?.useCaseId])
+
+  // Pillar ?template= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const preset = demonSlayerWheelUseCaseFromTemplate(params.get("template"))
+      if (!preset || lastApplied.current === preset) return
+      applyPreset(preset)
+      deepLinkAppliedRef.current = true
+    },
+    [applyPreset, deepLink],
+  )
 
   useEffect(() => {
     if (actionMode === "manual") return
@@ -266,9 +284,22 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
     })
   }, [getCurrentWheel, updateWheelData])
 
-  if (!mounted) return <div className="min-h-[720px] bg-violet-100" aria-busy="true" />
+  if (!mounted) {
+    return (
+      <>
+        <div className="min-h-[720px] bg-violet-100" aria-busy="true" />
+        <div className="w-full min-w-0 overflow-x-hidden px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          {seoIntro}
+          {seoSections}
+        </div>
+      </>
+    )
+  }
 
-  return <ToastProvider><div className={`min-h-screen transition-colors ${isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""}`}
+  return (
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider><div className={`min-h-screen transition-colors ${isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""}`}
     style={{ backgroundColor: settings.appearance.backgroundColor || "#ddd6fe",
       backgroundImage: settings.appearance.backgroundImage ? `url(${settings.appearance.backgroundImage})` : undefined,
       backgroundSize: "cover", backgroundPosition: "center" }}>
@@ -415,10 +446,10 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
       }}
     />
   </div></ToastProvider>
+    </>
+  )
 }
 
 export default function DemonSlayerWheelApp(props: DemonSlayerWheelAppProps) {
-  return <Suspense fallback={<div className="min-h-screen bg-violet-100" />}>
-    <DemonSlayerWheelAppInner {...props} />
-  </Suspense>
+  return <DemonSlayerWheelAppInner {...props} />
 }

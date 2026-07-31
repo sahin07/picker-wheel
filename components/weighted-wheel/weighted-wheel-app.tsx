@@ -1,14 +1,13 @@
 "use client"
 
 import {
-  Suspense,
   useCallback,
   useEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react"
-import { useSearchParams } from "next/navigation"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import { PanelRightOpen } from "lucide-react"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
@@ -86,8 +85,8 @@ function WeightedWheelAppInner({
   )
   const [mounted, setMounted] = useState(false)
   const [sidebarMaxHeight, setSidebarMaxHeight] = useState<number | null>(null)
-  const searchParams = useSearchParams()
   const lastAppliedRef = useRef<WeightedWheelUseCaseId | null>(null)
+  const deepLinkAppliedRef = useRef(false)
   const leftColRef = useRef<HTMLDivElement>(null)
 
   const { settings, loadFromDatabase: loadSettings, updateSettings } = useSettingsStore()
@@ -156,9 +155,10 @@ function WeightedWheelAppInner({
           wheel = getCurrentWheel()
         }
         const preset =
-          deepLink?.useCaseId || weightedWheelUseCaseFromTemplate(searchParams.get("template"))
+          deepLink?.useCaseId
         if (preset) {
           applyPreset(preset)
+          deepLinkAppliedRef.current = true
         } else if (wheel?.toolType === "weighted-wheel") {
           const data = wheel.data as WeightedWheelData
           if (!data.entries?.length) applyPreset("custom")
@@ -177,13 +177,27 @@ function WeightedWheelAppInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    const preset =
-      deepLink?.useCaseId || weightedWheelUseCaseFromTemplate(searchParams.get("template"))
-    if (!preset || lastAppliedRef.current === preset) return
-    const timer = window.setTimeout(() => applyPreset(preset), 0)
+    if (!deepLink?.useCaseId || deepLinkAppliedRef.current) return
+    const timer = window.setTimeout(() => {
+      applyPreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
+    }, 0)
     return () => window.clearTimeout(timer)
-  }, [applyPreset, deepLink?.useCaseId, searchParams])
+  }, [applyPreset, deepLink?.useCaseId])
+
+  // Pillar ?template= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const preset = weightedWheelUseCaseFromTemplate(params.get("template"))
+      if (!preset || lastAppliedRef.current === preset) return
+      applyPreset(preset)
+      deepLinkAppliedRef.current = true
+    },
+    [applyPreset, deepLink],
+  )
 
   useEffect(() => {
     if (actionMode === "manual") return
@@ -273,8 +287,10 @@ function WeightedWheelAppInner({
   }
 
   return (
-    <ToastProvider>
-      <div
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider>
+        <div
         className={`min-h-screen transition-colors ${isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""}`}
         style={{
           backgroundColor: settings.appearance.backgroundColor || "#a8b5a0",
@@ -468,14 +484,11 @@ function WeightedWheelAppInner({
           }}
         />
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </>
   )
 }
 
 export default function WeightedWheelApp(props: WeightedWheelAppProps) {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#a8b5a0]" />}>
-      <WeightedWheelAppInner {...props} />
-    </Suspense>
-  )
+  return <WeightedWheelAppInner {...props} />
 }

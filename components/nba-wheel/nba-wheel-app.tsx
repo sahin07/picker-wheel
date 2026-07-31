@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, type ReactNode, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react"
 import Header from "@/components/header"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
 import { ToolPageTitle } from "@/components/tool-favorite-star"
@@ -90,8 +90,7 @@ function NbaWheelAppInner({
     deepLink?.useCaseId ?? null,
   )
   const deepLinkAppliedRef = useRef(false)
-  const searchParams = useSearchParams()
-  
+
   const { setCurrentTool, createNewWheel, getCurrentWheel, updateWheelData, loadFromDatabase: loadWheelManager } = useWheelManagerStore()
   const { settings, updateSettings, loadFromDatabase: loadSettings } = useSettingsStore()
   const removeWinnerAfterSpin = useSettingsStore(
@@ -157,27 +156,31 @@ function NbaWheelAppInner({
     setActiveUseCaseId(id)
   }, [])
 
-  // Spoke deepLink + pillar ?template= / ?conference=
+  // Spoke deepLink (SSR-safe — no useSearchParams)
   useEffect(() => {
-    if (deepLinkAppliedRef.current) return
+    if (!deepLink || deepLinkAppliedRef.current) return
     const timer = window.setTimeout(() => {
       if (deepLinkAppliedRef.current) return
-      const applyId = (id: NbaWheelUseCaseId) => {
-        applyUseCasePreset(id)
-        deepLinkAppliedRef.current = true
-      }
-      if (deepLink) {
-        applyId(deepLink.useCaseId)
-        return
-      }
-      const id = nbaWheelUseCaseFromTemplate(
-        searchParams.get("template"),
-        searchParams.get("conference"),
-      )
-      if (id) applyId(id)
+      applyUseCasePreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
     }, 150)
     return () => window.clearTimeout(timer)
-  }, [deepLink, searchParams, applyUseCasePreset])
+  }, [deepLink, applyUseCasePreset])
+
+  // Pillar ?template= / ?conference= — isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const id = nbaWheelUseCaseFromTemplate(
+        params.get("template"),
+        params.get("conference"),
+      )
+      if (!id) return
+      applyUseCasePreset(id)
+      deepLinkAppliedRef.current = true
+    },
+    [deepLink, applyUseCasePreset],
+  )
 
   // Listen for spin results from the wheel store
   const [lastSpinResult, setLastSpinResult] = useState<any>(null);
@@ -414,6 +417,8 @@ function NbaWheelAppInner({
 
 
   return (
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
       <div
         className="min-h-screen overflow-x-hidden transition-colors duration-300"
         style={{
@@ -711,15 +716,14 @@ function NbaWheelAppInner({
            }}
          />
       </div>
+    </>
   )
 }
 
 export default function NbaWheelApp(props: NbaWheelAppProps) {
   return (
     <ToastProvider>
-      <Suspense fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}>
-        <NbaWheelAppInner {...props} />
-      </Suspense>
+      <NbaWheelAppInner {...props} />
     </ToastProvider>
   )
 } 

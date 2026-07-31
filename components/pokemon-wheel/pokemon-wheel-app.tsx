@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, type ReactNode, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import type { PokemonWheelDeepLink } from "@/lib/pokemon-wheel-spokes"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -86,7 +86,6 @@ function PokemonWheelAppInner({
   const removeWinnerAfterSpin = useSettingsStore(
     (s) => s.settings.spinBehavior?.removeWinnerAfterSpin,
   )
-  const searchParams = useSearchParams()
   const [activeUseCaseId, setActiveUseCaseId] = useState<PokemonWheelUseCaseId | null>(
     deepLink?.useCaseId ?? null,
   )
@@ -447,27 +446,31 @@ function PokemonWheelAppInner({
     setForceUpdate((p) => p + 1)
   }, [])
 
-  // Spoke deepLink + pillar ?template= / ?generation=
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    if (deepLinkAppliedRef.current) return
+    if (!deepLink || deepLinkAppliedRef.current) return
     const timer = window.setTimeout(() => {
       if (deepLinkAppliedRef.current) return
-      const applyId = (id: PokemonWheelUseCaseId) => {
-        applyUseCasePreset(id)
-        deepLinkAppliedRef.current = true
-      }
-      if (deepLink) {
-        applyId(deepLink.useCaseId)
-        return
-      }
-      const id = pokemonWheelUseCaseFromTemplate(
-        searchParams.get("template"),
-        searchParams.get("generation"),
-      )
-      if (id) applyId(id)
+      applyUseCasePreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
     }, 150)
     return () => window.clearTimeout(timer)
-  }, [deepLink, searchParams, applyUseCasePreset])
+  }, [deepLink, applyUseCasePreset])
+
+  // Pillar ?template= / ?generation= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const id = pokemonWheelUseCaseFromTemplate(
+        params.get("template"),
+        params.get("generation"),
+      )
+      if (!id) return
+      applyUseCasePreset(id)
+      deepLinkAppliedRef.current = true
+    },
+    [deepLink, applyUseCasePreset],
+  )
 
   const getAllPokemon = (): Pokemon[] => {
     const allPredefinedPokemon = Object.values(pokemonData).flat() as Pokemon[]
@@ -1471,27 +1474,41 @@ function PokemonWheelAppInner({
   // Get current wheel data - like Fortnite wheel
   const wheelData = getCurrentWheelData()
   
-  // Show loading screen
+  // Show loading screen (keep SEO in HTML for crawlers)
   if (!isDataLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Pokemon wheel...</p>
+      <>
+        <SearchParamsSync onChange={onSearchParams} />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading Pokemon wheel...</p>
+          </div>
         </div>
-      </div>
+        <div className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          {seoIntro}
+          {seoSections}
+        </div>
+      </>
     )
   }
 
-  // If no wheel data, show loading
+  // If no wheel data, show loading (keep SEO in HTML for crawlers)
   if (!wheelData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing Pokemon wheel...</p>
+      <>
+        <SearchParamsSync onChange={onSearchParams} />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Initializing Pokemon wheel...</p>
+          </div>
         </div>
-      </div>
+        <div className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          {seoIntro}
+          {seoSections}
+        </div>
+      </>
     )
   }
 
@@ -1515,6 +1532,7 @@ function PokemonWheelAppInner({
 
   return (
     <>
+      <SearchParamsSync onChange={onSearchParams} />
       {showConfetti && typeof window !== "undefined" && (
         <Confetti
           width={window.innerWidth}
@@ -1910,9 +1928,7 @@ function PokemonWheelAppInner({
 export default function PokemonWheelApp(props: PokemonWheelAppProps) {
   return (
     <ToastProvider>
-      <Suspense fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}>
-        <PokemonWheelAppInner {...props} />
-      </Suspense>
+      <PokemonWheelAppInner {...props} />
     </ToastProvider>
   )
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type ReactNode, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs";
 import { ToolPageTitle } from "@/components/tool-favorite-star";
@@ -235,7 +235,6 @@ function LolWheelAppInner({
   const removeWinnerAfterSpin = useSettingsStore(
     (st) => st.settings.spinBehavior?.removeWinnerAfterSpin,
   );
-  const searchParams = useSearchParams();
   const [activeUseCaseId, setActiveUseCaseId] = useState<LolWheelUseCaseId | null>(
     deepLink?.useCaseId ?? null,
   );
@@ -251,8 +250,6 @@ function LolWheelAppInner({
   useEffect(() => {
     if (deepLink?.config.champions?.length) return;
     if (selectedChampions.length > 0) return;
-    if (lolWheelUseCaseFromTemplate(searchParams.get("template"))) return;
-
     try {
       const raw = localStorage.getItem("wheel-manager");
       if (raw) {
@@ -328,20 +325,27 @@ function LolWheelAppInner({
     setForceUpdate((p) => p + 1);
   }, []);
 
-  // Spoke / ?template= — re-apply when useCase changes (client nav between spokes)
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    const id =
-      deepLink?.useCaseId ??
-      lolWheelUseCaseFromTemplate(searchParams.get("template"));
-    if (!id) return;
-    if (lastAppliedUseCaseRef.current === id && deepLinkAppliedRef.current) return;
-    // Apply after a tick so the wheel store has a current wheel; keep delay short
-    // to avoid a visible empty-wheel flash on spoke pages.
+    if (!deepLink?.useCaseId) return;
+    if (lastAppliedUseCaseRef.current === deepLink.useCaseId && deepLinkAppliedRef.current) return;
     const timer = window.setTimeout(() => {
-      applyUseCasePreset(id);
+      applyUseCasePreset(deepLink.useCaseId);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [deepLink?.useCaseId, searchParams, applyUseCasePreset]);
+  }, [deepLink?.useCaseId, applyUseCasePreset]);
+
+  // Pillar ?template= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return;
+      const id = lolWheelUseCaseFromTemplate(params.get("template"));
+      if (!id) return;
+      if (lastAppliedUseCaseRef.current === id && deepLinkAppliedRef.current) return;
+      applyUseCasePreset(id);
+    },
+    [deepLink, applyUseCasePreset],
+  );
 
   // Sync muted state → ref so animation callbacks always read fresh value
   useEffect(() => {
@@ -617,9 +621,7 @@ function LolWheelAppInner({
   useEffect(() => {
     const currentWheel = getCurrentWheel();
     if (currentWheel && isInitialized && isDataLoaded) {
-      const presetId =
-        deepLink?.useCaseId ||
-        lolWheelUseCaseFromTemplate(searchParams.get("template"));
+      const presetId = deepLink?.useCaseId;
       // Wait until spoke/template preset has applied before persisting — avoids
       // a stale empty-selection effect overwriting the preset in the store.
       if (presetId && !deepLinkAppliedRef.current) return;
@@ -947,10 +949,7 @@ function LolWheelAppInner({
           } else {
             // Skip auto-select if a deepLink/template preset will be applied shortly
             const hasDeepLink = Boolean(deepLink);
-            const hasTemplate = Boolean(
-              lolWheelUseCaseFromTemplate(searchParams.get("template")),
-            );
-            if (!hasDeepLink && !hasTemplate && !deepLinkAppliedRef.current) {
+            if (!hasDeepLink && !deepLinkAppliedRef.current) {
               // Auto-select all champions on first load
               console.log(
                 "No selected champions found, auto-selecting all champions",
@@ -1008,11 +1007,8 @@ function LolWheelAppInner({
           // Initialize wheel data if it exists but has no data
           // Skip if a deepLink/template preset will populate the wheel
           const hasDeepLink = Boolean(deepLink);
-          const hasTemplate = Boolean(
-            lolWheelUseCaseFromTemplate(searchParams.get("template")),
-          );
           const allChampions = Object.values(lolChampions).flat();
-          const allChampionIds = hasDeepLink || hasTemplate || deepLinkAppliedRef.current
+          const allChampionIds = hasDeepLink || deepLinkAppliedRef.current
             ? []
             : allChampions.map((champion) => champion.id);
           console.log(
@@ -1039,10 +1035,7 @@ function LolWheelAppInner({
         } else {
           // Last resort: still mark initialized and seed all champions so the UI works
           const hasDeepLink = Boolean(deepLink);
-          const hasTemplate = Boolean(
-            lolWheelUseCaseFromTemplate(searchParams.get("template")),
-          );
-          if (!hasDeepLink && !hasTemplate) {
+          if (!hasDeepLink) {
             const allChampionIds = Object.values(lolChampions)
               .flat()
               .map((c) => c.id);
@@ -1670,7 +1663,9 @@ function LolWheelAppInner({
   // ────────────────────────────────────────────────────────────────────────────
 
   return (
-    <ToastProvider>
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
+      <ToastProvider>
       <div
         className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${
           isFullscreen ? "fixed inset-0 z-50 overflow-auto" : ""
@@ -2067,14 +2062,11 @@ function LolWheelAppInner({
         )}
 
       </div>
-    </ToastProvider>
+      </ToastProvider>
+    </>
   );
 }
 
 export default function LolWheelApp(props: LolWheelAppProps) {
-  return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading LoL Wheel...</div>}>
-      <LolWheelAppInner {...props} />
-    </Suspense>
-  );
+  return <LolWheelAppInner {...props} />;
 }

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, type ReactNode, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react"
+import { SearchParamsSync } from "@/components/search-params-sync"
 import Header from "@/components/header"
 import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import Footer from "@/components/footer"
@@ -90,7 +90,6 @@ function MlbWheelAppInner({
     deepLink?.useCaseId ?? null,
   )
   const deepLinkAppliedRef = useRef(false)
-  const searchParams = useSearchParams()
   
   const { setCurrentTool, createNewWheel, getCurrentWheel, updateWheelData, loadFromDatabase: loadWheelManager } = useWheelManagerStore()
   const { settings, updateSettings, loadFromDatabase: loadSettings } = useSettingsStore()
@@ -166,27 +165,31 @@ function MlbWheelAppInner({
     setActiveUseCaseId(id)
   }, [])
 
-  // Spoke deepLink + pillar ?template= / ?league=
+  // Spoke deepLink (SSR-safe - no useSearchParams)
   useEffect(() => {
-    if (deepLinkAppliedRef.current) return
+    if (!deepLink || deepLinkAppliedRef.current) return
     const timer = window.setTimeout(() => {
       if (deepLinkAppliedRef.current) return
-      const applyId = (id: MlbWheelUseCaseId) => {
-        applyUseCasePreset(id)
-        deepLinkAppliedRef.current = true
-      }
-      if (deepLink) {
-        applyId(deepLink.useCaseId)
-        return
-      }
-      const id = mlbWheelUseCaseFromTemplate(
-        searchParams.get("template"),
-        searchParams.get("league"),
-      )
-      if (id) applyId(id)
+      applyUseCasePreset(deepLink.useCaseId)
+      deepLinkAppliedRef.current = true
     }, 150)
     return () => window.clearTimeout(timer)
-  }, [deepLink, searchParams, applyUseCasePreset])
+  }, [deepLink, applyUseCasePreset])
+
+  // Pillar ?template= / ?league= - isolated so the rest of the tree can SSR
+  const onSearchParams = useCallback(
+    (params: URLSearchParams) => {
+      if (deepLinkAppliedRef.current || deepLink) return
+      const id = mlbWheelUseCaseFromTemplate(
+        params.get("template"),
+        params.get("league"),
+      )
+      if (!id) return
+      applyUseCasePreset(id)
+      deepLinkAppliedRef.current = true
+    },
+    [deepLink, applyUseCasePreset],
+  )
 
   // Listen for spin results from the wheel store
   const [lastSpinResult, setLastSpinResult] = useState<any>(null);
@@ -423,6 +426,8 @@ function MlbWheelAppInner({
 
 
   return (
+    <>
+      <SearchParamsSync onChange={onSearchParams} />
       <div
         className="min-h-screen overflow-x-hidden transition-colors duration-300"
         style={{
@@ -720,15 +725,14 @@ function MlbWheelAppInner({
            }}
          />
       </div>
+    </>
   )
 }
 
 export default function MlbWheelApp(props: MlbWheelAppProps) {
   return (
     <ToastProvider>
-      <Suspense fallback={<div className="min-h-screen animate-pulse bg-slate-50" />}>
-        <MlbWheelAppInner {...props} />
-      </Suspense>
+      <MlbWheelAppInner {...props} />
     </ToastProvider>
   )
-} 
+}

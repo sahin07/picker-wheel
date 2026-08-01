@@ -4,7 +4,7 @@ import { getJjkSpokeSiblings, type JjkWheelSpokeSeo } from "@/lib/jjk-wheel-spok
 
 export function JjkWheelSpokeSeoIntro({ spoke }: { spoke: JjkWheelSpokeSeo }) {
   return <section className="mx-auto mb-10 max-w-5xl border-t border-slate-200 px-1 pt-10 text-center">
-    <h1 className="font-spin-display text-3xl font-bold text-slate-900 sm:text-4xl">{spoke.h1}</h1>
+    <h2 className="font-spin-display text-3xl font-bold text-slate-900 sm:text-4xl">{spoke.h1}</h2>
     <p className="mx-auto mt-4 max-w-3xl leading-relaxed text-slate-600">{spoke.heroIntro}</p>
   </section>
 }

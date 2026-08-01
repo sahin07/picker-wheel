@@ -80,7 +80,6 @@ export default function YesNoPickerWheelApp({
               <ToolPageTitle
                 title={shortTitle ?? YES_NO_PICKER_SHORT_TITLE}
                 toolType="yes-no-picker-wheel"
-                as={seoIntro ? "p" : "h1"}
               />
               <p className="text-gray-600">
                 {toolSubtitle ?? "Spin the Yes or No Wheel to make a quick, fair decision"}

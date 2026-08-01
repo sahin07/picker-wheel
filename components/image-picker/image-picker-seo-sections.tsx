@@ -23,12 +23,12 @@ export function ImagePickerSeoIntro() {
       aria-labelledby="image-picker-seo-h1"
       className="mx-auto mb-10 max-w-5xl scroll-mt-24 border-t border-slate-200 px-1 pt-10 text-slate-700"
     >
-      <h1
+      <h2
         id="image-picker-seo-h1"
         className="font-spin-display mb-4 text-center text-3xl font-bold text-slate-900 sm:text-4xl"
       >
         {IMAGE_PICKER_H1}
-      </h1>
+      </h2>
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {IMAGE_PICKER_HERO_INTRO}
       </p>

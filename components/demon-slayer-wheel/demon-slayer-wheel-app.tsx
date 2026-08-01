@@ -289,6 +289,14 @@ function DemonSlayerWheelAppInner({ seoIntro, seoSections, shortTitle, toolSubti
       <>
         <div className="min-h-[720px] bg-violet-100" aria-busy="true" />
         <div className="w-full min-w-0 overflow-x-hidden px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-3 text-center sm:mb-4">
+            <h1 className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+              {shortTitle ?? DEMON_SLAYER_WHEEL_SHORT_TITLE}
+            </h1>
+            {toolSubtitle && (
+              <p className="mt-1 px-2 text-sm text-gray-600">{toolSubtitle}</p>
+            )}
+          </div>
           {seoIntro}
           {seoSections}
         </div>

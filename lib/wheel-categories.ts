@@ -294,6 +294,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         color: "#f87171",
         bg: "rgba(248, 113, 113, 0.15)",
       },
+      {
+        label: "DTI Wheel Outfit Picker",
+        href: "/dti-wheel-outfit-picker",
+        description: "Spin random Dress to Impress themes, aesthetics, and outfit challenges.",
+        icon: Sparkles,
+        color: "#f472b6",
+        bg: "rgba(244, 114, 182, 0.15)",
+      },
     ],
   },
   {
@@ -459,6 +467,15 @@ export function hrefToToolType(href: string): string {
     href.startsWith("/demon-slayer-")
   ) {
     return "demon-slayer-wheel"
+  }
+  if (
+    href === "/dti-wheel-outfit-picker" ||
+    href === "/dress-to-impress-wheel" ||
+    href === "/dress-to-impress-outfit-picker" ||
+    href === "/random-dti-outfit-generator" ||
+    href.startsWith("/dti-")
+  ) {
+    return "dti-wheel"
   }
   if (
     href === "/team-picker-wheel" ||

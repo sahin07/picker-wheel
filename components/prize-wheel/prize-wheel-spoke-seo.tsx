@@ -4,7 +4,7 @@ import { getPrizeSpokeSiblings, type PrizeWheelSpokeSeo } from "@/lib/prize-whee
 
 export function PrizeWheelSpokeSeoIntro({ spoke }: { spoke: PrizeWheelSpokeSeo }) {
   return <section aria-labelledby="prize-spoke-h1" className="mx-auto mb-10 max-w-5xl border-t border-slate-200 px-1 pt-10 text-slate-700">
-    <h1 id="prize-spoke-h1" className="font-spin-display mb-4 text-center text-3xl font-bold text-slate-900 sm:text-4xl">{spoke.h1}</h1>
+    <h2 id="prize-spoke-h1" className="font-spin-display mb-4 text-center text-3xl font-bold text-slate-900 sm:text-4xl">{spoke.h1}</h2>
     <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">{spoke.heroIntro}</p>
   </section>
 }

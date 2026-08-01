@@ -1486,6 +1486,14 @@ function PokemonWheelAppInner({
           </div>
         </div>
         <div className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-3 text-center sm:mb-4">
+            <h1 className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+              {shortTitle ?? POKEMON_WHEEL_SHORT_TITLE}
+            </h1>
+            {toolSubtitle && (
+              <p className="mt-1 px-2 text-sm text-gray-600">{toolSubtitle}</p>
+            )}
+          </div>
           {seoIntro}
           {seoSections}
         </div>
@@ -1505,6 +1513,14 @@ function PokemonWheelAppInner({
           </div>
         </div>
         <div className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-3 text-center sm:mb-4">
+            <h1 className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+              {shortTitle ?? POKEMON_WHEEL_SHORT_TITLE}
+            </h1>
+            {toolSubtitle && (
+              <p className="mt-1 px-2 text-sm text-gray-600">{toolSubtitle}</p>
+            )}
+          </div>
           {seoIntro}
           {seoSections}
         </div>

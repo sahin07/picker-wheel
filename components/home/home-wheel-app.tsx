@@ -559,9 +559,9 @@ export default function HomeWheelApp({
         <main className="w-full px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
           <div className="mb-3 text-center sm:mb-4">
             <div className="flex flex-wrap items-center justify-center gap-2 px-1">
-              <p className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+              <h1 className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
                 {shortTitle ?? HOME_SHORT_TITLE}
-              </p>
+              </h1>
               <ToolFavoriteStar toolType="picker-wheel" />
             </div>
             {toolSubtitle && (

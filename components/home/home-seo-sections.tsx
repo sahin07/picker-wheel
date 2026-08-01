@@ -30,12 +30,12 @@ export function HomeSeoIntro() {
       aria-labelledby="home-seo-h1"
       className="mx-auto mb-8 max-w-5xl scroll-mt-24 border-t border-slate-200 px-1 pt-8 text-slate-700 sm:mb-10 sm:pt-10"
     >
-      <h1
+      <h2
         id="home-seo-h1"
         className="font-spin-display mb-4 text-center text-3xl font-bold text-slate-900 sm:text-4xl"
       >
         {HOME_H1}
-      </h1>
+      </h2>
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {HOME_HERO_INTRO}
       </p>

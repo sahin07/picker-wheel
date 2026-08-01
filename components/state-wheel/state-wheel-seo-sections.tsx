@@ -34,12 +34,12 @@ export function StateWheelSeoIntro() {
       aria-labelledby="state-wheel-seo-h1"
       className="mx-auto mb-10 max-w-5xl scroll-mt-24 border-t border-slate-200 px-1 pt-10 text-slate-700"
     >
-      <h1
+      <h2
         id="state-wheel-seo-h1"
         className="font-spin-display mb-4 text-center text-3xl font-bold text-slate-900 sm:text-4xl"
       >
         {STATE_WHEEL_H1}
-      </h1>
+      </h2>
       <p className="mx-auto max-w-3xl text-center text-base leading-relaxed text-slate-600 sm:text-lg">
         {STATE_WHEEL_HERO_INTRO}
       </p>

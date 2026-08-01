@@ -33,7 +33,7 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: "inputs", label: "Inputs", icon: <List className="h-4 w-4" /> },
   { id: "text", label: "Text", icon: <Type className="h-4 w-4" /> },
   { id: "style", label: "Style", icon: <Palette className="h-4 w-4" /> },
-  { id: "other", label: "Other", icon: <MoreVertical className="h-4 w-4" /> },
+  { id: "other", label: "Other Options", icon: <MoreVertical className="h-4 w-4" /> },
 ]
 
 const COLORS = ["#16a34a", "#eab308", "#111827", "#dc2626", "#7c3aed", "#0891b2"]
@@ -58,6 +58,15 @@ type Props = {
   themes?: typeof PICKER_WHEEL_THEMES
   /** Desktop only: match left wheel column height; keeps inner scroll. */
   desktopMaxHeight?: number | null
+  /** Store key — defaults to fortune-wheel; DTI reuses this panel with dti-wheel. */
+  toolType?: string
+  exportFileName?: string
+  controlsTitle?: string
+  toolLabel?: string
+  resultsEventName?: string
+  equalOddsToast?: string
+  confettiHint?: string
+  otherTabLabel?: string
 }
 
 export default function FortuneInputPanel({
@@ -72,6 +81,14 @@ export default function FortuneInputPanel({
   currentTheme = "classic",
   themes = PICKER_WHEEL_THEMES,
   desktopMaxHeight = null,
+  toolType = "fortune-wheel",
+  exportFileName = "fortune-wheel.txt",
+  controlsTitle = "Fortune Controls",
+  toolLabel = "Fortune wedges",
+  resultsEventName = "open-fortune-results",
+  equalOddsToast = "Fortune wedges always use equal odds",
+  confettiHint = "Celebrate cash and prize results",
+  otherTabLabel = "Other Options",
 }: Props) {
   const [tab, setTab] = useState<Tab>("inputs")
   const [bulkText, setBulkText] = useState("")
@@ -81,8 +98,8 @@ export default function FortuneInputPanel({
   const { showToast } = useToast()
   const wheel = useWheelManagerStore(
     (state) =>
-      (state.wheelsByTool["fortune-wheel"] || []).find((item) => item.id === state.currentWheelId) ||
-      (state.wheelsByTool["fortune-wheel"] || [])[0] ||
+      (state.wheelsByTool[toolType] || []).find((item) => item.id === state.currentWheelId) ||
+      (state.wheelsByTool[toolType] || [])[0] ||
       null,
   )
   const data = (wheel?.data as FortuneWheelData | undefined) ?? {
@@ -109,7 +126,7 @@ export default function FortuneInputPanel({
   if (!mounted) return null
 
   const setData = (partial: Partial<FortuneWheelData>) => {
-    if (wheel) useWheelManagerStore.getState().updateWheelData("fortune-wheel", wheel.id, { ...data, ...partial })
+    if (wheel) useWheelManagerStore.getState().updateWheelData(toolType, wheel.id, { ...data, ...partial })
   }
   const setEntries = (next: FortuneWheelEntry[]) => setData({ entries: next })
   const updateEntry = (id: string, patch: Partial<FortuneWheelEntry>) =>
@@ -193,7 +210,7 @@ export default function FortuneInputPanel({
     >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b bg-slate-50/80 px-3 py-2">
         <div>
-          <p className="text-sm font-semibold text-slate-800">Fortune Controls</p>
+          <p className="text-sm font-semibold text-slate-800">{controlsTitle}</p>
           <p className="text-xs text-slate-500">
             {entries.filter((entry) => entry.enabled !== false).length} active wedges
           </p>
@@ -230,7 +247,7 @@ export default function FortuneInputPanel({
             onSearchQueryChange={setSearchQuery}
             onSortZA={() => setEntries([...entries].sort((a, b) => b.name.localeCompare(a.name)))}
             onShuffle={shuffle}
-            onEqualize={() => showToast("Fortune wedges always use equal odds", "success")}
+            onEqualize={() => showToast(equalOddsToast, "success")}
             onDeleteBlanks={removeBlanks}
             onRemoveDuplicates={removeDuplicates}
             onClearAll={clear}
@@ -252,7 +269,7 @@ export default function FortuneInputPanel({
             }`}
           >
             {item.icon}
-            {item.label}
+            {item.id === "other" ? otherTabLabel : item.label}
           </button>
         ))}
       </div>
@@ -539,7 +556,7 @@ export default function FortuneInputPanel({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">Confetti</p>
-                  <p className="text-xs text-slate-500">Celebrate cash and prize results</p>
+                  <p className="text-xs text-slate-500">{confettiHint}</p>
                 </div>
                 <Switch
                   checked={settings.confettiSound?.enableConfetti ?? true}
@@ -600,9 +617,9 @@ export default function FortuneInputPanel({
               </div>
             </div>
             <SidebarOtherOptions
-              toolLabel="Fortune wedges"
+              toolLabel={toolLabel}
               resultsCount={data.recentResults?.length || 0}
-              exportFileName="fortune-wheel.txt"
+              exportFileName={exportFileName}
               exportText={exportText}
               entries={entries.map((entry) => ({ ...entry, weight: 1, enabled: entry.enabled !== false }))}
               onImportText={(text) => {
@@ -610,7 +627,7 @@ export default function FortuneInputPanel({
                 setTab("text")
               }}
               onRemoveDuplicates={removeDuplicates}
-              onViewResults={() => window.dispatchEvent(new Event("open-fortune-results"))}
+              onViewResults={() => window.dispatchEvent(new Event(resultsEventName))}
               onOpenSettings={onOpenSettings}
               onToggleFullscreen={onToggleFullscreen}
               onOpenAnalytics={onOpenAnalytics}

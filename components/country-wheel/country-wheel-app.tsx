@@ -466,7 +466,6 @@ function CountryWheelAppInner({
               <ToolPageTitle
                 title={shortTitle ?? COUNTRY_WHEEL_SHORT_TITLE}
                 toolType="country-wheel"
-                as={seoIntro ? "p" : "h1"}
               />
               <p className="text-gray-600">
                 {toolSubtitle ?? "Pick a random country by wheel"}

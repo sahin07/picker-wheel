@@ -116,7 +116,6 @@ function ColorPickerWheelAppInner({
               <ToolPageTitle
                 title={shortTitle ?? COLOR_PICKER_SHORT_TITLE}
                 toolType="color-picker-wheel"
-                as={seoIntro ? "p" : "h1"}
               />
               <p className="text-gray-600">
                 {toolSubtitle ?? "Pick a random color by wheel"}

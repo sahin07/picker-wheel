@@ -53,29 +53,30 @@ type ToolPageTitleProps = {
   toolType?: string
   className?: string
   /**
-   * Use `p` on spoke pages that already render an SEO H1 below the tool,
-   * so the page keeps a single H1.
+   * @deprecated Top tool title is always an H1. Kept for call-site compatibility.
    */
   as?: "h1" | "p"
 }
 
-/** Tool page title with a favorite star beside the label */
+/**
+ * Tool page title (always H1) with favorite star — matches home page chrome typography.
+ */
 export function ToolPageTitle({
   title,
   toolType,
   className,
-  as = "h1",
 }: ToolPageTitleProps) {
-  const Tag = as
   return (
-    <Tag
+    <div
       className={cn(
-        "mb-2 inline-flex items-center justify-center gap-1.5 text-4xl font-bold text-gray-800",
+        "mb-2 flex flex-wrap items-center justify-center gap-2 px-1",
         className,
       )}
     >
-      <span>{title}</span>
+      <h1 className="font-spin-display text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+        {title}
+      </h1>
       <ToolFavoriteStar toolType={toolType} />
-    </Tag>
+    </div>
   )
 }

@@ -6,9 +6,9 @@ import Confetti from "react-confetti"
 import Image from "next/image"
 import { Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { WheelFeatureActions } from "@/components/wheel-feature-actions"
 import { WheelCanvas, resolveNumberFromRotation } from "@/components/wheel-canvas"
+import PickerResultsModal from "@/components/picker-results-modal"
 import { createSpinAudioController, type SpinAudioController } from "@/lib/wheel-spin-audio"
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes"
 import { useSettingsStore } from "@/stores/settings-store"
@@ -35,6 +35,9 @@ type Props = {
   onOpenSocialHub?: () => void
   onOpenGameModes?: () => void
   totalPoints?: number
+  /** Store key — defaults to fortune-wheel; DTI reuses this section with dti-wheel. */
+  toolType?: string
+  resultsEventName?: string
 }
 
 const EMPTY: FortuneWheelData = {
@@ -81,13 +84,15 @@ export default function FortuneWheelSection({
   onOpenSocialHub,
   onOpenGameModes,
   totalPoints = 0,
+  toolType = "fortune-wheel",
+  resultsEventName = "open-fortune-results",
 }: Props) {
   const wheel = useWheelManagerStore(
     (state) =>
-      (state.wheelsByTool["fortune-wheel"] || []).find(
+      (state.wheelsByTool[toolType] || []).find(
         (item) => item.id === state.currentWheelId,
       ) ||
-      (state.wheelsByTool["fortune-wheel"] || [])[0] ||
+      (state.wheelsByTool[toolType] || [])[0] ||
       null,
   )
   const data = (wheel?.data as FortuneWheelData | undefined) ?? EMPTY
@@ -126,6 +131,20 @@ export default function FortuneWheelSection({
     [entries],
   )
 
+  const modalResults = useMemo(
+    () =>
+      [...(data.recentResults || [])]
+        .reverse()
+        .slice(0, 10)
+        .map((result: FortuneWheelEntry, index) => ({
+          id: `${result.id}-${index}`,
+          name: result.name,
+          image: result.imageUrl,
+          text: result.winMessage,
+        })),
+    [data.recentResults],
+  )
+
   const canvasItems = useMemo(
     () =>
       activeEntries.map((entry, index) => ({
@@ -142,13 +161,13 @@ export default function FortuneWheelSection({
       if (!wheel) return
       const latest = useWheelManagerStore.getState().getCurrentWheel()
       const latestData = (latest?.data as FortuneWheelData | undefined) ?? data
-      useWheelManagerStore.getState().updateWheelData("fortune-wheel", wheel.id, {
+      useWheelManagerStore.getState().updateWheelData(toolType, wheel.id, {
         ...latestData,
         entries: Array.isArray(latestData.entries) ? latestData.entries : entries,
         ...partial,
       })
     },
-    [data, entries, wheel],
+    [data, entries, toolType, wheel],
   )
 
   useEffect(() => {
@@ -160,9 +179,9 @@ export default function FortuneWheelSection({
 
   useEffect(() => {
     const open = () => setShowResults(true)
-    window.addEventListener("open-fortune-results", open)
-    return () => window.removeEventListener("open-fortune-results", open)
-  }, [])
+    window.addEventListener(resultsEventName, open)
+    return () => window.removeEventListener(resultsEventName, open)
+  }, [resultsEventName])
 
   useEffect(() => {
     setSelectedResult(null)
@@ -478,30 +497,11 @@ export default function FortuneWheelSection({
         />
       </div>
 
-      <Dialog open={showResults} onOpenChange={setShowResults}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Fortune wheel results</DialogTitle>
-            <DialogDescription>Your latest wedges, newest first.</DialogDescription>
-          </DialogHeader>
-          <ol className="max-h-80 space-y-2 overflow-y-auto">
-            {[...(data.recentResults || [])].reverse().map((result: FortuneWheelEntry, index) => {
-              const style = resultStyle(result.kind)
-              return (
-                <li key={`${result.id}-${index}`} className={`rounded-lg border px-3 py-2 ${style.box}`}>
-                  <span className="block font-medium">{result.name}</span>
-                  {result.winMessage && (
-                    <span className="block truncate text-xs opacity-75">{result.winMessage}</span>
-                  )}
-                </li>
-              )
-            })}
-            {!data.recentResults?.length && (
-              <li className="py-8 text-center text-sm text-slate-500">No results yet.</li>
-            )}
-          </ol>
-        </DialogContent>
-      </Dialog>
+      <PickerResultsModal
+        isOpen={showResults}
+        onClose={() => setShowResults(false)}
+        results={modalResults}
+      />
     </div>
   )
 }

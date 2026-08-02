@@ -40,6 +40,11 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   robots: DEFAULT_ROBOTS,
+  verification: {
+    other: {
+      "msvalidate.01": "8A349C8924273D2864CB3DBE47C96AD5",
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

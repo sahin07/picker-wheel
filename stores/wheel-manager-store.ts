@@ -881,6 +881,54 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             currentTheme: "classic",
             spinHistory: [],
           };
+        } else if (toolType === "theme-picker-wheel") {
+          const themeColors = [
+            "#0d9488",
+            "#2563eb",
+            "#7c3aed",
+            "#db2777",
+            "#ea580c",
+            "#ca8a04",
+            "#16a34a",
+            "#e11d48",
+          ];
+          const themeDefaults = [
+            "Retro",
+            "Beach",
+            "Superhero",
+            "Movie Night",
+            "Fantasy",
+            "Nature",
+            "Sci-Fi",
+            "Food",
+            "Mystery",
+            "Adventure",
+            "Comedy",
+            "Romance",
+            "Sports",
+            "Travel",
+            "Music",
+            "Animals",
+          ];
+          data = {
+            entries: themeDefaults.map((name, index) => ({
+              id: `theme-${index + 1}`,
+              name,
+              color: themeColors[index % themeColors.length],
+              enabled: true,
+            })),
+            viewMode: "wheel",
+            actionMode: "normal",
+            isSpinning: false,
+            spinRotation: 0,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+          };
         } else if (toolType === "dti-wheel") {
           const dtiColors = [
             "#db2777",

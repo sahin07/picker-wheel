@@ -26,6 +26,11 @@ export const QUESTION_INTENT_CLUSTER: readonly SpokeRelatedLink[] = [
   { href: "/should-i-wheel", label: "Should I Do It?" },
   { href: "/what-should-i-do", label: "What Should I Do?" },
   { href: "/what-movie-should-i-watch", label: "What Movie Should I Watch?" },
+  { href: "/what-theme-should-i-choose", label: "What Theme Should I Choose?" },
+  { href: "/what-theme-should-i-draw", label: "What Theme Should I Draw?" },
+  { href: "/what-theme-should-i-write-about", label: "What Theme Should I Write About?" },
+  { href: "/what-party-theme-should-i-have", label: "What Party Theme Should I Have?" },
+  { href: "/what-theme-should-my-video-be", label: "What Theme Should My Video Be?" },
 ] as const
 
 export function getQuestionIntentRelated(

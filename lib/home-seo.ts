@@ -120,6 +120,11 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random color for design, art, or creative challenges.",
   },
   {
+    label: "Theme Picker Wheel",
+    href: "/theme-picker-wheel",
+    description: "Spin random themes for parties, writing, drawing, and classrooms.",
+  },
+  {
     label: "Image Picker",
     href: "/image-picker-wheel",
     description: "Spin photos and images for visual choices and classrooms.",
@@ -569,6 +574,11 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
     label: "Color Wheel",
     href: "/color-picker-wheel",
     description: "Random colors for design and creative challenges.",
+  },
+  {
+    label: "Theme Picker Wheel",
+    href: "/theme-picker-wheel",
+    description: "Random themes for parties, writing, drawing, and classrooms.",
   },
   {
     label: "Image Picker",

@@ -22,6 +22,7 @@ const EXCLUDED_SEGMENTS = new Set([
   "random-consonant-generator",
   "random-vowel-generator",
   "random-team-picker",
+  "random-theme-generator",
   "team-picker",
   "the-wheel-of-fortune",
   "wheel-of-colors",

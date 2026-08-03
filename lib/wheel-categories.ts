@@ -109,6 +109,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         bg: "rgba(251, 146, 60, 0.15)",
       },
       {
+        label: "Theme Picker Wheel",
+        href: "/theme-picker-wheel",
+        description: "Spin random themes for parties, writing, drawing, and classrooms.",
+        icon: Sparkles,
+        color: "#14b8a6",
+        bg: "rgba(20, 184, 166, 0.15)",
+      },
+      {
         label: "Team Picker Wheel",
         href: "/team-picker-wheel",
         description: "Split a group into teams without preference or debate.",
@@ -386,6 +394,27 @@ export function hrefToToolType(href: string): string {
   if (href === "/") return "picker-wheel"
   if (href === "/weighted-wheel-spinner") return "weighted-wheel"
   if (href === "/prize-wheel-spinner") return "prize-wheel"
+  if (
+    href === "/theme-picker-wheel" ||
+    href === "/random-theme-generator" ||
+    href === "/party-theme-wheel" ||
+    href === "/drawing-theme-wheel" ||
+    href === "/writing-theme-wheel" ||
+    href === "/classroom-theme-wheel" ||
+    href === "/halloween-theme-wheel" ||
+    href === "/christmas-theme-wheel" ||
+    href === "/costume-theme-wheel" ||
+    href === "/youtube-theme-wheel" ||
+    href === "/tiktok-theme-wheel" ||
+    href === "/photography-theme-wheel" ||
+    href === "/what-theme-should-i-choose" ||
+    href === "/what-theme-should-i-draw" ||
+    href === "/what-theme-should-i-write-about" ||
+    href === "/what-party-theme-should-i-have" ||
+    href === "/what-theme-should-my-video-be"
+  ) {
+    return "theme-picker-wheel"
+  }
   if (
     href === "/wheel-of-fortune" ||
     href === "/the-wheel-of-fortune" ||

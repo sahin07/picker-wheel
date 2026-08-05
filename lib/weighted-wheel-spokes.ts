@@ -6,6 +6,10 @@ import {
   RIGGED_PAGE_TITLE,
   RIGGED_H1,
   RIGGED_DESCRIPTION,
+  RIGGED_SHORT_TITLE,
+  RIGGED_HERO_INTRO,
+  RIGGED_KEYWORDS,
+  RIGGED_FAQ_ITEMS,
 } from "@/lib/weighted-wheel-seo"
 import {
   WEIGHTED_WHEEL_USE_CASES,
@@ -191,16 +195,9 @@ export const WEIGHTED_WHEEL_SPOKES: Record<WeightedWheelSpokeId, WeightedWheelSp
     pageTitle: RIGGED_PAGE_TITLE,
     description: RIGGED_DESCRIPTION,
     h1: RIGGED_H1,
-    shortTitle: "Rigged Wheel Spinner",
-    heroIntro:
-      "Create a spin wheel where each outcome has its own probability. Assign weights, view exact percentages, and spin — no coding needed. Perfect for classroom probability exercises, game loot tables, and software test scenario modelling.",
-    keywords: [
-      "rigged wheel spinner",
-      "weighted spin wheel",
-      "custom probability wheel",
-      "rigged spinner",
-      "weighted wheel",
-    ],
+    shortTitle: RIGGED_SHORT_TITLE,
+    heroIntro: RIGGED_HERO_INTRO,
+    keywords: [...RIGGED_KEYWORDS],
     articleTitle: "Rigged Wheel Spinner — transparent probability control",
     articleIntro: [
       "The Rigged Wheel Spinner is the same weighted-probability tool as the main hub, optimised for people searching for a wheel where some results are intentionally more likely.",
@@ -229,33 +226,7 @@ export const WEIGHTED_WHEEL_SPOKES: Record<WeightedWheelSpokeId, WeightedWheelSp
       useCaseId: "custom",
       config: configFor("custom"),
     },
-    faq: [
-      {
-        question: "What is a Rigged Wheel Spinner?",
-        answer:
-          "A Rigged Wheel Spinner is a weighted spin wheel where each entry has a custom probability. 'Rigged' here means intentionally unequal odds — all probabilities are displayed openly, making it a transparent simulation tool rather than a cheat device.",
-      },
-      {
-        question: "How do I set the probabilities?",
-        answer:
-          "Assign a numeric weight to each entry in the Inputs panel. The wheel converts weights to percentages automatically so you always see the true probability.",
-      },
-      {
-        question: "Can I use this for a classroom probability demonstration?",
-        answer:
-          "Yes. Set different weights and ask students to predict outcomes before spinning multiple times. The live percentage display makes the underlying maths concrete and visible.",
-      },
-      {
-        question: "Is it appropriate to use a weighted wheel for a raffle?",
-        answer:
-          "No. For raffles and giveaways use an equal-odds wheel so every participant has the same chance of winning. Weighted wheels are for simulations, games, and educational demonstrations.",
-      },
-      {
-        question: "Can I share my weighted configuration?",
-        answer:
-          "Yes. Share the URL from the address bar to let others load and spin the same configuration.",
-      },
-    ],
+    faq: [...RIGGED_FAQ_ITEMS],
   }),
 
   // Probability spoke

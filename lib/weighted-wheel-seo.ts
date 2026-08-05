@@ -10,6 +10,12 @@ export const WEIGHTED_WHEEL_OG_IMAGE_URL = `${WEIGHTED_WHEEL_SITE_URL}/og/weight
 export const RIGGED_PATH = "/rigged-wheel-spinner"
 export const RIGGED_URL = `${WEIGHTED_WHEEL_SITE_URL}${RIGGED_PATH}`
 
+export type WeightedWheelLinkItem = {
+  label: string
+  href: string
+  description: string
+}
+
 // ─── Main page metadata ──────────────────────────────────────────────────────
 export const WEIGHTED_WHEEL_SHORT_TITLE = "Weighted Wheel Spinner"
 
@@ -23,12 +29,233 @@ export const WEIGHTED_WHEEL_PAGE_DESCRIPTION =
 
 // ─── Rigged twin page metadata ───────────────────────────────────────────────
 export const RIGGED_PAGE_TITLE =
-  "Rigged Wheel Spinner | Create a Weighted Spin Wheel"
+  "Rigged Wheel Spinner - Free Weighted Spin Wheel with Custom Odds"
 
-export const RIGGED_H1 = "Rigged Wheel Spinner"
+export const RIGGED_H1 = "Rigged Wheel Spinner (Weighted Spin Wheel)"
+
+export const RIGGED_SHORT_TITLE = "Rigged Wheel Spinner"
 
 export const RIGGED_DESCRIPTION =
-  "Build a spin wheel where each entry has its own probability weight. Assign exact percentages to outcomes for classroom probability lessons, tabletop RPG loot tables, software testing scenarios, and interactive simulations — no coding required."
+  "Create a rigged wheel spinner with custom probabilities. Assign weights, control winning chances, preview odds, and spin a weighted wheel online for free."
+
+export const RIGGED_HERO_INTRO =
+  "A rigged wheel spinner is simply a weighted spin wheel: each option can have a different chance of winning. Unlike a fair random wheel where every slice is equal, you assign weights so some outcomes appear more often. That is not hidden cheating—it is transparent probability control for classroom games, loot tables, simulations, giveaways with custom odds, and game-balance tests."
+
+export const RIGGED_KEYWORDS = [
+  "rigged wheel spinner",
+  "rigged spin wheel",
+  "weighted wheel spinner",
+  "weighted wheel picker",
+  "wheel with custom probability",
+  "biased wheel spinner",
+  "unfair wheel spinner",
+  "probability wheel",
+  "custom odds wheel",
+  "wheel spinner with weights",
+  "wheel rigging tool",
+  "weighted spin wheel",
+  "custom probability wheel",
+] as const
+
+export const RIGGED_ON_THIS_PAGE = [
+  { id: "rigged-spin-wheel", label: "Spin the Rigged Wheel" },
+  { id: "rigged-what-it-is", label: "What a rigged wheel is" },
+  { id: "rigged-how-it-works", label: "How weights become odds" },
+  { id: "rigged-features", label: "Core features" },
+  { id: "rigged-use-cases", label: "Common uses" },
+  { id: "rigged-fair-vs", label: "Fair vs weighted" },
+  { id: "rigged-howto", label: "How to create a weighted wheel" },
+  { id: "rigged-related", label: "Related tools" },
+  { id: "rigged-faq", label: "FAQ" },
+] as const
+
+export const RIGGED_HOW_IT_WORKS = [
+  "Add your options in the Inputs panel—any labels you like.",
+  "Assign a numeric weight to each option (higher weight = higher chance).",
+  "Watch live percentages update as you edit—weights are converted into a full probability distribution.",
+  "Use Equalize for fair mode (every option weight becomes equal), or keep custom odds for simulations and games.",
+  "Spin the wheel. Results follow the weights you set, with sector sizes reflecting relative probability.",
+] as const
+
+export const RIGGED_FEATURES = [
+  {
+    title: "Custom weights per option",
+    description:
+      "Give each entry a weight such as 50, 25, 10, and 5. Higher weights win more often without needing to write code.",
+  },
+  {
+    title: "Live percentage display",
+    description:
+      "See exact odds like 55.3% next to every option as you edit. No mental math—percentages recalculate instantly.",
+  },
+  {
+    title: "Transparent odds preview",
+    description:
+      "Before you spin, review which options have the highest and lowest chances so the distribution is clear to creators and learners.",
+  },
+  {
+    title: "Fair mode with Equalize",
+    description:
+      "One click resets every weight to equal probability when you need a fair draw instead of a weighted simulation.",
+  },
+  {
+    title: "Live probability updates",
+    description:
+      "Change one weight and every other percentage updates immediately so the total distribution always adds up.",
+  },
+  {
+    title: "Clear weight ≠ percentage lesson",
+    description:
+      "Weights are relative. Apple 10, Orange 20, Banana 70 becomes 10%, 20%, and 70% automatically—ideal for teaching probability.",
+  },
+  {
+    title: "Templates & starting distributions",
+    description:
+      "Jump into practical setups like 70/30 splits, loot tables, classroom rewards, and scenario testing, then customize.",
+  },
+  {
+    title: "Save, share, and keep spinning",
+    description:
+      "Keep your weighted setup in the browser, share a link, and use analytics after many spins to compare outcomes.",
+  },
+] as const
+
+export const RIGGED_USE_CASES = [
+  {
+    title: "Classroom games & lessons",
+    description:
+      "Demonstrate probability with visible weights and percentages. Students can predict frequencies before spinning.",
+  },
+  {
+    title: "Game balance & loot tables",
+    description:
+      "Make common rewards land more often than rare ones while keeping the odds honest and editable.",
+  },
+  {
+    title: "Simulations & testing",
+    description:
+      "Model uneven scenarios for QA, product experiments, or creative generators where some outcomes should dominate.",
+  },
+  {
+    title: "Custom-odds activities",
+    description:
+      "Run party games, decision wheels, or demos where you intentionally bias results—and show the percentages openly.",
+  },
+] as const
+
+export const RIGGED_HOWTO_STEPS = [
+  {
+    name: "Open the Rigged Wheel Spinner",
+    text: "Go to the Rigged Wheel Spinner page and start with the custom weighted setup or a popular template.",
+  },
+  {
+    name: "Add your options",
+    text: "Enter names or labels for every outcome you want on the wheel.",
+  },
+  {
+    name: "Assign weights",
+    text: "Set a higher weight for outcomes that should appear more often. Leave lower weights for rare results.",
+  },
+  {
+    name: "Preview the percentages",
+    text: "Check the live percentage next to each option so you understand the real odds before spinning.",
+  },
+  {
+    name: "Spin or switch to fair mode",
+    text: "Spin with custom odds, or click Equalize when you need every option to have the same chance.",
+  },
+] as const
+
+export const RIGGED_RELATED_TOOLS: WeightedWheelLinkItem[] = [
+  {
+    label: "Random Wheel Spinner",
+    href: "/",
+    description: "Equal-odds random wheel for any custom list.",
+  },
+  {
+    label: "Weighted Wheel Spinner",
+    href: "/weighted-wheel-spinner",
+    description: "Main hub for transparent custom-probability spins.",
+  },
+  {
+    label: "Custom Wheel Spinner",
+    href: "/create-custom-wheel-spinner",
+    description: "Build and share a branded custom spin wheel.",
+  },
+  {
+    label: "Decision Wheel",
+    href: "/decision-wheel",
+    description: "Spin among custom choices when you need a pick.",
+  },
+  {
+    label: "Yes or No Wheel",
+    href: "/yes-or-no-wheel",
+    description: "Quick decision spinner for binary choices.",
+  },
+  {
+    label: "Name Picker Wheel",
+    href: "/",
+    description: "Pick a name fairly from a list.",
+  },
+  {
+    label: "Color Wheel",
+    href: "/color-picker-wheel",
+    description: "Spin a random color for creative projects.",
+  },
+  {
+    label: "Wheel of Fortune",
+    href: "/wheel-of-fortune",
+    description: "Customizable fortune-style decision wheel.",
+  },
+  {
+    label: "Random Number Wheel",
+    href: "/number-picker-wheel",
+    description: "Draw a random number from a range.",
+  },
+]
+
+export const RIGGED_FAQ_ITEMS = [
+  {
+    question: "What is a rigged wheel spinner?",
+    answer:
+      "A rigged wheel spinner is a wheel where each option can have a different chance of being selected. Instead of every slice having equal odds, you assign weights so some outcomes are more or less likely. On Spinifywheel, those odds are shown as live percentages.",
+  },
+  {
+    question: "Is this wheel truly random?",
+    answer:
+      "The spin itself is random, but the probabilities are weighted according to the values you assign. Higher weights increase the chance of landing on that option.",
+  },
+  {
+    question: "Can I make one option almost always win?",
+    answer:
+      "Yes. Give one option a much higher weight than the others so its percentage approaches most of the distribution. For a guaranteed fixed result, a dedicated fixed-result workflow is more appropriate than a weighted wheel.",
+  },
+  {
+    question: "What's the difference between weighted and fair?",
+    answer:
+      "A fair wheel gives every option an equal chance of winning. A weighted (rigged) wheel lets each option have a different probability based on custom weights. Use Equalize to switch back to fair mode instantly.",
+  },
+  {
+    question: "Can viewers tell the wheel is weighted?",
+    answer:
+      "This tool is built for transparency: creators see weights and percentages in the controls. If you present only the spinning wheel visually, the audience may not see the numbers—but the probabilities still follow the weights you set.",
+  },
+  {
+    question: "Is this useful for giveaways?",
+    answer:
+      "It can be used for activities, classroom games, simulations, and demos where different entries need different chances. For fair raffles where every participant should have the same chance, use Equalize or an equal-odds name picker instead.",
+  },
+  {
+    question: "Can I compare expected odds with real spins?",
+    answer:
+      "Yes. After many spins, use the wheel analytics and results history to see how often each option won compared with the percentages you assigned.",
+  },
+  {
+    question: "Do weights have to be percentages?",
+    answer:
+      "No. Weights are relative. For example, Apple 10, Orange 20, and Banana 70 become 10%, 20%, and 70% automatically.",
+  },
+] as const
 
 // ─── Hero intro ──────────────────────────────────────────────────────────────
 export const WEIGHTED_WHEEL_HERO_INTRO =
@@ -218,13 +445,6 @@ export const WEIGHTED_WHEEL_FAQ_ITEMS = [
       "Yes. You can add entries, set weights, and spin without signing up or paying. Advanced features like cloud save may require an account in the future.",
   },
 ] as const
-
-// ─── Link types ───────────────────────────────────────────────────────────────
-export type WeightedWheelLinkItem = {
-  label: string
-  href: string
-  description: string
-}
 
 // ─── Related tools ────────────────────────────────────────────────────────────
 export const WEIGHTED_WHEEL_RELATED_TOOLS: WeightedWheelLinkItem[] = [

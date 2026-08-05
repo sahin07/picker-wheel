@@ -19,6 +19,25 @@ export type ChangelogEntry = {
  */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    version: "v1.9",
+    date: "Aug 6, 2026",
+    isoDate: "2026-08-06",
+    title: "Rigged Wheel Spinner SEO pillar",
+    summary:
+      "This release upgrades the Rigged Wheel Spinner landing page with clearer probability copy, structured data, and related-tool links—without changing the /rigged-wheel-spinner URL.",
+    groups: [
+      {
+        type: "Improved",
+        items: [
+          "Rewrote /rigged-wheel-spinner title, H1, meta description, intro, FAQ, and on-page guide around “rigged wheel spinner” and related custom-odds searches.",
+          "Added dedicated Rigged Wheel SEO sections covering weights vs percentages, fair vs weighted mode, how-to steps, and related tools (Random, Custom, Decision, Yes/No, Color, Fortune, Number, and the Weighted hub).",
+          "Expanded JSON-LD on the page with WebApplication, SoftwareApplication, FAQPage, BreadcrumbList, HowTo, Article, and WebPage schema.",
+          "Aligned spoke metadata and keywords with the new pillar copy while keeping the existing weighted-wheel tool behavior (weights, live %, Equalize, templates, analytics).",
+        ],
+      },
+    ],
+  },
+  {
     version: "v1.8",
     date: "Jul 25, 2026",
     isoDate: "2026-07-25",

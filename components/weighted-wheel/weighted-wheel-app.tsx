@@ -65,6 +65,7 @@ function WeightedWheelAppInner({
   shortTitle,
   toolSubtitle,
   deepLink,
+  variant = "weighted",
 }: WeightedWheelAppProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [showInputs, setShowInputs] = useState(true)
@@ -346,7 +347,7 @@ function WeightedWheelAppInner({
           )}
 
           <div
-            id="weighted-spin-wheel"
+            id={variant === "rigged" ? "rigged-spin-wheel" : "weighted-spin-wheel"}
             className="mb-6 grid min-w-0 items-start gap-4 sm:mb-8 sm:gap-6 lg:grid-cols-3 lg:gap-8"
           >
             {viewMode === "wheel" ? (

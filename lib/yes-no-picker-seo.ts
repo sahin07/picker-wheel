@@ -4,7 +4,10 @@ import { YES_NO_PICKER_USE_CASES, type YesNoPickerUseCaseId } from "@/lib/yes-no
 export const YES_NO_PICKER_SITE_URL = HOME_SITE_URL
 
 /** Canonical pillar path — primary keyword URL. */
-export const YES_NO_PICKER_PATH = "/yes-or-no-wheel"
+export const YES_NO_PICKER_PATH = "/spin-random-yes-no-picker-wheel"
+
+/** Previous pillar URL — redirects to the new path. */
+export const YES_NO_PICKER_PREVIOUS_PATH = "/yes-or-no-wheel"
 
 /** Legacy path kept as a redirect alias to the pillar. */
 export const YES_NO_PICKER_LEGACY_PATH = "/yes-no-picker-wheel"
@@ -14,18 +17,18 @@ export const YES_NO_PICKER_URL = `${YES_NO_PICKER_SITE_URL}${YES_NO_PICKER_PATH}
 export const YES_NO_PICKER_OG_IMAGE_URL = `${YES_NO_PICKER_SITE_URL}/og/yes-or-no-wheel.svg`
 
 export const YES_NO_PICKER_PAGE_TITLE =
-  "Yes or No Wheel | Free Online Decision Spinner"
+  "Spin Random Yes No Picker Wheel | Free Decision Spinner"
 
 export const YES_NO_PICKER_PAGE_DESCRIPTION =
-  "Spin the free Yes or No Wheel to make quick and fair decisions. Use our customizable decision spinner whenever you need a random yes or no answer in seconds."
+  "Spin a random yes or no picker wheel for quick, fair decisions. Customize this free decision spinner whenever you need an unbiased yes or no answer in seconds."
 
-export const YES_NO_PICKER_H1 = "Yes or No Wheel"
+export const YES_NO_PICKER_H1 = "Spin Random Yes No Picker Wheel"
 
 /** Short chrome title above the tool (not the SEO H1). */
-export const YES_NO_PICKER_SHORT_TITLE = "Yes or No Wheel"
+export const YES_NO_PICKER_SHORT_TITLE = "Spin Random Yes No Picker Wheel"
 
 export const YES_NO_PICKER_HERO_INTRO =
-  "Can't decide? Spin the Yes or No Wheel and let chance choose for you. Whether you're making a small everyday decision, settling a friendly debate, picking a challenge, or adding fun to a game, this free online spinner gives you an instant and unbiased yes or no answer. Customize the wheel, save it, and spin as many times as you like."
+  "Can't decide? Spin Random Yes No Picker Wheel and let chance choose for you. Whether you're making a small everyday decision, settling a friendly debate, picking a challenge, or adding fun to a game, this free online spinner gives you an instant and unbiased yes or no answer. Customize the wheel, save it, and spin as many times as you like."
 
 export const YES_NO_PICKER_KEYWORDS = [
   "yes or no wheel",
@@ -382,7 +385,7 @@ export const YES_NO_PICKER_RELATED_TOOLS: YesNoPickerLinkItem[] = [
   },
 ]
 
-export const YES_NO_PICKER_ARTICLE_TITLE = "Spin the Yes or No Wheel"
+export const YES_NO_PICKER_ARTICLE_TITLE = "Spin Random Yes No Picker Wheel"
 
 export const YES_NO_PICKER_ARTICLE_INTRO = [
   "A Yes or No Wheel is a free online decision spinner that gives you one clear answer each time you spin: yes or no. It works as a yes or no picker wheel, yes or no spinner, and random decision maker whenever you need to choose randomly without overthinking.",

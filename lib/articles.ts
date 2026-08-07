@@ -1219,12 +1219,12 @@ export const ARTICLES: Article[] = [
     tools: [
       {
         label: "Country Picker Wheel",
-        href: "/country-picker-wheel",
+        href: "/spin-random-country-wheel",
         description: "Spin a random country from a curated world list.",
       },
       {
         label: "State Picker Wheel",
-        href: "/state-wheel",
+        href: "/spin-random-state-wheel",
         description: "Random US state picks for geography practice.",
       },
       {

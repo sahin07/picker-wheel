@@ -165,14 +165,14 @@ export const STATE_WHEEL_SPOKES: Record<StateWheelSpokeId, StateWheelSpokeSeo> =
     pageTitle: STATE_WHEEL_PAGE_TITLE,
     description:
       "Free random state picker. Spin all 50 US states or filter by any of 28 supported countries for fair, instant picks.",
-    h1: "State Picker Wheel",
-    shortTitle: "State Picker Wheel",
+    h1: "Spin Random State Wheel",
+    shortTitle: "Spin Random State Wheel",
     heroIntro:
       "Need a random state? This page loads all 50 US states by default so you can spin a fair pick for quizzes, classrooms, and games.",
-    keywords: ["state picker wheel", "random state", "us state picker wheel"],
+    keywords: ["spin random state wheel", "state picker wheel", "random state", "us state picker wheel"],
     articleTitle: "Random State Picker Wheel hub",
     articleIntro: [
-      "This is the State Picker Wheel hub — all 50 US states on one spinner by default. Switch country in Inputs for other regions.",
+      "This is the Spin Random State Wheel hub — all 50 US states on one spinner by default. Switch country in Inputs for other regions.",
     ],
     uniqueSection: {
       title: "Built for state picks",

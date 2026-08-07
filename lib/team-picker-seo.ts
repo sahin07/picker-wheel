@@ -3,7 +3,10 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const TEAM_PICKER_SITE_URL = HOME_SITE_URL
 
 /** Canonical pillar path — primary keyword URL. */
-export const TEAM_PICKER_PATH = "/team-picker-wheel"
+export const TEAM_PICKER_PATH = "/spin-random-team-picker-wheel"
+
+/** Previous pillar URL — redirects to the new path. */
+export const TEAM_PICKER_PREVIOUS_PATH = "/team-picker-wheel"
 
 /** Legacy path kept as a redirect alias to the pillar. */
 export const TEAM_PICKER_LEGACY_PATH = "/team-picker"
@@ -16,18 +19,18 @@ export const TEAM_PICKER_URL = `${TEAM_PICKER_SITE_URL}${TEAM_PICKER_PATH}`
 export const TEAM_PICKER_OG_IMAGE_URL = `${TEAM_PICKER_SITE_URL}/og/team-picker-wheel.svg`
 
 export const TEAM_PICKER_PAGE_TITLE =
-  "Team Picker Wheel | Create Random Teams Online"
+  "Spin Random Team Picker Wheel | Create Fair Teams Online"
 
 export const TEAM_PICKER_PAGE_DESCRIPTION =
-  "Create fair teams in seconds with our free Team Picker Wheel. Add names, randomly assign players, generate balanced groups, or spin to choose sports teams, classroom teams, and giveaway participants."
+  "Spin a random team picker wheel to create fair teams in seconds. Add names, assign players randomly, and generate balanced groups for sports, classrooms, games, and events—free online."
 
-export const TEAM_PICKER_H1 = "Team Picker Wheel"
+export const TEAM_PICKER_H1 = "Spin Random Team Picker Wheel"
 
 /** Short chrome title above the tool (not the SEO H1). */
-export const TEAM_PICKER_SHORT_TITLE = "Team Picker Wheel"
+export const TEAM_PICKER_SHORT_TITLE = "Spin Random Team Picker Wheel"
 
 export const TEAM_PICKER_HERO_INTRO =
-  "Need to create random teams quickly? Our Team Picker Wheel makes it easy to split players, students, coworkers, or participants into fair groups. Add your list of names, customize the wheel, and spin to randomly assign teams for sports, classrooms, games, tournaments, meetings, or events."
+  "Need to create random teams quickly? Spin Random Team Picker Wheel makes it easy to split players, students, coworkers, or participants into fair groups. Add your list of names, customize the wheel, and spin to randomly assign teams for sports, classrooms, games, tournaments, meetings, or events."
 
 export const TEAM_PICKER_KEYWORDS = [
   "team picker wheel",
@@ -448,7 +451,7 @@ export const TEAM_PICKER_CLUSTER_LINKS: TeamPickerLinkItem[] = [
   },
 ]
 
-export const TEAM_PICKER_ARTICLE_TITLE = "Spin the Team Picker Wheel"
+export const TEAM_PICKER_ARTICLE_TITLE = "Spin Random Team Picker Wheel"
 
 export const TEAM_PICKER_ARTICLE_INTRO = [
   "A Team Picker Wheel turns a list of names into an interactive spinning wheel for team assignment. Instead of quietly shuffling a spreadsheet, you spin a team selection wheel so players, students, or coworkers can see fair random teams take shape live.",

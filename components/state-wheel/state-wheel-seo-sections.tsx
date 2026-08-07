@@ -16,6 +16,9 @@ import {
   STATE_WHEEL_OPTIONS_GUIDE,
   STATE_WHEEL_POPULAR_TEMPLATES,
   STATE_WHEEL_RELATED_TOOLS,
+  STATE_WHEEL_STATS_DETAILS,
+  STATE_WHEEL_STATS_FIELDS,
+  STATE_WHEEL_STATS_INTRO,
   STATE_WHEEL_USE_CASES_COPY,
   STATE_WHEEL_WHATS_ON_WHEEL,
   STATE_WHEEL_WHY_POINTS,
@@ -99,6 +102,46 @@ export default function StateWheelSeoSections() {
           heading="What You Can Put on the Wheel"
           items={STATE_WHEEL_WHATS_ON_WHEEL}
         />
+
+        <section
+          id="state-stats-compare"
+          aria-labelledby="state-stats-heading"
+          className="mt-12 scroll-mt-24"
+        >
+          <h2
+            id="state-stats-heading"
+            className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+          >
+            State Statistics &amp; Compare
+          </h2>
+          <p className="mb-6 text-base leading-relaxed text-slate-600">
+            {STATE_WHEEL_STATS_INTRO}
+          </p>
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            {STATE_WHEEL_STATS_DETAILS.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-spin-display mb-2 text-lg font-semibold text-slate-900">
+                  {item.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-600">{item.description}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mb-3 text-sm font-semibold text-slate-900">Details available</p>
+          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {STATE_WHEEL_STATS_FIELDS.map((field) => (
+              <li
+                key={field}
+                className="rounded-lg border border-emerald-100 bg-emerald-50/40 px-3 py-2 text-sm text-slate-700"
+              >
+                {field}
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <WheelGuideFeaturesSection
           id="state-features"

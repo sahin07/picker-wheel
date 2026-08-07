@@ -1,24 +1,28 @@
 import { HOME_SITE_URL } from "@/lib/home-seo"
 
 export const STATE_WHEEL_SITE_URL = HOME_SITE_URL
-export const STATE_WHEEL_PATH = "/state-wheel"
+export const STATE_WHEEL_PATH = "/spin-random-state-wheel"
+/** Legacy hub URL — kept as a permanent redirect target source */
+export const STATE_WHEEL_LEGACY_PATH = "/state-wheel"
 export const STATE_WHEEL_URL = `${STATE_WHEEL_SITE_URL}${STATE_WHEEL_PATH}`
 export const STATE_WHEEL_OG_IMAGE_URL = `${STATE_WHEEL_SITE_URL}/og/state-picker-wheel.svg`
 
 export const STATE_WHEEL_PAGE_TITLE =
-  "State Picker Wheel | Spin a Random State or Province"
+  "Spin Random State Wheel | Free State & Province Picker"
 
 export const STATE_WHEEL_PAGE_DESCRIPTION =
-  "Spin the State Picker Wheel to randomly choose a US state, Canadian province, Australian state, or region from 28 countries. Perfect for geography lessons, classroom activities, trivia games, and quick fair decisions."
+  "Spin a random state wheel to pick a US state, Canadian province, Australian state, or region from 28 countries. Compare state statistics and use ready-made lists for geography lessons, trivia, and fair decisions."
 
-export const STATE_WHEEL_H1 = "State Picker Wheel"
+export const STATE_WHEEL_H1 = "Spin Random State Wheel"
 
-export const STATE_WHEEL_SHORT_TITLE = "State Picker Wheel"
+export const STATE_WHEEL_SHORT_TITLE = "Spin Random State Wheel"
 
 export const STATE_WHEEL_HERO_INTRO =
-  "Looking for a fun way to pick a random US state or province? The State Picker Wheel lets you spin a customizable wheel and instantly choose a state, province, or region from 28 countries. Perfect for geography quizzes, classroom games, trivia nights, and fair group decisions."
+  "Looking for a fun way to pick a random US state or province? Spin Random State Wheel lets you spin a customizable picker and instantly choose a state, province, or region from 28 countries. Perfect for geography quizzes, classroom games, trivia nights, and fair group decisions—with state statistics and side-by-side compare built in."
 
 export const STATE_WHEEL_KEYWORDS = [
+  "spin random state wheel",
+  "random state wheel",
   "state picker wheel",
   "state wheel",
   "random state picker",
@@ -34,24 +38,25 @@ export const STATE_WHEEL_KEYWORDS = [
   "geography state wheel",
   "classroom state picker",
   "state capitals wheel",
+  "state statistics compare",
   "us states quiz wheel",
   "random us state spinner",
-  "state identification wheel",
 ] as const
 
 export const STATE_WHEEL_ON_THIS_PAGE = [
-  { id: "state-spin-wheel", label: "Spin the State Picker Wheel" },
+  { id: "state-spin-wheel", label: "Spin the random state wheel" },
   { id: "state-whats-on", label: "What you can put on the wheel" },
+  { id: "state-stats-compare", label: "State statistics & compare" },
   { id: "state-features", label: "Features on this page" },
-  { id: "state-create", label: "Create your own State Wheel" },
-  { id: "state-popular", label: "Popular State Picker Wheels" },
-  { id: "state-how-it-works", label: "How the State Picker Wheel works" },
+  { id: "state-create", label: "Create your own state wheel" },
+  { id: "state-popular", label: "Popular state picker wheels" },
+  { id: "state-how-it-works", label: "How the state picker wheel works" },
   { id: "state-options", label: "How this tool's options work" },
-  { id: "state-use-cases", label: "Common ways to use a State Picker Wheel" },
-  { id: "state-why", label: "Why use a State Picker Wheel" },
-  { id: "state-comparison", label: "State Picker Wheel vs random state generator" },
+  { id: "state-use-cases", label: "Common ways to use a state wheel" },
+  { id: "state-why", label: "Why use a state picker wheel" },
+  { id: "state-comparison", label: "State picker vs random state generator" },
   { id: "state-tips", label: "Fairness tips & best practices" },
-  { id: "state-customize", label: "Customize your State Picker Wheel" },
+  { id: "state-customize", label: "Customize your state picker wheel" },
   { id: "state-related", label: "Related tools" },
   { id: "state-cluster", label: "State topic cluster" },
   { id: "state-faq", label: "FAQ" },
@@ -101,7 +106,7 @@ export const STATE_WHEEL_POPULAR_TEMPLATES: StateWheelLinkItem[] = [
   },
 ]
 
-export const STATE_WHEEL_ARTICLE_TITLE = "Spin the State Picker Wheel"
+export const STATE_WHEEL_ARTICLE_TITLE = "Spin the Random State Wheel"
 
 export const STATE_WHEEL_ARTICLE_INTRO = [
   "The State Picker Wheel turns a long states-and-provinces list into a visual, equal-odds spinner. Load all 50 US states—or a country-filtered template for Canada, Australia, India, Japan, and more—then spin to randomly select a state for geography games, classroom activities, trivia nights, and quick fair decisions.",
@@ -113,6 +118,7 @@ export const STATE_WHEEL_WHATS_ON_WHEEL = [
   "State, province, prefecture, or region name for every curated entry.",
   "Country filter covering 28 countries—not only the United States.",
   "Capital city shown on the result card after each spin when available.",
+  "Statistics and compare views for population, area, density, and more.",
   "Ready-made spoke templates: US 50, Canada, Australia, UK, India, Germany, Japan, and more.",
 ] as const
 
@@ -133,6 +139,11 @@ export const STATE_WHEEL_FEATURES_REAL = [
       "After a spin, read the state name with capital and country context—ideal for classroom call-and-response quizzes.",
   },
   {
+    title: "Statistics & compare",
+    description:
+      "Open State Statistics for one entry, or compare shortlists side by side for capital, population, area, density, and abbreviation.",
+  },
+  {
     title: "Elimination & Results history",
     description:
       "Remove winners across rounds for multi-state projects, then review recent spins from Results.",
@@ -142,6 +153,35 @@ export const STATE_WHEEL_FEATURES_REAL = [
     description:
       "Bulk-edit lists, recolor slices, toggle confetti and spin sounds, and go fullscreen for projectors or streams.",
   },
+] as const
+
+export const STATE_WHEEL_STATS_INTRO =
+  "Beyond the spin result card, this tool includes State Statistics and State Comparison so learners can inspect and compare curated reference facts. Values are for education and entertainment—not live census, election maps, or official boundary data."
+
+export const STATE_WHEEL_STATS_DETAILS = [
+  {
+    title: "State Statistics (single state)",
+    description:
+      "Open a state’s details to review Basic Information (capital, abbreviation, country, country code) and Demographics (population, area, density), plus the flag when available.",
+  },
+  {
+    title: "State Comparison (side by side)",
+    description:
+      "Add states from the list to compare them in one table: capital, country, population, area, population density, and abbreviation. Clear the list anytime and rebuild a new shortlist.",
+  },
+  {
+    title: "How to use it",
+    description:
+      "From the Inputs state list, open Statistics for one entry or add entries to Compare. Spin first for a random pick, then open stats/compare for capitals practice or multi-state project planning.",
+  },
+] as const
+
+export const STATE_WHEEL_STATS_FIELDS = [
+  "Capital",
+  "Abbreviation",
+  "Country / country code",
+  "Population, area, and density",
+  "Flag (when available)",
 ] as const
 
 export const STATE_WHEEL_CREATE_POINTS = [
@@ -229,9 +269,9 @@ export const STATE_WHEEL_OPTIONS_GUIDE = [
       "Normal keeps every state after a spin. Elimination removes the winner so the next spin draws from the remaining pool.",
   },
   {
-    title: "Favorites & comparison",
+    title: "Favorites, statistics & comparison",
     description:
-      "Star states you revisit often and compare shortlists side by side when planning multi-state projects.",
+      "Star states you revisit often, open State Statistics for one entry, and compare shortlists side by side when planning multi-state projects.",
   },
   {
     title: "Results history",
@@ -352,7 +392,7 @@ export const STATE_WHEEL_EEAT_TIPS = [
 export const STATE_WHEEL_RELATED_TOOLS: StateWheelLinkItem[] = [
   {
     label: "Country Picker Wheel",
-    href: "/country-picker-wheel",
+    href: "/spin-random-country-wheel",
     description: "Spin a random country from around the world.",
   },
   {
@@ -425,7 +465,12 @@ export const STATE_WHEEL_FAQ_ITEMS = [
   {
     question: "Does the result show the capital?",
     answer:
-      "Yes. When capital data is available, the result card shows the state or province name with its capital and country for quick classroom follow-ups.",
+      "Yes. When capital data is available, the result card shows the state or province name with its capital and country for quick classroom follow-ups. Open State Statistics for population, area, and density, or add states to Compare for a side-by-side table.",
+  },
+  {
+    question: "What can I see in State Statistics and Compare?",
+    answer:
+      "Statistics covers capital, abbreviation, country, country code, population, area, density, and flag when available. Compare shows capital, country, population, area, density, and abbreviation side by side.",
   },
   {
     question: "Can I remove states before spinning?",

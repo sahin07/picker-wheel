@@ -61,64 +61,64 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         bg: "rgba(74, 222, 128, 0.15)",
       },
       {
-        label: "Number Picker Wheel",
-        href: "/number-picker-wheel",
+        label: "Spin Random Number Picker Wheel",
+        href: "/spin-random-number-picker-wheel",
         description: "Choose a range and draw an unbiased number instantly.",
         icon: Hash,
         color: "#facc15",
         bg: "rgba(250, 204, 21, 0.15)",
       },
       {
-        label: "Random Letter Picker",
-        href: "/random-letter-picker",
+        label: "Spin Random Letter Picker Wheel",
+        href: "/spin-random-letter-picker-wheel",
         description: "Generate a random letter for word games, classrooms, or creative prompts.",
         icon: Type,
         color: "#60a5fa",
         bg: "rgba(96, 165, 250, 0.15)",
       },
       {
-        label: "Yes or No Wheel",
-        href: "/yes-or-no-wheel",
+        label: "Spin Random Yes No Picker Wheel",
+        href: "/spin-random-yes-no-picker-wheel",
         description: "Spin a free decision spinner for a random yes or no answer.",
         icon: HelpCircle,
         color: "#facc15",
         bg: "rgba(250, 204, 21, 0.15)",
       },
       {
-        label: "Color Picker Wheel",
-        href: "/color-picker-wheel",
+        label: "Spin Random Color Picker Wheel",
+        href: "/spin-random-color-picker-wheel",
         description: "Let chance choose a color for your next idea or activity.",
         icon: Palette,
         color: "#f472b6",
         bg: "rgba(244, 114, 182, 0.15)",
       },
       {
-        label: "Image Picker Wheel",
-        href: "/image-picker-wheel",
+        label: "Spin Random Image Picker Wheel",
+        href: "/spin-random-image-picker-wheel",
         description: "Upload pictures and select one visually at random.",
         icon: ImageIcon,
         color: "#60a5fa",
         bg: "rgba(96, 165, 250, 0.15)",
       },
       {
-        label: "Date Picker Wheel",
-        href: "/date-picker-wheel",
+        label: "Spin Random Date Picker Wheel",
+        href: "/spin-random-date-picker-wheel",
         description: "Draw a date for scheduling, contests, or creative prompts.",
         icon: Calendar,
         color: "#fb923c",
         bg: "rgba(251, 146, 60, 0.15)",
       },
       {
-        label: "Theme Picker Wheel",
-        href: "/theme-picker-wheel",
+        label: "Spin Random Theme Picker Wheel",
+        href: "/spin-random-theme-picker-wheel",
         description: "Spin random themes for parties, writing, drawing, and classrooms.",
         icon: Sparkles,
         color: "#14b8a6",
         bg: "rgba(20, 184, 166, 0.15)",
       },
       {
-        label: "Team Picker Wheel",
-        href: "/team-picker-wheel",
+        label: "Spin Random Team Picker Wheel",
+        href: "/spin-random-team-picker-wheel",
         description: "Split a group into teams without preference or debate.",
         icon: UsersRound,
         color: "#4ade80",
@@ -322,16 +322,16 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     bg: "rgba(37, 99, 235, 0.12)",
     items: [
       {
-        label: "Country Picker Wheel",
-        href: "/country-picker-wheel",
+        label: "Spin Random Country Wheel",
+        href: "/spin-random-country-wheel",
         description: "Draw a nation for destination ideas, study topics, or quizzes.",
         icon: Globe,
         color: "#4ade80",
         bg: "rgba(74, 222, 128, 0.15)",
       },
       {
-        label: "State Picker Wheel",
-        href: "/state-wheel",
+        label: "Spin Random State Wheel",
+        href: "/spin-random-state-wheel",
         description: "Select one US state for geography practice or trip inspiration.",
         icon: Map,
         color: "#60a5fa",
@@ -395,6 +395,7 @@ export function hrefToToolType(href: string): string {
   if (href === "/weighted-wheel-spinner") return "weighted-wheel"
   if (href === "/prize-wheel-spinner") return "prize-wheel"
   if (
+    href === "/spin-random-theme-picker-wheel" ||
     href === "/theme-picker-wheel" ||
     href === "/random-theme-generator" ||
     href === "/party-theme-wheel" ||
@@ -431,11 +432,78 @@ export function hrefToToolType(href: string): string {
     return "fortune-wheel"
   }
   // Pillar SEO URLs that differ from internal toolType keys
-  if (href === "/random-letter-picker" || href === "/letter-picker-wheel") {
+  if (
+    href === "/spin-random-number-picker-wheel" ||
+    href === "/number-picker-wheel"
+  ) {
+    return "number-picker-wheel"
+  }
+  if (
+    href === "/spin-random-letter-picker-wheel" ||
+    href === "/random-letter-picker" ||
+    href === "/letter-picker-wheel"
+  ) {
     return "letter-picker-wheel"
   }
-  if (href === "/yes-or-no-wheel" || href === "/yes-no-picker-wheel") {
+  if (
+    href === "/spin-random-yes-no-picker-wheel" ||
+    href === "/yes-or-no-wheel" ||
+    href === "/yes-no-picker-wheel"
+  ) {
     return "yes-no-picker-wheel"
+  }
+  if (
+    href === "/spin-random-color-picker-wheel" ||
+    href === "/color-picker-wheel" ||
+    href === "/wheel-of-colors"
+  ) {
+    return "color-picker-wheel"
+  }
+  if (
+    href === "/spin-random-image-picker-wheel" ||
+    href === "/image-picker-wheel"
+  ) {
+    return "image-picker-wheel"
+  }
+  if (
+    href === "/spin-random-date-picker-wheel" ||
+    href === "/date-picker-wheel"
+  ) {
+    return "date-picker-wheel"
+  }
+  if (
+    href === "/spin-random-country-wheel" ||
+    href === "/country-picker-wheel" ||
+    href === "/random-country-picker" ||
+    href === "/random-country-generator" ||
+    href.startsWith("/europe-country") ||
+    href.startsWith("/asia-country") ||
+    href.startsWith("/africa-country") ||
+    href.startsWith("/north-america-country") ||
+    href.startsWith("/south-america-country") ||
+    href.startsWith("/oceania-country") ||
+    href === "/g20-country-picker-wheel" ||
+    href === "/un-country-picker-wheel" ||
+    href === "/countries-by-population-picker-wheel" ||
+    href === "/travel-destination-picker-wheel" ||
+    href === "/random-country-to-visit-picker-wheel" ||
+    href === "/favorite-countries-picker-wheel"
+  ) {
+    return "country-wheel"
+  }
+  if (
+    href === "/spin-random-state-wheel" ||
+    href === "/state-wheel" ||
+    href === "/random-state-picker-wheel" ||
+    href === "/us-state-picker-wheel" ||
+    href === "/canada-province-picker-wheel" ||
+    href === "/australia-state-picker-wheel" ||
+    href === "/uk-region-picker-wheel" ||
+    href === "/india-state-picker-wheel" ||
+    href === "/germany-state-picker-wheel" ||
+    href === "/japan-prefecture-picker-wheel"
+  ) {
+    return "state-wheel"
   }
   if (
     href === "/mlb-picker-wheel" ||
@@ -507,6 +575,7 @@ export function hrefToToolType(href: string): string {
     return "dti-wheel"
   }
   if (
+    href === "/spin-random-team-picker-wheel" ||
     href === "/team-picker-wheel" ||
     href === "/team-picker" ||
     href === "/random-team-picker" ||

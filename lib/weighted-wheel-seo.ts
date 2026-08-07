@@ -470,12 +470,12 @@ export const WEIGHTED_WHEEL_RELATED_TOOLS: WeightedWheelLinkItem[] = [
   },
   {
     label: "Country Picker Wheel",
-    href: "/country-picker-wheel",
+    href: "/spin-random-country-wheel",
     description: "Spin a random country from around the world.",
   },
   {
     label: "State Picker Wheel",
-    href: "/state-wheel",
+    href: "/spin-random-state-wheel",
     description: "Random US state or province from 28 countries.",
   },
 ]

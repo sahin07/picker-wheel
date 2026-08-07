@@ -3,25 +3,27 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const IMAGE_PICKER_SITE_URL = HOME_SITE_URL
 
 /** Canonical pillar path. */
-export const IMAGE_PICKER_PATH = "/image-picker-wheel"
+export const IMAGE_PICKER_PATH = "/spin-random-image-picker-wheel"
+/** Legacy hub URL — permanent redirect source */
+export const IMAGE_PICKER_LEGACY_PATH = "/image-picker-wheel"
 
 export const IMAGE_PICKER_URL = `${IMAGE_PICKER_SITE_URL}${IMAGE_PICKER_PATH}`
 
 export const IMAGE_PICKER_OG_IMAGE_URL = `${IMAGE_PICKER_SITE_URL}/og/image-picker-wheel.svg`
 
 export const IMAGE_PICKER_PAGE_TITLE =
-  "Image Picker Wheel | Spin a Random Image Wheel Online"
+  "Spin Random Image Picker Wheel | Free Picture Spinner Online"
 
 export const IMAGE_PICKER_PAGE_DESCRIPTION =
-  "Spin the Image Picker Wheel to randomly choose pictures, photos, or custom images. Upload your own images, customize the wheel, and make visual selections for games, classrooms, giveaways, and creative activities."
+  "Spin a random image picker wheel to choose pictures, photos, or custom images. Upload your own images and make fair visual picks for games, classrooms, and giveaways—free online."
 
-export const IMAGE_PICKER_H1 = "Image Picker Wheel"
+export const IMAGE_PICKER_H1 = "Spin Random Image Picker Wheel"
 
 /** Short chrome title above the tool (not the long SEO pitch). */
-export const IMAGE_PICKER_SHORT_TITLE = "Image Picker Wheel"
+export const IMAGE_PICKER_SHORT_TITLE = "Spin Random Image Picker Wheel"
 
 export const IMAGE_PICKER_HERO_INTRO =
-  "Need to randomly choose between images instead of text? Our Image Picker Wheel lets you upload pictures, icons, logos, or photos and spin a customizable wheel to make a fair visual selection. It's perfect for classroom activities, games, presentations, giveaways, product choices, and creative decision-making."
+  "Need to randomly choose between images instead of text? Spin Random Image Picker Wheel lets you upload pictures, icons, logos, or photos and spin a customizable wheel to make a fair visual selection. It's perfect for classroom activities, games, presentations, giveaways, product choices, and creative decision-making."
 
 /**
  * Primary + secondary + semantic keywords — random image selection only.
@@ -369,7 +371,7 @@ export const IMAGE_PICKER_RELATED_TOOLS: ImagePickerLinkItem[] = [
   },
   {
     label: "Country Picker Wheel",
-    href: "/country-picker-wheel",
+    href: "/spin-random-country-wheel",
     description: "Spin countries for geography and travel games.",
   },
   {
@@ -393,11 +395,11 @@ export const IMAGE_PICKER_CLUSTER_LINKS: ImagePickerLinkItem[] = [
   { label: "Dinosaur Wheel", href: "/dinosaur-wheel", description: "" },
   { label: "Minecraft Mob Wheel", href: "/minecraft-mob-wheel", description: "" },
   { label: "Pokémon Wheel", href: "/pokemon-picker-wheel", description: "" },
-  { label: "Country Picker Wheel", href: "/country-picker-wheel", description: "" },
+  { label: "Country Picker Wheel", href: "/spin-random-country-wheel", description: "" },
   { label: "Fortnite Wheel", href: "/fortnite-wheel", description: "" },
 ]
 
-export const IMAGE_PICKER_ARTICLE_TITLE = "Spin an Image Wheel"
+export const IMAGE_PICKER_ARTICLE_TITLE = "Spin Random Image Picker Wheel"
 
 export const IMAGE_PICKER_ARTICLE_INTRO = [
   "An Image Picker Wheel is a spinning picture chooser built for random visual selection. Upload photos, icons, logos, or stickers, spin the wheel, and land on a fair image everyone can see—ideal for classrooms, games, giveaways, presentations, and creative decisions.",

@@ -706,7 +706,7 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
             ],
           },
         ],
-        links: [{ label: "Try the Country Picker", href: "/country-picker-wheel" }],
+        links: [{ label: "Try the Country Picker", href: "/spin-random-country-wheel" }],
       },
       {
         id: "state-picker-how-it-works",
@@ -764,7 +764,7 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
             ],
           },
         ],
-        links: [{ label: "Try the State Picker", href: "/state-wheel" }],
+        links: [{ label: "Try the State Picker", href: "/spin-random-state-wheel" }],
       },
       {
         id: "gaming-features-explained",

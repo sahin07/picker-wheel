@@ -1,19 +1,21 @@
 import { HOME_SITE_URL } from "@/lib/home-seo"
 
 export const THEME_PICKER_SITE_URL = HOME_SITE_URL
-export const THEME_PICKER_PATH = "/theme-picker-wheel"
+export const THEME_PICKER_PATH = "/spin-random-theme-picker-wheel"
+/** Legacy hub URL — permanent redirect source */
+export const THEME_PICKER_LEGACY_PATH = "/theme-picker-wheel"
 export const THEME_PICKER_URL = `${THEME_PICKER_SITE_URL}${THEME_PICKER_PATH}`
 export const THEME_PICKER_OG_IMAGE_URL = `${THEME_PICKER_SITE_URL}/og/theme-picker-wheel.svg`
 
-export const THEME_PICKER_SHORT_TITLE = "Theme Picker Wheel"
+export const THEME_PICKER_SHORT_TITLE = "Spin Random Theme Picker Wheel"
 export const THEME_PICKER_PAGE_TITLE =
-  "Theme Picker Wheel | Random Theme Generator Online"
-export const THEME_PICKER_H1 = "Theme Picker Wheel"
+  "Spin Random Theme Picker Wheel | Free Theme Generator Online"
+export const THEME_PICKER_H1 = "Spin Random Theme Picker Wheel"
 export const THEME_PICKER_PAGE_DESCRIPTION =
-  "Use the Theme Picker Wheel to randomly choose themes for parties, games, writing, drawing, classrooms, content creation, and creative challenges. Customize your wheel and spin for free."
+  "Spin a random theme picker wheel to choose themes for parties, games, writing, drawing, classrooms, and creative challenges. Customize your list and spin free online."
 
 export const THEME_PICKER_HERO_INTRO =
-  "Need inspiration for your next activity? The Theme Picker Wheel helps you randomly select a theme in seconds. Whether you're planning a party, creating content, writing a story, drawing, hosting a classroom activity, or playing games with friends, simply spin the wheel and let chance decide. You can also customize the wheel with your own themes and save it for future use."
+  "Need inspiration for your next activity? Spin Random Theme Picker Wheel helps you randomly select a theme in seconds. Whether you're planning a party, creating content, writing a story, drawing, hosting a classroom activity, or playing games with friends, simply spin the wheel and let chance decide. You can also customize the wheel with your own themes and save it for future use."
 
 export const THEME_PICKER_UPDATED_AT = "2026-08-03"
 
@@ -39,7 +41,7 @@ export const THEME_PICKER_KEYWORDS = [
 ] as const
 
 export const THEME_PICKER_ON_THIS_PAGE = [
-  { id: "theme-spin-wheel", label: "Spin the Theme Picker Wheel" },
+  { id: "theme-spin-wheel", label: "Spin Random Theme Picker Wheel" },
   { id: "theme-how-it-works", label: "How the spinner works" },
   { id: "theme-create-own", label: "Create Your Own Theme Wheel" },
   { id: "theme-templates", label: "Popular Theme Wheel Templates" },

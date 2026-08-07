@@ -61,11 +61,11 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     title: "Tools",
     links: [
       { label: "Create Custom Wheel", href: "/create-custom-wheel-spinner" },
-      { label: "Country Picker", href: "/country-picker-wheel" },
-      { label: "State Picker", href: "/state-wheel" },
-      { label: "Number Wheel", href: "/number-picker-wheel" },
-      { label: "Letter Picker", href: "/random-letter-picker" },
-      { label: "Yes or No Wheel", href: "/yes-or-no-wheel" },
+      { label: "Spin Random Country Wheel", href: "/spin-random-country-wheel" },
+      { label: "Spin Random State Wheel", href: "/spin-random-state-wheel" },
+      { label: "Spin Random Number Picker Wheel", href: "/spin-random-number-picker-wheel" },
+      { label: "Spin Random Letter Picker Wheel", href: "/spin-random-letter-picker-wheel" },
+      { label: "Spin Random Yes No Picker Wheel", href: "/spin-random-yes-no-picker-wheel" },
     ],
   },
   {

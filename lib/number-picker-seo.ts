@@ -2,25 +2,27 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 
 export const NUMBER_PICKER_SITE_URL = HOME_SITE_URL
 
-export const NUMBER_PICKER_PATH = "/number-picker-wheel"
+export const NUMBER_PICKER_PATH = "/spin-random-number-picker-wheel"
+/** Legacy hub URL — permanent redirect source */
+export const NUMBER_PICKER_LEGACY_PATH = "/number-picker-wheel"
 
 export const NUMBER_PICKER_URL = `${NUMBER_PICKER_SITE_URL}${NUMBER_PICKER_PATH}`
 
 export const NUMBER_PICKER_OG_IMAGE_URL = `${NUMBER_PICKER_SITE_URL}/og/number-picker-wheel.svg`
 
 export const NUMBER_PICKER_PAGE_TITLE =
-  "Random Number Picker Wheel | Spin a Random Number Online"
+  "Spin Random Number Picker Wheel | Free Number Spinner Online"
 
 export const NUMBER_PICKER_PAGE_DESCRIPTION =
-  "Spin our free Random Number Picker Wheel to choose numbers instantly. Create a custom number wheel, generate random numbers, customize ranges, and make fair selections in seconds."
+  "Spin a random number picker wheel to choose numbers instantly. Create a custom number range, generate fair results, and spin free for games, classrooms, and giveaways."
 
-export const NUMBER_PICKER_H1 = "Random Number Picker Wheel"
+export const NUMBER_PICKER_H1 = "Spin Random Number Picker Wheel"
 
 /** Short chrome title above the tool (not the SEO H1). */
-export const NUMBER_PICKER_SHORT_TITLE = "Number Picker Wheel"
+export const NUMBER_PICKER_SHORT_TITLE = "Spin Random Number Picker Wheel"
 
 export const NUMBER_PICKER_HERO_INTRO =
-  "Need to pick a random number without bias? Enter your own numbers or create a custom range, then spin the Random Number Picker Wheel to instantly select a winner. Whether you're choosing lucky numbers, running classroom activities, organizing games, giveaways, or making everyday decisions, our free number spinner provides a quick and fair way to generate random results."
+  "Need to pick a random number without bias? Enter your own numbers or create a custom range, then spin the Spin Random Number Picker Wheel to instantly select a winner. Whether you're choosing lucky numbers, running classroom activities, organizing games, giveaways, or making everyday decisions, our free number spinner provides a quick and fair way to generate random results."
 
 export const NUMBER_PICKER_KEYWORDS = [
   "random number picker wheel",
@@ -311,7 +313,7 @@ export const NUMBER_PICKER_RELATED_TOOLS: NumberPickerLinkItem[] = [
 ]
 
 export const NUMBER_PICKER_ARTICLE_TITLE =
-  "Random Number Picker Wheel: Spin to Choose a Number Online"
+  "Spin Random Number Picker Wheel: Choose a Number Online"
 
 export const NUMBER_PICKER_ARTICLE_INTRO = [
   "A Random Number Picker Wheel turns a range of numbers into an interactive spinning wheel. Instead of generating a quiet digit in a form field, you spin a wheel of numbers so classmates, friends, or viewers can see the selection happen live.",

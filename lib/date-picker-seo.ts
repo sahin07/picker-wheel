@@ -2,23 +2,26 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 
 export const DATE_PICKER_SITE_URL = HOME_SITE_URL
 
-export const DATE_PICKER_PATH = "/date-picker-wheel"
+export const DATE_PICKER_PATH = "/spin-random-date-picker-wheel"
+/** Legacy hub URL — permanent redirect source */
+export const DATE_PICKER_LEGACY_PATH = "/date-picker-wheel"
 
 export const DATE_PICKER_URL = `${DATE_PICKER_SITE_URL}${DATE_PICKER_PATH}`
 
 export const DATE_PICKER_OG_IMAGE_URL = `${DATE_PICKER_SITE_URL}/og/date-picker-wheel.svg`
 
-export const DATE_PICKER_PAGE_TITLE = "Date Picker Wheel | Spin a Random Date Online"
+export const DATE_PICKER_PAGE_TITLE =
+  "Spin Random Date Picker Wheel | Free Random Date Online"
 
 export const DATE_PICKER_PAGE_DESCRIPTION =
-  "Spin the Date Picker Wheel to pick a random date online. Choose single dates or ranges, filter weekdays, customize formats, and make fair date selections for challenges, meetings, workouts, and games."
+  "Spin a random date picker wheel to pick a date online. Choose single dates or ranges, filter weekdays, and make fair date selections for challenges, meetings, workouts, and games."
 
-export const DATE_PICKER_H1 = "Date Picker Wheel"
+export const DATE_PICKER_H1 = "Spin Random Date Picker Wheel"
 
-export const DATE_PICKER_SHORT_TITLE = "Date Picker Wheel"
+export const DATE_PICKER_SHORT_TITLE = "Spin Random Date Picker Wheel"
 
 export const DATE_PICKER_HERO_INTRO =
-  "Need a fair random date instead of flipping a calendar yourself? Our Date Picker Wheel lets you add single dates or date ranges, filter by weekday, spin a customizable wheel, and land on a date everyone can see. Perfect for 30-day challenges, meeting picks, workout schedules, classroom activities, and fun planning games."
+  "Need a fair random date instead of flipping a calendar yourself? Spin Random Date Picker Wheel lets you add single dates or date ranges, filter by weekday, spin a customizable wheel, and land on a date everyone can see. Perfect for 30-day challenges, meeting picks, workout schedules, classroom activities, and fun planning games."
 
 export const DATE_PICKER_KEYWORDS = [
   "date picker wheel",
@@ -255,7 +258,7 @@ export const DATE_PICKER_CLUSTER_LINKS: DatePickerLinkItem[] = [
   { label: "Weekend Date Wheel", href: "/weekend-date-wheel", description: "" },
 ]
 
-export const DATE_PICKER_ARTICLE_TITLE = "Spin a Date Wheel"
+export const DATE_PICKER_ARTICLE_TITLE = "Spin Random Date Picker Wheel"
 
 export const DATE_PICKER_ARTICLE_INTRO = [
   "A Date Picker Wheel is a spinning calendar chooser for random date selection. Add single dates or a range, filter which weekdays count, spin the wheel, and land on a fair day for challenges, meetings, workouts, classrooms, and planning games.",

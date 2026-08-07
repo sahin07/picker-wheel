@@ -111,7 +111,7 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   },
   {
     label: "Country Picker Wheel",
-    href: "/country-picker-wheel",
+    href: "/spin-random-country-wheel",
     description: "Spin for a random country for travel ideas or quizzes.",
   },
   {

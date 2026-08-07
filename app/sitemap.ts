@@ -27,6 +27,16 @@ const EXCLUDED_SEGMENTS = new Set([
   "the-wheel-of-fortune",
   "wheel-of-colors",
   "yes-no-picker-wheel",
+  "country-picker-wheel",
+  "state-wheel",
+  "number-picker-wheel",
+  "random-letter-picker",
+  "yes-or-no-wheel",
+  "color-picker-wheel",
+  "image-picker-wheel",
+  "date-picker-wheel",
+  "theme-picker-wheel",
+  "team-picker-wheel",
 ])
 
 function collectAppRoutes(dir: string, segments: string[] = []): string[] {

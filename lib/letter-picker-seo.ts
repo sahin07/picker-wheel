@@ -3,7 +3,10 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const LETTER_PICKER_SITE_URL = HOME_SITE_URL
 
 /** Canonical pillar path — primary keyword URL. */
-export const LETTER_PICKER_PATH = "/random-letter-picker"
+export const LETTER_PICKER_PATH = "/spin-random-letter-picker-wheel"
+
+/** Previous pillar URL — redirects to the new path. */
+export const LETTER_PICKER_PREVIOUS_PATH = "/random-letter-picker"
 
 /** Legacy path kept as a redirect alias to the pillar. */
 export const LETTER_PICKER_LEGACY_PATH = "/letter-picker-wheel"
@@ -13,18 +16,18 @@ export const LETTER_PICKER_URL = `${LETTER_PICKER_SITE_URL}${LETTER_PICKER_PATH}
 export const LETTER_PICKER_OG_IMAGE_URL = `${LETTER_PICKER_SITE_URL}/og/letter-picker.svg`
 
 export const LETTER_PICKER_PAGE_TITLE =
-  "Random Letter Picker | Spin the Alphabet Wheel Online"
+  "Spin Random Letter Picker Wheel | Free Alphabet Spinner Online"
 
 export const LETTER_PICKER_PAGE_DESCRIPTION =
-  "Use our free Random Letter Picker to spin the alphabet wheel and choose letters instantly. Create a custom letter wheel, generate random letters from A to Z, and make fair selections for games, classrooms, and learning."
+  "Spin a random letter picker wheel to choose letters from A to Z instantly. Customize the alphabet wheel and make fair picks for games, classrooms, and learning—free online."
 
-export const LETTER_PICKER_H1 = "Random Letter Picker"
+export const LETTER_PICKER_H1 = "Spin Random Letter Picker Wheel"
 
 /** Short chrome title above the tool (not the SEO H1). */
-export const LETTER_PICKER_SHORT_TITLE = "Letter Picker Wheel"
+export const LETTER_PICKER_SHORT_TITLE = "Spin Random Letter Picker Wheel"
 
 export const LETTER_PICKER_HERO_INTRO =
-  "Need to choose a random letter? Our Random Letter Picker lets you spin a customizable alphabet wheel to instantly select a letter from A to Z. It's perfect for classroom activities, word games, creative writing, educational exercises, and any situation where you need a fair, random letter selection."
+  "Need to choose a random letter? Spin Random Letter Picker Wheel lets you spin a customizable alphabet wheel to instantly select a letter from A to Z. It's perfect for classroom activities, word games, creative writing, educational exercises, and any situation where you need a fair, random letter selection."
 
 export const LETTER_PICKER_KEYWORDS = [
   "random letter picker",
@@ -340,7 +343,7 @@ export const LETTER_PICKER_RELATED_TOOLS: LetterPickerLinkItem[] = [
   },
   {
     label: "Country Picker Wheel",
-    href: "/country-picker-wheel",
+    href: "/spin-random-country-wheel",
     description: "Pick a random country for geography games and travel prompts.",
   },
   {
@@ -360,7 +363,7 @@ export const LETTER_PICKER_RELATED_TOOLS: LetterPickerLinkItem[] = [
   },
 ]
 
-export const LETTER_PICKER_ARTICLE_TITLE = "Spin the Letter Wheel"
+export const LETTER_PICKER_ARTICLE_TITLE = "Spin Random Letter Picker Wheel"
 
 export const LETTER_PICKER_ARTICLE_INTRO = [
   "A Random Letter Picker turns the alphabet into an interactive spinning wheel. Instead of generating a quiet character in a text box, you spin a letter spinner so students, friends, or viewers can see the selection happen live.",

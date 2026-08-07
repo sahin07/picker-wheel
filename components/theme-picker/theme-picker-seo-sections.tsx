@@ -72,10 +72,10 @@ export default function ThemePickerSeoSections() {
 
         <section id="theme-how-it-works" className="scroll-mt-24">
           <h2 className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl">
-            Spin the Theme Picker Wheel
+            Spin Random Theme Picker Wheel
           </h2>
           <p className="mb-6 leading-relaxed text-slate-600">
-            The Theme Picker Wheel loads a ready-made mix of creative themes so you can spin immediately.
+            The Spin Random Theme Picker Wheel loads a ready-made mix of creative themes so you can spin immediately.
             Every enabled entry receives one equal slice. When the pointer stops, you get a clear theme for
             parties, writing, drawing, classrooms, or content challenges—no endless debating required. Keep
             spinning for rematches, or switch templates when you need a focused list.
@@ -153,7 +153,7 @@ export default function ThemePickerSeoSections() {
 
         <section id="theme-use-cases" className="mt-12 scroll-mt-24">
           <h2 className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl">
-            Common Ways to Use a Theme Picker Wheel
+            Common Ways to Use a Spin Random Theme Picker Wheel
           </h2>
           <p className="mb-6 leading-relaxed text-slate-600">
             From costume parties to TikTok challenges, a random theme spinner keeps creative decisions fair
@@ -180,7 +180,7 @@ export default function ThemePickerSeoSections() {
 
         <section id="theme-why" className="mt-12 scroll-mt-24">
           <h2 className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl">
-            Why Use Our Theme Picker Wheel?
+            Why Use Our Spin Random Theme Picker Wheel?
           </h2>
           <p className="mb-6 leading-relaxed text-slate-600">
             Random themes help writers, artists, teachers, and creators generate fresh ideas when they are

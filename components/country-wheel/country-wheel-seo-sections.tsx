@@ -16,6 +16,9 @@ import {
   COUNTRY_WHEEL_OPTIONS_GUIDE,
   COUNTRY_WHEEL_POPULAR_TEMPLATES,
   COUNTRY_WHEEL_RELATED_TOOLS,
+  COUNTRY_WHEEL_STATS_DETAILS,
+  COUNTRY_WHEEL_STATS_FIELDS,
+  COUNTRY_WHEEL_STATS_INTRO,
   COUNTRY_WHEEL_USE_CASES_COPY,
   COUNTRY_WHEEL_WHATS_ON_WHEEL,
   COUNTRY_WHEEL_WHY_POINTS,
@@ -96,6 +99,47 @@ export default function CountryWheelSeoSections() {
           heading="What You Can Put on the Wheel"
           items={COUNTRY_WHEEL_WHATS_ON_WHEEL}
         />
+
+        {/* Statistics & compare */}
+        <section
+          id="country-stats-compare"
+          aria-labelledby="country-stats-heading"
+          className="mt-12 scroll-mt-24"
+        >
+          <h2
+            id="country-stats-heading"
+            className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+          >
+            Country Statistics &amp; Compare
+          </h2>
+          <p className="mb-6 text-base leading-relaxed text-slate-600">
+            {COUNTRY_WHEEL_STATS_INTRO}
+          </p>
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            {COUNTRY_WHEEL_STATS_DETAILS.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-spin-display mb-2 text-lg font-semibold text-slate-900">
+                  {item.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-600">{item.description}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mb-3 text-sm font-semibold text-slate-900">Details available</p>
+          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {COUNTRY_WHEEL_STATS_FIELDS.map((field) => (
+              <li
+                key={field}
+                className="rounded-lg border border-emerald-100 bg-emerald-50/40 px-3 py-2 text-sm text-slate-700"
+              >
+                {field}
+              </li>
+            ))}
+          </ul>
+        </section>
 
         {/* Features */}
         <section

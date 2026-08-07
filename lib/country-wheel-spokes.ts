@@ -1,8 +1,12 @@
 import {
 
+  COUNTRY_WHEEL_H1,
+
   COUNTRY_WHEEL_PAGE_TITLE,
 
   COUNTRY_WHEEL_PATH,
+
+  COUNTRY_WHEEL_SHORT_TITLE,
 
   COUNTRY_WHEEL_SITE_URL,
 
@@ -342,21 +346,19 @@ export const COUNTRY_WHEEL_SPOKES: Record<CountryWheelSpokeId, CountryWheelSpoke
 
       "Free random country generator. Spin a curated world country picker wheel for travel, quizzes, and fun.",
 
-    h1: "Country Picker Wheel",
-
-    shortTitle: "Country Picker Wheel",
-
+    h1: COUNTRY_WHEEL_H1,
+    shortTitle: COUNTRY_WHEEL_SHORT_TITLE,
     heroIntro:
 
       "Need any country at random? This page loads the curated world catalog so you can spin a fair pick for travel, classrooms, and games.",
 
-    keywords: ["country picker wheel", "random country", "country picker"],
+    keywords: ["spin random country wheel", "country picker wheel", "random country", "country picker"],
 
-    articleTitle: "Random Country Picker Wheel hub",
+    articleTitle: "Spin Random Country Wheel hub",
 
     articleIntro: [
 
-      "This is the full curated Country Picker Wheel catalog on one page—spin any listed country with equal odds.",
+      "This is the full curated Spin Random Country Wheel catalog on one page—spin any listed country with equal odds.",
 
     ],
 

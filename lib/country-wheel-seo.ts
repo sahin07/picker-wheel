@@ -1,34 +1,34 @@
 import { HOME_SITE_URL } from "@/lib/home-seo"
 
 export const COUNTRY_WHEEL_SITE_URL = HOME_SITE_URL
-export const COUNTRY_WHEEL_PATH = "/country-picker-wheel"
+export const COUNTRY_WHEEL_PATH = "/spin-random-country-wheel"
+/** Legacy hub URL — kept as a permanent redirect target source */
+export const COUNTRY_WHEEL_LEGACY_PATH = "/country-picker-wheel"
 export const COUNTRY_WHEEL_URL = `${COUNTRY_WHEEL_SITE_URL}${COUNTRY_WHEEL_PATH}`
 export const COUNTRY_WHEEL_OG_IMAGE_URL = `${COUNTRY_WHEEL_SITE_URL}/og/country-picker-wheel.svg`
 
 export const COUNTRY_WHEEL_PAGE_TITLE =
-  "Country Picker Wheel | Spin a Random Country Wheel"
+  "Spin Random Country Wheel | Free Country Picker Online"
 
 export const COUNTRY_WHEEL_PAGE_DESCRIPTION =
-  "Spin the Country Picker Wheel to randomly choose a country from around the world. Perfect for geography games, classroom activities, travel inspiration, quizzes, and educational challenges. Customize the wheel or use ready-made country lists."
+  "Spin a random country wheel to pick a nation from around the world. Compare country statistics, filter by continent, and use ready-made lists for geography games, travel ideas, and classroom quizzes."
 
-export const COUNTRY_WHEEL_H1 = "Country Picker Wheel"
+export const COUNTRY_WHEEL_H1 = "Spin Random Country Wheel"
 
-export const COUNTRY_WHEEL_SHORT_TITLE = "Country Picker Wheel"
+export const COUNTRY_WHEEL_SHORT_TITLE = "Spin Random Country Wheel"
 
 export const COUNTRY_WHEEL_HERO_INTRO =
-  "Looking for a fun way to choose a random country? Our Country Picker Wheel lets you spin a customizable wheel and instantly select a country from around the world. Whether you're planning a trip, studying geography, creating classroom activities, or playing quiz games with friends, this free tool makes every selection fair, quick, and engaging."
+  "Looking for a fun way to choose a random country? Spin Random Country Wheel lets you spin a customizable picker and instantly select a country from around the world. Whether you're planning a trip, studying geography, creating classroom activities, or playing quiz games with friends, this free tool makes every selection fair, quick, and engaging—with country statistics and side-by-side compare built in."
 
 export const COUNTRY_WHEEL_KEYWORDS = [
+  "spin random country wheel",
+  "random country wheel",
   "country picker wheel",
   "country wheel",
   "country wheel picker",
   "random country picker",
   "random country generator",
-  "random country wheel",
   "country spinner",
-  "wheel picker",
-  "random picker",
-  "picker wheel",
   "pick a random country",
   "choose a country",
   "spin country wheel",
@@ -37,18 +37,20 @@ export const COUNTRY_WHEEL_KEYWORDS = [
   "travel destination picker",
   "world country picker",
   "country selection wheel",
+  "country statistics compare",
   "learn world countries",
   "country challenge wheel",
 ] as const
 
 /** Brief-aligned TOC — Spin / Customize / Popular / Uses / Why / vs Generator / FAQ */
 export const COUNTRY_WHEEL_ON_THIS_PAGE = [
-  { id: "country-spin-wheel", label: "Spin the Country Picker Wheel" },
-  { id: "country-customize", label: "Customize Your Country Picker Wheel" },
-  { id: "country-popular", label: "Popular Country Picker Wheels" },
-  { id: "country-use-cases", label: "Common ways to use a Country Picker Wheel" },
-  { id: "country-why", label: "Why use a Country Picker Wheel" },
-  { id: "country-comparison", label: "Country Picker Wheel vs Random Country Generator" },
+  { id: "country-spin-wheel", label: "Spin the random country wheel" },
+  { id: "country-stats-compare", label: "Country statistics & compare" },
+  { id: "country-customize", label: "Customize your country wheel" },
+  { id: "country-popular", label: "Popular country picker wheels" },
+  { id: "country-use-cases", label: "Common ways to use a country wheel" },
+  { id: "country-why", label: "Why use a country picker wheel" },
+  { id: "country-comparison", label: "Country picker vs random country generator" },
   { id: "country-options", label: "How this tool's options work" },
   { id: "country-related", label: "Related tools" },
   { id: "country-cluster", label: "Country topic cluster" },
@@ -64,7 +66,7 @@ export type CountryWheelLinkItem = {
 export const COUNTRY_WHEEL_POPULAR_TEMPLATES: CountryWheelLinkItem[] = [
   {
     label: "All Countries",
-    href: "/country-picker-wheel",
+    href: COUNTRY_WHEEL_PATH,
     description: "Full world catalog on one fair spinner.",
   },
   {
@@ -127,14 +129,46 @@ export const COUNTRY_WHEEL_WHATS_ON_WHEEL = [
   "Country name and flag emoji for every entry in the catalog.",
   "Continent / region filters powered by the same dataset.",
   "Capitals, languages, and population shown after a spin.",
+  "Statistics and compare views for deeper country details.",
   "Ready-made lists: continents, G20, UN members, and population leaders.",
 ] as const
 
 export const COUNTRY_WHEEL_FEATURES_REAL = [
   "Fair equal-odds spins with mute, fullscreen, and sound controls.",
+  "Country statistics modal and side-by-side country comparison.",
   "Achievements, themes, analytics, social sharing, and game modes.",
   "Manual and AI-assisted suggestion tabs for inspiration.",
   "Results history to recap multi-round quizzes or draft nights.",
+] as const
+
+export const COUNTRY_WHEEL_STATS_INTRO =
+  "Beyond the spin result card, this tool includes Country Statistics and Country Comparison so learners can inspect and compare curated reference facts. Values are for education and entertainment—not live census, GDP releases, visa rules, or official government data."
+
+export const COUNTRY_WHEEL_STATS_DETAILS = [
+  {
+    title: "Country Statistics (single country)",
+    description:
+      "Open a country’s details to review Basic Information (capital, country code, subregion, continent), Demographics (population, area, density), Economy (currency, GDP, GDP per capita), and Culture & Language (languages, timezone), plus the flag.",
+  },
+  {
+    title: "Country Comparison (side by side)",
+    description:
+      "Add countries from the list to compare them in one table: capital, population, area, population density, currency, language(s), GDP, GDP per capita, region, and timezone. Clear the list anytime and rebuild a new shortlist.",
+  },
+  {
+    title: "How to use it",
+    description:
+      "From the Inputs country list, open Statistics for one country or add entries to Compare. Spin first for a random pick, then open stats/compare to turn the result into a quick geography discussion.",
+  },
+] as const
+
+export const COUNTRY_WHEEL_STATS_FIELDS = [
+  "Capital",
+  "Country code / region / continent / subregion",
+  "Population, area, and density",
+  "Currency, GDP, and GDP per capita",
+  "Language(s) and timezone",
+  "Flag",
 ] as const
 
 export const COUNTRY_WHEEL_HOW_IT_WORKS = [
@@ -241,7 +275,7 @@ export const COUNTRY_WHEEL_RELATED_TOOLS: CountryWheelLinkItem[] = [
   },
   {
     label: "State Wheel",
-    href: "/state-wheel",
+    href: "/spin-random-state-wheel",
     description: "Drill into US states after landing on the United States.",
   },
 ]
@@ -260,7 +294,7 @@ export const COUNTRY_WHEEL_CLUSTER_LINKS: CountryWheelLinkItem[] = [
   },
 ]
 
-export const COUNTRY_WHEEL_ARTICLE_TITLE = "Spin the Country Picker Wheel"
+export const COUNTRY_WHEEL_ARTICLE_TITLE = "Spin the Random Country Wheel"
 
 export const COUNTRY_WHEEL_ARTICLE_INTRO = [
   "The Country Picker Wheel turns a long world list into a visual, equal-odds spinner. Load every country—or a continent and theme template—then spin to randomly select a country for geography games, classroom activities, travel inspiration, quizzes, and educational challenges.",
@@ -288,9 +322,9 @@ export const COUNTRY_WHEEL_OPTIONS_GUIDE = [
     description: "Style tab sets flag/name/both display and color themes for the wheel.",
   },
   {
-    title: "Save & share",
+    title: "Save, compare & statistics",
     description:
-      "Star favorites, compare countries, save wheels in My Wheels, and open Results to recap spins.",
+      "Star favorites, open Country Statistics for one nation, compare shortlists side by side, save wheels in My Wheels, and open Results to recap spins.",
   },
   {
     title: "Action Mode & Games",
@@ -362,7 +396,12 @@ export const COUNTRY_WHEEL_FAQ_ITEMS = [
   {
     question: "What facts show after a spin?",
     answer:
-      "The result card highlights the country name and flag, plus capital, region/continent, and language when available.",
+      "The result card highlights the country name and flag, plus capital, region/continent, and language when available. Open Country Statistics for fuller details, or add countries to Compare for a side-by-side table.",
+  },
+  {
+    question: "What can I see in Country Statistics and Compare?",
+    answer:
+      "Statistics covers capital, country code, subregion, continent, population, area, density, currency, GDP, GDP per capita, languages, timezone, and flag. Compare shows capital, population, area, density, currency, languages, GDP, GDP per capita, region, and timezone side by side.",
   },
   {
     question: "Is this a country music, phone-code, or flags API tool?",

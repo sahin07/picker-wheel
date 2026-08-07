@@ -3,7 +3,10 @@ import { HOME_SITE_URL } from "@/lib/home-seo"
 export const COLOR_PICKER_SITE_URL = HOME_SITE_URL
 
 /** Canonical pillar path. */
-export const COLOR_PICKER_PATH = "/color-picker-wheel"
+export const COLOR_PICKER_PATH = "/spin-random-color-picker-wheel"
+
+/** Previous pillar URL — redirects to the new path. */
+export const COLOR_PICKER_PREVIOUS_PATH = "/color-picker-wheel"
 
 /** Competitor-style alias redirected to the pillar. */
 export const COLOR_PICKER_LEGACY_PATH = "/wheel-of-colors"
@@ -13,18 +16,18 @@ export const COLOR_PICKER_URL = `${COLOR_PICKER_SITE_URL}${COLOR_PICKER_PATH}`
 export const COLOR_PICKER_OG_IMAGE_URL = `${COLOR_PICKER_SITE_URL}/og/color-picker-wheel.svg`
 
 export const COLOR_PICKER_PAGE_TITLE =
-  "Color Picker Wheel | Spin a Random Color Wheel Online"
+  "Spin Random Color Picker Wheel | Free Color Spinner Online"
 
 export const COLOR_PICKER_PAGE_DESCRIPTION =
-  "Spin the Color Picker Wheel to choose a random color instantly. Customize colors, create your own color wheel, and use it for games, classrooms, design inspiration, or fun decision-making."
+  "Spin a random color picker wheel to choose a color instantly. Customize colors, load ready-made palettes, and use this free spinner for games, classrooms, and design inspiration."
 
-export const COLOR_PICKER_H1 = "Color Picker Wheel"
+export const COLOR_PICKER_H1 = "Spin Random Color Picker Wheel"
 
 /** Short chrome title above the tool (not the SEO H1). */
-export const COLOR_PICKER_SHORT_TITLE = "Color Picker Wheel"
+export const COLOR_PICKER_SHORT_TITLE = "Spin Random Color Picker Wheel"
 
 export const COLOR_PICKER_HERO_INTRO =
-  "Looking for a fun way to choose a random color? Our Color Picker Wheel lets you spin a customizable wheel and instantly select a color from your own list or from ready-made color palettes. Whether you're teaching in a classroom, choosing game colors, finding creative inspiration, or making simple decisions, this free color wheel makes every selection quick, fair, and enjoyable."
+  "Looking for a fun way to choose a random color? Spin Random Color Picker Wheel lets you spin a customizable wheel and instantly select a color from your own list or from ready-made color palettes. Whether you're teaching in a classroom, choosing game colors, finding creative inspiration, or making simple decisions, this free color wheel makes every selection quick, fair, and enjoyable."
 
 /** Primary + secondary + semantic keywords — random color selection intent only. */
 export const COLOR_PICKER_KEYWORDS = [
@@ -400,7 +403,7 @@ export const COLOR_PICKER_RELATED_TOOLS: ColorPickerLinkItem[] = [
   },
 ]
 
-export const COLOR_PICKER_ARTICLE_TITLE = "Spin the Color Wheel"
+export const COLOR_PICKER_ARTICLE_TITLE = "Spin Random Color Picker Wheel"
 
 export const COLOR_PICKER_ARTICLE_INTRO = [
   "A Color Picker Wheel is a spinning color chooser made for random selection. Add your own colors or open a ready-made palette, spin the wheel, and land on a lucky color everyone can see—ideal when you want a fair pick for games, classrooms, art prompts, or everyday decisions.",

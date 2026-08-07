@@ -55,7 +55,7 @@ export const JJK_WHEEL_WHATS_ON_WHEEL = [
   "Custom entries with emoji and optional user-uploaded images",
   "Favorites and comparison shortlists before you spin",
   "Display modes — emoji + name, emoji only, or name only",
-  "Popular templates — character, villain, spirit, technique, domain, and team presets",
+  "Popular templates — character, villain, spirit, Mahoraga, technique, domain, and team presets",
 ] as const
 
 export const JJK_WHEEL_FEATURES_REAL = [
@@ -371,8 +371,9 @@ export const JJK_WHEEL_RELATED_TOOLS = [
   { label: "Fortnite Picker Wheel", href: "/fortnite-picker-wheel", description: "Randomize Fortnite skins and challenges." },
   { label: "LoL Picker Wheel", href: "/lol-picker-wheel", description: "Pick a random League champion." },
   { label: "Random Name Picker", href: "/", description: "Build a wheel from any list of names." },
-  { label: "Team Picker Wheel", href: "/team-picker-wheel", description: "Split people into random teams." },
+  { label: "Team Picker Wheel", href: "/spin-random-team-picker-wheel", description: "Split people into random teams." },
   { label: "Prize Wheel", href: "/prize-wheel-spinner", description: "Create an equal-odds prize spinner." },
+  { label: "JJK Mahoraga Wheel", href: "/jjk-mahoraga-wheel", description: "Spin Mahoraga and Ten Shadows shikigami." },
 ] as const
 
 export type JjkWheelLinkItem = {

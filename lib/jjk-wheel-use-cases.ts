@@ -1,10 +1,11 @@
-import { filterByCategory, jjkCharacters } from "@/data/jjk-characters"
+import { filterByCategory, getAllJjkEntries, jjkCharacters, jjkShikigami } from "@/data/jjk-characters"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import type { DisplayMode, JjkEntry } from "@/types/jjk-types"
 
 export type JjkWheelUseCaseId =
   | "all" | "main" | "students" | "teachers" | "villains" | "cursed-spirits"
-  | "grade-1" | "special-grade" | "domain" | "technique" | "favorites" | "team" | "custom"
+  | "grade-1" | "special-grade" | "domain" | "technique" | "favorites" | "team"
+  | "mahoraga" | "custom"
 
 export type JjkWheelUseCase = {
   id: JjkWheelUseCaseId
@@ -20,6 +21,22 @@ const favoriteIds = new Set([
   "ryomen-sukuna", "yuta-okkotsu", "maki-zenin", "kento-nanami",
   "aoi-todo", "toji-fushiguro", "choso",
 ])
+const mahoragaIds = new Set([
+  "mahoraga",
+  "divine-dogs",
+  "nue",
+  "great-serpent",
+  "toad",
+  "max-elephant",
+  "rabbit-escape",
+  "round-deer",
+  "piercing-ox",
+  "tiger-funeral",
+  "megumi-fushiguro",
+  "tech-ten-shadows",
+  "domain-chimera-shadow",
+  "ryomen-sukuna",
+])
 const make = (
   id: JjkWheelUseCaseId, label: string, description: string,
   characters: JjkEntry[], accent: JjkWheelUseCase["accent"] = "violet",
@@ -29,7 +46,7 @@ const make = (
 })
 
 export const JJK_WHEEL_USE_CASES: JjkWheelUseCase[] = [
-  make("all", "All JJK Characters", "The complete character catalog with equal odds.", jjkCharacters),
+  make("all", "All JJK Characters", "The complete character catalog with equal odds.", [...jjkCharacters, ...jjkShikigami]),
   make("main", "Main Characters", "Core characters for quick random picks.", by("main"), "blue"),
   make("students", "Students", "Tokyo and Kyoto students together.", by("student"), "emerald"),
   make("teachers", "Teachers", "Jujutsu teachers and school staff.", by("teacher"), "amber"),
@@ -39,6 +56,13 @@ export const JJK_WHEEL_USE_CASES: JjkWheelUseCase[] = [
   make("special-grade", "Special Grade", "Special-grade sorcerers and curses.", by("special_grade"), "rose"),
   make("domain", "Domain Expansions", "Named Domain Expansions only.", by("domain"), "violet"),
   make("technique", "Cursed Techniques", "Named cursed techniques only.", by("technique"), "blue"),
+  make(
+    "mahoraga",
+    "Mahoraga / Ten Shadows",
+    "Mahoraga plus Ten Shadows shikigami, Megumi, and related technique entries.",
+    getAllJjkEntries().filter((item) => mahoragaIds.has(item.id)),
+    "slate",
+  ),
   make("favorites", "Fan Favorites", "A compact set of recognizable favorites.", jjkCharacters.filter((item) => favoriteIds.has(item.id)), "rose"),
   make("team", "JJK Team Draft", "Students and sorcerers suited to elimination drafts.", jjkCharacters.filter((item) =>
     item.category.includes("student") || item.category.includes("grade_1") || item.category.includes("special_grade")), "emerald"),
@@ -55,6 +79,7 @@ export function jjkWheelUseCaseFromTemplate(template: string | null): JjkWheelUs
     character: "all", characters: "all", student: "students", teacher: "teachers",
     villain: "villains", "cursed-spirit": "cursed-spirits", cursed_spirit: "cursed-spirits",
     grade1: "grade-1", special: "special-grade", favourite: "favorites",
+    "ten-shadows": "mahoraga", "ten-shadow": "mahoraga", shikigami: "mahoraga",
   }
   const resolved = aliases[value] || value
   return JJK_WHEEL_USE_CASES.some((item) => item.id === resolved)

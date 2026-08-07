@@ -47,6 +47,7 @@ const CATEGORY_FILTERS: { id: CategoryFilter; label: string }[] = [
   { id: "teacher", label: "Teachers" },
   { id: "villain", label: "Villains" },
   { id: "cursed_spirit", label: "Spirits" },
+  { id: "shikigami", label: "Shikigami" },
   { id: "grade_1", label: "Grade 1" },
   { id: "special_grade", label: "Special" },
   { id: "technique", label: "Techniques" },

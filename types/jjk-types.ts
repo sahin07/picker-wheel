@@ -8,6 +8,7 @@ export type JjkCategory =
   | "special_grade"
   | "technique"
   | "domain"
+  | "shikigami"
 
 export type JjkEntry = {
   id: string

@@ -79,6 +79,21 @@ export const jjkCharacters: JjkEntry[] = [
   entry("master-tengen", "Master Tengen", "🧿", ["special_grade"]),
 ]
 
+export const jjkShikigami: JjkEntry[] = [
+  entry("mahoraga", "Mahoraga", "⚔️", ["shikigami", "special_grade"], {
+    preview: "/placeholder.svg?text=Mahoraga",
+  }),
+  entry("divine-dogs", "Divine Dogs", "🐕", ["shikigami"]),
+  entry("nue", "Nue", "🦉", ["shikigami"]),
+  entry("great-serpent", "Great Serpent", "🐍", ["shikigami"]),
+  entry("toad", "Toad", "🐸", ["shikigami"]),
+  entry("max-elephant", "Max Elephant", "🐘", ["shikigami"]),
+  entry("rabbit-escape", "Rabbit Escape", "🐇", ["shikigami"]),
+  entry("round-deer", "Round Deer", "🦌", ["shikigami"]),
+  entry("piercing-ox", "Piercing Ox", "🐂", ["shikigami"]),
+  entry("tiger-funeral", "Tiger Funeral", "🐯", ["shikigami"]),
+]
+
 export const jjkTechniques: JjkEntry[] = [
   entry("tech-limitless", "Limitless", "♾️", ["technique"]),
   entry("tech-six-eyes", "Six Eyes", "👁️", ["technique"]),
@@ -106,7 +121,7 @@ export const jjkDomains: JjkEntry[] = [
 ]
 
 export function getAllJjkEntries(): JjkEntry[] {
-  return [...jjkCharacters, ...jjkTechniques, ...jjkDomains]
+  return [...jjkCharacters, ...jjkShikigami, ...jjkTechniques, ...jjkDomains]
 }
 
 export function filterByCategory(category: JjkCategory): JjkEntry[] {

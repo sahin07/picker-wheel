@@ -98,8 +98,8 @@ export async function buildHeavyToolSeedData(
       }
     }
     case "jjk-wheel": {
-      const { jjkCharacters } = await import("@/data/jjk-characters")
-      const characterIds = jjkCharacters.map((character) => character.id)
+      const { jjkCharacters, jjkShikigami } = await import("@/data/jjk-characters")
+      const characterIds = [...jjkCharacters, ...jjkShikigami].map((character) => character.id)
       return {
         selectedCharacters: characterIds,
         characterOrder: characterIds,

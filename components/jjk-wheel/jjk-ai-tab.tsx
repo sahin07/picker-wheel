@@ -32,6 +32,7 @@ const GENERATOR_PRESETS: { label: string; category?: JjkCategory; size?: number 
   { label: "Teachers", category: "teacher" },
   { label: "Villains", category: "villain" },
   { label: "Cursed spirits", category: "cursed_spirit" },
+  { label: "Shikigami / Mahoraga", category: "shikigami" },
   { label: "Special grade", category: "special_grade" },
   { label: "Techniques", category: "technique" },
   { label: "Domains", category: "domain" },

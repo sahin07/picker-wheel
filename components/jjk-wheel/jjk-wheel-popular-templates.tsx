@@ -20,7 +20,7 @@ export function JjkWheelPopularTemplates() {
   return <section id="jjk-popular" className="mb-6 w-full scroll-mt-24" aria-labelledby="jjk-popular-heading">
     <div className="mb-3 text-center sm:text-left"><h2 id="jjk-popular-heading" className="text-lg font-bold text-slate-900 sm:text-xl">
       Popular JJK Wheels</h2>
-      <p className="mt-1 text-sm text-slate-600">Ready-made character, villain, spirit, technique, domain, and team templates.</p></div>
+      <p className="mt-1 text-sm text-slate-600">Ready-made character, villain, spirit, Mahoraga, technique, domain, and team templates.</p></div>
     <ul className="flex snap-x gap-3 overflow-x-auto pb-2 [scrollbar-width:none]">
       {JJK_WHEEL_POPULAR_SPOKE_LINKS.map((item) => {
         const active = pathname === item.href

@@ -472,10 +472,10 @@ export default function TeamPickerSection({
           />
 
           <div className="absolute bottom-2 left-2 z-20 flex flex-col space-y-2 sm:bottom-4 sm:left-4">
-            <Button
+        <Button
               type="button"
-              variant="ghost"
-              size="sm"
+          variant="ghost"
+          size="sm"
               onClick={(e) => {
                 e.stopPropagation()
                 setMuted((m) => !m)
@@ -495,8 +495,8 @@ export default function TeamPickerSection({
                 />
               ) : (
                 <Volume2 className="h-5 w-5" />
-              )}
-            </Button>
+          )}
+        </Button>
             {onToggleFullscreen && (
               <Button
                 type="button"
@@ -516,16 +516,16 @@ export default function TeamPickerSection({
                 )}
               </Button>
             )}
-          </div>
-
+      </div>
+      
           {isSpinning && (
             <div className="absolute right-2 top-2 z-20 animate-pulse rounded-full bg-yellow-500 px-2 py-1 text-xs font-semibold text-white sm:right-4 sm:top-4 sm:px-3 sm:text-sm">
               {manuallyStop ? "Click to Stop!" : "Spinning..."}
-            </div>
+              </div>
           )}
-        </div>
-      </div>
-
+            </div>
+          </div>
+          
       {lastResult && !isSpinning && (
         <div className="w-full max-w-md rounded-xl border-2 border-green-300 bg-gradient-to-r from-green-100 to-blue-100 p-6 text-center shadow-lg">
           <h3 className="mb-2 text-lg font-semibold text-green-800">
@@ -549,17 +549,17 @@ export default function TeamPickerSection({
               Rep: {lastResult.representative.name}
             </p>
           )}
-          <Button
+              <Button
             type="button"
             variant="outline"
-            size="sm"
+                size="sm"
             className="mt-3 gap-1.5"
             onClick={shareResult}
-          >
+              >
             <Share2 className="h-3.5 w-3.5" />
             Share
-          </Button>
-        </div>
+              </Button>
+            </div>
       )}
 
       {availableTeams.length === 0 && teams.length > 0 && (
@@ -571,7 +571,7 @@ export default function TeamPickerSection({
         </div>
       )}
 
-      <Button
+            <Button 
         type="button"
         onClick={onSpinAction}
         disabled={
@@ -591,7 +591,7 @@ export default function TeamPickerSection({
         ) : (
           "SPIN THE WHEEL"
         )}
-      </Button>
+              </Button>
 
       {emptyMessage && (
         <p className="text-center text-sm text-gray-500">{emptyMessage}</p>
@@ -664,15 +664,15 @@ export default function TeamPickerSection({
           <Share2 className="mr-2 h-4 w-4" />
           Share
         </Button>
-      </div>
+            </div>
 
       {teams.length > 0 && (
         <>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Button
+                <Button
               type="button"
               variant="outline"
-              size="sm"
+            size="sm"
               className="text-xs"
               onClick={() => setShowModal(true)}
             >
@@ -681,30 +681,30 @@ export default function TeamPickerSection({
             {eliminatedTeams.length > 0 && (
               <Button
                 type="button"
-                variant="outline"
+                  variant="outline"
                 size="sm"
                 className="text-xs"
-                onClick={restoreAllTeams}
-              >
+                  onClick={restoreAllTeams}
+          >
                 Restore All ({eliminatedTeams.length})
-              </Button>
+          </Button>
             )}
           </div>
-
+          
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {teams.map((team) => {
               const isEliminated = eliminatedTeams.includes(team.id)
-              return (
-                <Card
-                  key={team.id}
+                return (
+                <Card 
+                  key={team.id} 
                   className={`border p-3 shadow-sm ${isEliminated ? "opacity-50 grayscale" : ""}`}
                   style={{ borderColor: isEliminated ? "#cbd5e1" : team.color }}
                 >
-                  {team.mascot && (
+                    {team.mascot && (
                     <div className="mb-1 text-center text-3xl" aria-hidden>
                       {team.mascot}
-                    </div>
-                  )}
+                      </div>
+                    )}
                   <div
                     className="mb-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold text-white"
                     style={{ backgroundColor: team.color }}
@@ -724,7 +724,7 @@ export default function TeamPickerSection({
                       <div
                         key={member.id}
                         className={`flex items-center gap-2 rounded px-2 py-1 text-sm ${
-                          team.representative?.id === member.id
+                          team.representative?.id === member.id 
                             ? "border border-amber-300 bg-amber-50"
                             : "bg-slate-50"
                         }`}
@@ -749,7 +749,7 @@ export default function TeamPickerSection({
                 </Card>
               )
             })}
-          </div>
+            </div>
         </>
       )}
 
@@ -780,16 +780,16 @@ export default function TeamPickerSection({
                       {(entry.team.members || []).map((m) => m.name).join(", ") ||
                         "No members"}
                     </p>
-                  </div>
+          </div>
                   <Badge variant="secondary" className="shrink-0 text-[10px]">
                     #{spinHistory.length - i}
                   </Badge>
                 </div>
               ))}
-            </div>
-          )}
+        </div>
+      )}
           <div className="flex justify-end gap-2 border-t pt-3">
-            <Button
+      <Button 
               type="button"
               variant="outline"
               size="sm"
@@ -800,8 +800,8 @@ export default function TeamPickerSection({
             </Button>
             <Button type="button" size="sm" onClick={() => setShowResultsDialog(false)}>
               Done
-            </Button>
-          </div>
+      </Button>
+    </div>
         </DialogContent>
       </Dialog>
 
@@ -850,15 +850,15 @@ export default function TeamPickerSection({
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {teams.map((team) => (
-              <Card
-                key={team.id}
+              <Card 
+                key={team.id} 
                 className="border p-3"
                 style={{ borderColor: team.color }}
               >
-                {team.mascot && (
+                  {team.mascot && (
                   <div className="mb-1 text-center text-3xl" aria-hidden>
                     {team.mascot}
-                  </div>
+                </div>
                 )}
                 <div
                   className="mb-2 flex items-center gap-2 rounded px-2 py-1 text-sm font-semibold text-white"
@@ -953,4 +953,4 @@ export default function TeamPickerSection({
       />
     </div>
   )
-}
+} 

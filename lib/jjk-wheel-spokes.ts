@@ -101,8 +101,30 @@ export const JJK_WHEEL_SPOKES: Record<JjkWheelSpokeId, JjkWheelSpokeSeo> = {
   character: spoke("character", "/jjk-character-wheel", "JJK Character Wheel", "Characters", "all", "Pick a random JJK character from the full catalog."),
   villain: spoke("villain", "/jjk-villain-wheel", "JJK Villain Wheel", "Villains", "villains", "Randomize JJK villains and antagonists."),
   "cursed-spirit": spoke("cursed-spirit", "/jjk-cursed-spirit-wheel", "JJK Cursed Spirit Wheel", "Cursed Spirits", "cursed-spirits", "Spin among cursed spirits from the JJK catalog."),
-  domain: spoke("domain", "/jjk-domain-expansion-wheel", "JJK Domain Expansion Wheel", "Domain Expansions", "domain", "Pick a named Domain Expansion at random."),
-  technique: spoke("technique", "/jjk-cursed-technique-wheel", "JJK Cursed Technique Wheel", "Cursed Techniques", "technique", "Choose a cursed technique for a challenge or prompt."),
+  domain: finalize({
+    id: "domain",
+    path: "/jjk-domain-expansion-wheel",
+    useCaseId: "domain",
+    pageTitle: "JJK Domain Expansion Wheel | Free Random Jujutsu Kaisen Spinner",
+    h1: "JJK Domain Expansion Wheel",
+    shortTitle: "Domain Expansions",
+    description:
+      "Spin a free JJK Domain Expansion wheel for Unlimited Void, Malevolent Shrine, Chimera Shadow Garden, and more. Equal odds for fan challenges and prompts.",
+    heroIntro:
+      "Pick a named Domain Expansion at random. Spin with equal odds, customize the entries, or use elimination for no-repeat rounds.",
+  }),
+  technique: finalize({
+    id: "technique",
+    path: "/jjk-cursed-technique-wheel",
+    useCaseId: "technique",
+    pageTitle: "JJK Cursed Technique Wheel | Free Random Jujutsu Kaisen Spinner",
+    h1: "JJK Cursed Technique Wheel",
+    shortTitle: "Cursed Techniques",
+    description:
+      "Spin a free JJK Cursed Technique wheel for Limitless, Ten Shadows, Shrine, Boogie Woogie, and more. Equal-odds spins for fan games, edits, and creative prompts.",
+    heroIntro:
+      "Choose a cursed technique for a challenge or prompt. Spin with equal odds, customize the entries, or use elimination for no-repeat rounds.",
+  }),
   "grade-1": spoke("grade-1", "/jjk-grade-1-sorcerer-wheel", "JJK Grade 1 Sorcerer Wheel", "Grade 1", "grade-1", "Spin a focused list of Grade 1 sorcerers."),
   "special-grade": spoke("special-grade", "/jjk-special-grade-wheel", "JJK Special Grade Wheel", "Special Grade", "special-grade", "Randomize special-grade sorcerers and curses."),
   student: spoke("student", "/jjk-student-wheel", "JJK Student Wheel", "Students", "students", "Pick a Tokyo or Kyoto Jujutsu High student."),

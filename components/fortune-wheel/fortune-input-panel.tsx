@@ -238,7 +238,7 @@ export default function FortuneInputPanel({
           <SlicesManageMenu
             settings={settings as unknown as WheelSettings}
             onUpdateSettings={(partial) => {
-              updateSettings(partial as any)
+          updateSettings(partial as any)
               if (partial.spinBehavior && "removeWinnerAfterSpin" in partial.spinBehavior) {
                 syncActionMode(partial.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal")
               }

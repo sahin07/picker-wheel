@@ -281,7 +281,7 @@ export const MLB_WHEEL_SPOKES: Record<MlbWheelSpokeId, MlbWheelSpokeSeo> = {
     path: "/mlb-nl-central-picker-wheel",
     pageTitle: "NL Central Picker Wheel | Random National League Central Teams",
     description:
-      "Spin the NL Central online. Free random picker for Cubs, Cardinals, Brewers, Reds, and Pirates.",
+      "Spin a free NL Central picker wheel for Cubs, Cardinals, Brewers, Reds, and Pirates. Random NL Central team generator for fantasy drafts and watch parties.",
     h1: "NL Central Picker Wheel",
     shortTitle: "NL Central",
     heroIntro:

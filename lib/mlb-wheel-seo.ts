@@ -481,6 +481,11 @@ export const MLB_WHEEL_CLUSTER_LINKS: MlbWheelLinkItem[] = [
     description: "Franchises with at least one title.",
   },
   {
+    label: "Angels Nickname Wheel",
+    href: "/mlb-angels-nickname-wheel",
+    description: "Random Los Angeles Angels player nicknames with stories.",
+  },
+  {
     label: "NBA Random Team",
     href: "/nba-team-picker-wheel",
     description: "Sister sports wheel for basketball.",

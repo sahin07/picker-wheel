@@ -4,6 +4,14 @@ import type { State } from "@/data/states";
 import type { Country } from "@/data/countries";
 import type { ActionMode, DisplayMode, JjkEntry, SpinResult } from "@/types/jjk-types";
 import type {
+  MlbAngelsActionMode,
+  MlbAngelsDisplayMode,
+  MlbAngelsNicknameEntry,
+  MlbAngelsSpinResult,
+} from "@/types/mlb-angels-types";
+import { getAllMlbAngelsNicknames } from "@/data/mlb-angels-nicknames";
+import type { MlbAngelsUseCaseId } from "@/lib/mlb-angels-use-cases";
+import type {
   ActionMode as DemonSlayerActionMode,
   DisplayMode as DemonSlayerDisplayMode,
   DemonSlayerEntry,
@@ -558,6 +566,25 @@ export interface LoLWheelData {
   };
 }
 
+export interface MlbAngelsWheelData {
+  selectedNicknameIds: string[];
+  nicknameOrder: string[];
+  displayMode: MlbAngelsDisplayMode;
+  actionMode: MlbAngelsActionMode;
+  activeUseCaseId: MlbAngelsUseCaseId | null;
+  isSpinning: boolean;
+  selectedResult: MlbAngelsSpinResult | null;
+  totalSpins: number;
+  recentResults: MlbAngelsNicknameEntry[];
+  rotation?: number;
+  paletteColors?: string[];
+  showTitle?: boolean;
+  spinHistory?: any[];
+  achievements?: any[];
+  themes?: any[];
+  currentTheme?: string;
+}
+
 export interface JjkWheelData {
   selectedCharacters: string[];
   characterOrder: string[];
@@ -689,6 +716,7 @@ export interface WheelInstance {
     | PokemonWheelData
     | LoLWheelData
     | JjkWheelData
+    | MlbAngelsWheelData
     | DemonSlayerWheelData
     | ImageWheelData
     | DateWheelData
@@ -854,6 +882,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           | PokemonWheelData
           | LoLWheelData
           | JjkWheelData
+          | MlbAngelsWheelData
           | DemonSlayerWheelData
           | MLBWheelData
           | NBAWheelData;
@@ -1447,6 +1476,25 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             favoriteCharacters: [],
             comparisonCharacters: [],
           } as JjkWheelData;
+        } else if (toolType === "mlb-angels-wheel") {
+          const allIds = getAllMlbAngelsNicknames().map((item) => item.id);
+          data = {
+            selectedNicknameIds: allIds,
+            nicknameOrder: allIds,
+            displayMode: "nickname-name",
+            actionMode: "normal",
+            activeUseCaseId: "all-nicknames",
+            isSpinning: false,
+            selectedResult: null,
+            totalSpins: 0,
+            recentResults: [],
+            rotation: 0,
+            showTitle: true,
+            spinHistory: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+          } as MlbAngelsWheelData;
         } else if (toolType === "demon-slayer-wheel") {
           data = {
             selectedCharacters: [], // hydrated async

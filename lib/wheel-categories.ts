@@ -21,6 +21,7 @@ import {
   Sun,
   Scale,
   Gift,
+  Hand,
 } from "lucide-react"
 
 export type WheelItem = {
@@ -123,6 +124,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         icon: UsersRound,
         color: "#4ade80",
         bg: "rgba(74, 222, 128, 0.15)",
+      },
+      {
+        label: "Finger Picker",
+        href: "/finger-picker",
+        description: "Everyone puts a finger on the screen and one is chosen at random.",
+        icon: Hand,
+        color: "#a78bfa",
+        bg: "rgba(167, 139, 250, 0.18)",
       },
       {
         label: "Coin Flip",
@@ -301,6 +310,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         icon: Sparkles,
         color: "#f87171",
         bg: "rgba(248, 113, 113, 0.15)",
+      },
+      {
+        label: "Naruto Wheel",
+        href: "/naruto-spin-wheel-picker",
+        description: "Spin a random Naruto character, Akatsuki member, Hokage, clan, or jutsu.",
+        icon: Sparkles,
+        color: "#fb923c",
+        bg: "rgba(251, 146, 60, 0.15)",
       },
       {
         label: "DTI Wheel Outfit Picker",
@@ -552,6 +569,25 @@ export function hrefToToolType(href: string): string {
     return "jjk-wheel"
   }
   if (
+    href === "/naruto-spin-wheel-picker" ||
+    href === "/naruto-wheel" ||
+    href === "/naruto-character-wheel" ||
+    href === "/naruto-character-picker" ||
+    href === "/random-naruto-character" ||
+    href === "/akatsuki-wheel" ||
+    href === "/hokage-wheel" ||
+    href === "/uchiha-wheel" ||
+    href === "/jinchuriki-wheel" ||
+    href === "/kage-wheel" ||
+    href === "/naruto-quiz" ||
+    href.startsWith("/naruto-") ||
+    href.startsWith("/what-naruto-") ||
+    href.startsWith("/which-naruto-") ||
+    href.startsWith("/boruto-")
+  ) {
+    return "naruto-wheel"
+  }
+  if (
     href === "/demon-slayer-spin-wheel" ||
     href === "/demon-slayer-wheel" ||
     href === "/hashira-wheel" ||
@@ -573,6 +609,37 @@ export function hrefToToolType(href: string): string {
     href.startsWith("/dti-")
   ) {
     return "dti-wheel"
+  }
+  if (
+    href === "/finger-picker" ||
+    href === "/finger-picker-wheel" ||
+    href === "/finger-picker-online" ||
+    href === "/finger-picker-game" ||
+    href === "/finger-picking-game" ||
+    href === "/finger-roulette" ||
+    href === "/finger-roulette-game" ||
+    href === "/finger-selector" ||
+    href === "/finger-chooser" ||
+    href === "/random-finger-selector" ||
+    href === "/random-finger-picker" ||
+    href === "/random-finger-game" ||
+    href === "/last-finger-standing" ||
+    href === "/random-player-picker" ||
+    href === "/pick-a-random-player" ||
+    href === "/pick-a-finger-game" ||
+    href === "/random-person-selector" ||
+    href === "/who-goes-first" ||
+    href === "/who-should-go-first" ||
+    href === "/who-goes-first-in-a-game" ||
+    href === "/who-gets-the-first-turn" ||
+    href === "/who-should-start" ||
+    href === "/who-should-be-the-leader" ||
+    href === "/who-should-pick" ||
+    href === "/who-should-do-it" ||
+    href === "/who-gets-chosen" ||
+    href === "/who-gets-the-prize"
+  ) {
+    return "finger-picker"
   }
   if (
     href === "/spin-random-team-picker-wheel" ||

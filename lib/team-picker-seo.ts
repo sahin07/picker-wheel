@@ -371,6 +371,11 @@ export const TEAM_PICKER_RELATED_TOOLS: TeamPickerLinkItem[] = [
     description: "Spin names one at a time for giveaways, classrooms, and decisions.",
   },
   {
+    label: "Finger Picker",
+    href: "/finger-picker",
+    description: "Live multi-touch chooser when the group shares one screen.",
+  },
+  {
     label: "Number Picker Wheel",
     href: "/number-picker-wheel",
     description: "Spin numbers for brackets, bingo, and classroom draws.",

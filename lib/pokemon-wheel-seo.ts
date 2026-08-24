@@ -461,6 +461,11 @@ export const POKEMON_WHEEL_WHY_POINTS = [
 
 export const POKEMON_WHEEL_RELATED_TOOLS: PokemonWheelLinkItem[] = [
   {
+    label: "Naruto Wheel",
+    href: "/naruto-spin-wheel-picker",
+    description: "Spin a random Naruto character, Akatsuki member, or jutsu.",
+  },
+  {
     label: "Random Wheel Picker",
     href: "/",
     description: "Spin any custom list on the classic picker wheel.",

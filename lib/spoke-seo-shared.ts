@@ -21,7 +21,8 @@ export const QUESTION_INTENT_CLUSTER: readonly SpokeRelatedLink[] = [
   { href: "/food-wheel", label: "What Should I Eat?" },
   { href: "/random-country-to-visit-picker-wheel", label: "What Country Should I Visit?" },
   { href: "/game-night-wheel-of-fortune", label: "What Game Should We Play?" },
-  { href: "/presentation-order-picker", label: "Who Goes First?" },
+  { href: "/presentation-order-picker", label: "Who Goes First? (name list)" },
+  { href: "/who-goes-first", label: "Who Goes First? (finger picker)" },
   { href: "/pastel-color-wheel", label: "What Color Should I Choose?" },
   { href: "/should-i-wheel", label: "Should I Do It?" },
   { href: "/what-should-i-do", label: "What Should I Do?" },
@@ -31,6 +32,9 @@ export const QUESTION_INTENT_CLUSTER: readonly SpokeRelatedLink[] = [
   { href: "/what-theme-should-i-write-about", label: "What Theme Should I Write About?" },
   { href: "/what-party-theme-should-i-have", label: "What Party Theme Should I Have?" },
   { href: "/what-theme-should-my-video-be", label: "What Theme Should My Video Be?" },
+  { href: "/what-naruto-character-am-i", label: "What Naruto Character Am I?" },
+  { href: "/which-naruto-character-should-i-draw", label: "Which Naruto Character Should I Draw?" },
+  { href: "/what-naruto-character-should-i-cosplay", label: "What Naruto Character Should I Cosplay?" },
 ] as const
 
 export function getQuestionIntentRelated(

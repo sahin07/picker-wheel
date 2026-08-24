@@ -367,6 +367,7 @@ export const JJK_WHEEL_USE_CASE_GROUPS = [
 ] as const
 
 export const JJK_WHEEL_RELATED_TOOLS = [
+  { label: "Naruto Wheel", href: "/naruto-spin-wheel-picker", description: "Pick a random Naruto character, Akatsuki member, or jutsu." },
   { label: "Pokémon Picker Wheel", href: "/pokemon-picker-wheel", description: "Spin characters from another popular fan universe." },
   { label: "Fortnite Picker Wheel", href: "/fortnite-picker-wheel", description: "Randomize Fortnite skins and challenges." },
   { label: "LoL Picker Wheel", href: "/lol-picker-wheel", description: "Pick a random League champion." },

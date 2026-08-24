@@ -7,7 +7,13 @@ import ToolBreadcrumbs from "@/components/tool-breadcrumbs"
 import EnhancedWheelSection from "@/components/enhanced-wheel-section"
 import { HomeNamePickerTemplates } from "@/components/home/home-name-picker-templates"
 import { Button } from "@/components/ui/button"
-import { Sparkles, FileText } from "lucide-react"
+import { Sparkles } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { useEnhancedWheelStore } from "@/stores/enhanced-wheel-store"
 import { useSettingsStore } from "@/stores/settings-store"
@@ -111,7 +117,8 @@ export default function HomeWheelApp({
   deepLink,
 }: HomeWheelAppProps) {
   const [showSettings, setShowSettings] = useState(false)
-  const [useAIInput, setUseAIInput] = useState(false)
+  const [showAIDialog, setShowAIDialog] = useState(false)
+  const [showInputs, setShowInputs] = useState(true)
   const [showGames, setShowGames] = useState(false)
   const [showAchievements, setShowAchievements] = useState(false)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
@@ -145,7 +152,17 @@ export default function HomeWheelApp({
   const lastProcessedResult = useRef<string>('')
   const { setCurrentTool, createNewWheel, getCurrentWheel, currentWheelId } = useWheelManagerStore()
   const { setTemplateOptions, selectedResult, getOptions, getTotalSpins } = useEnhancedWheelStore()
-  const { settings, loadFromDatabase: loadSettings } = useSettingsStore()
+  const { settings, updateSettings, loadFromDatabase: loadSettings } = useSettingsStore()
+
+  const syncEliminationWithSettings = (enabled: boolean) => {
+    const latest = useSettingsStore.getState().settings
+    updateSettings({
+      spinBehavior: {
+        ...latest.spinBehavior,
+        removeWinnerAfterSpin: enabled,
+      },
+    })
+  }
 
   const applyNameTemplate = (templateId: HomeNameTemplateId) => {
     const template = getHomeNameTemplate(templateId)
@@ -636,42 +653,6 @@ export default function HomeWheelApp({
             />
           )}
 
-          {/* Input Mode Toggle */}
-          <div className="mb-4 flex justify-center sm:mb-6">
-            <div className="flex flex-wrap justify-center rounded-lg bg-gray-100 p-1">
-              <Button
-                variant={!useAIInput ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setUseAIInput(false)}
-                className="flex items-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                Manual Input
-              </Button>
-              <Button
-                variant={useAIInput ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setUseAIInput(true)}
-                className={`flex items-center gap-2 ${
-                  useAIInput
-                    ? "bg-gradient-to-r from-violet-500 to-pink-500 text-white hover:from-violet-600 hover:to-pink-600"
-                    : "bg-white"
-                }`}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span
-                  className={
-                    useAIInput
-                      ? "text-white"
-                      : "bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent"
-                  }
-                >
-                  AI-Powered
-                </span>
-              </Button>
-            </div>
-          </div>
-
           <div className="mb-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
             <div className="relative overflow-x-hidden rounded-lg border bg-white p-3 shadow-sm sm:p-6 lg:col-span-2">
               <Button
@@ -696,17 +677,37 @@ export default function HomeWheelApp({
                 </div>
               )}
             </div>
-            {useAIInput ? (
-              <AIInputPanel />
-            ) : (
+            {showInputs ? (
               <PickerWheelInputPanel
                 onViewResults={() => setShowResultsModal(true)}
                 onOpenSettings={() => setShowSettings(true)}
-                onOpenAI={() => setUseAIInput(true)}
+                onOpenAI={() => setShowAIDialog(true)}
                 onOpenAnalytics={openAnalytics}
+                onHideInputs={() => setShowInputs(false)}
+                onToggleFullscreen={toggleFullscreen}
+                actionMode={settings.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal"}
+                onActionModeChange={(mode) => syncEliminationWithSettings(mode === "elimination")}
               />
+            ) : (
+              <div className="flex items-start">
+                <Button variant="outline" onClick={() => setShowInputs(true)}>
+                  Show inputs
+                </Button>
+              </div>
             )}
           </div>
+
+          <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+            <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-fuchsia-500" />
+                  AI Wheel Generator
+                </DialogTitle>
+              </DialogHeader>
+              <AIInputPanel />
+            </DialogContent>
+          </Dialog>
 
           {showResultsModal && (
             <PickerResultsModal

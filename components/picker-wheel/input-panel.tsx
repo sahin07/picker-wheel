@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, type ReactNode } from "react"
+import { useMemo, useRef, useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -20,6 +20,7 @@ import {
   MoreHorizontal,
   Eye,
   ImageIcon,
+  Shuffle,
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useEnhancedWheelStore, type WheelOption } from "@/stores/enhanced-wheel-store"
@@ -36,6 +37,7 @@ import WheelPreviewModal from "@/components/wheel-preview-modal"
 import ConfirmationDialog from "@/components/confirmation-dialog"
 
 type SidebarTab = "list" | "text" | "style" | "other"
+type ActionMode = "normal" | "elimination"
 
 const EMPTY_OPTIONS: WheelOption[] = []
 
@@ -51,6 +53,19 @@ interface PickerWheelInputPanelProps {
   onOpenSettings?: () => void
   onOpenAI?: () => void
   onOpenAnalytics?: () => void
+  onHideInputs?: () => void
+  onToggleFullscreen?: () => void
+  actionMode?: ActionMode
+  onActionModeChange?: (mode: ActionMode) => void
+}
+
+function readImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result || ""))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
 }
 
 export default function PickerWheelInputPanel({
@@ -58,6 +73,10 @@ export default function PickerWheelInputPanel({
   onOpenSettings,
   onOpenAI,
   onOpenAnalytics,
+  onHideInputs,
+  onToggleFullscreen,
+  actionMode = "normal",
+  onActionModeChange,
 }: PickerWheelInputPanelProps = {}) {
   const {
     addOption,
@@ -97,10 +116,13 @@ export default function PickerWheelInputPanel({
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("list")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [newTextInput, setNewTextInput] = useState("")
+  const [newImage, setNewImage] = useState<string | null>(null)
   const [textDraft, setTextDraft] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const newImageInputRef = useRef<HTMLInputElement>(null)
+  const rowImageInputRefs = useRef<Map<string, HTMLInputElement>>(new Map())
 
   const activeOptions = useMemo(
     () => options.filter((o) => o.enabled !== false && o.name.trim()),
@@ -142,10 +164,25 @@ export default function PickerWheelInputPanel({
   }
 
   const handleAdd = () => {
-    if (!newTextInput.trim()) return
-    addOption(newTextInput.trim())
+    if (!newTextInput.trim() && !newImage) return
+    addOption(newTextInput.trim() || `Image ${options.length + 1}`, newImage || undefined)
     setNewTextInput("")
+    setNewImage(null)
+    if (newImageInputRef.current) newImageInputRef.current.value = ""
     showToast("Option added!", "success")
+  }
+
+  const handleRowImage = async (optionId: string, file: File | undefined) => {
+    if (!file) return
+    try {
+      const dataUrl = await readImageFile(file)
+      const option = options.find((item) => item.id === optionId)
+      if (!option) return
+      patchOption(optionId, { image: dataUrl })
+      showToast("Image updated!", "success")
+    } catch {
+      showToast("Could not load image.", "error")
+    }
   }
 
   return (
@@ -161,6 +198,23 @@ export default function PickerWheelInputPanel({
           <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setShowPreview(true)} title="Preview">
             <Eye className="w-4 h-4" />
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2"
+            onClick={() => {
+              shuffleOptions()
+              showToast("Options shuffled!", "success")
+            }}
+            title="Shuffle"
+          >
+            <Shuffle className="w-4 h-4" />
+          </Button>
+          {onHideInputs && (
+            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={onHideInputs} title="Hide">
+              <EyeOff className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -188,6 +242,27 @@ export default function PickerWheelInputPanel({
       <div className="p-3">
         {sidebarTab === "list" && (
           <div className="space-y-3">
+            {onActionModeChange && (
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Action Mode</Label>
+                <Select
+                  value={actionMode}
+                  onValueChange={(value: ActionMode) => onActionModeChange(value)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal Mode</SelectItem>
+                    <SelectItem value="elimination">Elimination Mode</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-slate-400">
+                  Synced with Manage → Remove winner (Header Settings)
+                </p>
+              </div>
+            )}
+
             <div className="flex space-x-2">
               <Input
                 placeholder="Add an option..."
@@ -196,7 +271,41 @@ export default function PickerWheelInputPanel({
                 onChange={(e) => setNewTextInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAdd()}
               />
-              <Button size="sm" className="h-9 bg-emerald-600 hover:bg-emerald-700" onClick={handleAdd} disabled={!newTextInput.trim()}>
+              <input
+                ref={newImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  try {
+                    setNewImage(await readImageFile(file))
+                  } catch {
+                    showToast("Could not load image.", "error")
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 shrink-0 relative"
+                title="Attach image"
+                onClick={() => newImageInputRef.current?.click()}
+              >
+                {newImage ? (
+                  <img src={newImage} alt="" className="w-7 h-7 rounded object-cover" />
+                ) : (
+                  <ImageIcon className="w-4 h-4" />
+                )}
+              </Button>
+              <Button
+                size="sm"
+                className="h-9 bg-emerald-600 hover:bg-emerald-700"
+                onClick={handleAdd}
+                disabled={!newTextInput.trim() && !newImage}
+              >
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -355,9 +464,31 @@ export default function PickerWheelInputPanel({
                       onCheckedChange={() => toggleSelect(option.id)}
                       className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                     />
-                    {option.image ? (
-                      <img src={option.image} alt="" className="w-7 h-7 rounded object-cover shrink-0" />
-                    ) : null}
+                    <button
+                      type="button"
+                      title={option.image ? "Change image" : "Add image"}
+                      className="w-8 h-8 rounded border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0 overflow-hidden hover:bg-slate-100"
+                      onClick={() => rowImageInputRefs.current.get(option.id)?.click()}
+                    >
+                      {option.image ? (
+                        <img src={option.image} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
+                      )}
+                    </button>
+                    <input
+                      ref={(el) => {
+                        if (el) rowImageInputRefs.current.set(option.id, el)
+                        else rowImageInputRefs.current.delete(option.id)
+                      }}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        void handleRowImage(option.id, e.target.files?.[0])
+                        e.target.value = ""
+                      }}
+                    />
                     <Input
                       value={option.name}
                       onChange={(e) => updateOption(option.id, e.target.value, option.image)}
@@ -414,6 +545,14 @@ export default function PickerWheelInputPanel({
                         <DropdownMenuItem onClick={() => patchOption(option.id, { enabled: !enabled })}>
                           {enabled ? "Disable" : "Enable"}
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => rowImageInputRefs.current.get(option.id)?.click()}>
+                          {option.image ? "Change image" : "Add image"}
+                        </DropdownMenuItem>
+                        {option.image ? (
+                          <DropdownMenuItem onClick={() => patchOption(option.id, { image: undefined })}>
+                            Remove image
+                          </DropdownMenuItem>
+                        ) : null}
                         <DropdownMenuItem onClick={() => duplicateOptionsByIds([option.id])}>Duplicate</DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-red-600"
@@ -553,6 +692,7 @@ export default function PickerWheelInputPanel({
             onOpenSettings={onOpenSettings}
             onOpenAI={onOpenAI}
             onOpenAnalytics={onOpenAnalytics}
+            onToggleFullscreen={onToggleFullscreen}
           />
         )}
       </div>

@@ -105,6 +105,14 @@ export async function buildHeavyToolSeedData(
         characterOrder: characterIds,
       }
     }
+    case "naruto-wheel": {
+      const { narutoCharacters } = await import("@/data/naruto-characters")
+      const characterIds = narutoCharacters.map((character) => character.id)
+      return {
+        selectedCharacters: characterIds,
+        characterOrder: characterIds,
+      }
+    }
     case "demon-slayer-wheel": {
       const { demonSlayerCharacters } = await import(
         "@/data/demon-slayer-characters"
@@ -153,6 +161,7 @@ export function needsHeavyDefaultHydration(
         data.selectedChampions.length === 0
       )
     case "jjk-wheel":
+    case "naruto-wheel":
     case "demon-slayer-wheel":
       return (
         !Array.isArray(data.selectedCharacters) ||

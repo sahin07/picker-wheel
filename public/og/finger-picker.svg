@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Finger Picker">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#f0abfc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="220" cy="160" r="90" fill="#ef4444" fill-opacity="0.9"/>
+  <circle cx="400" cy="420" r="90" fill="#22c55e" fill-opacity="0.9"/>
+  <circle cx="980" cy="200" r="90" fill="#3b82f6" fill-opacity="0.9"/>
+  <circle cx="860" cy="460" r="90" fill="#eab308" fill-opacity="0.9"/>
+  <text x="600" y="200" fill="#ffffff" fill-opacity="0.9" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="6" text-anchor="middle">PICKER WHEEL</text>
+  <text x="600" y="320" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800" text-anchor="middle">Finger Picker</text>
+  <text x="600" y="390" fill="#ffffff" fill-opacity="0.92" font-family="Segoe UI, Arial, sans-serif" font-size="26" text-anchor="middle">Everyone touches. One is chosen.</text>
+</svg>

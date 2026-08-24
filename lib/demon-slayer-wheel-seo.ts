@@ -455,6 +455,11 @@ export const DEMON_SLAYER_WHEEL_USE_CASE_GROUPS = [
 
 export const DEMON_SLAYER_WHEEL_RELATED_TOOLS = [
   {
+    label: "Naruto Wheel",
+    href: "/naruto-spin-wheel-picker",
+    description: "Pick a random Naruto character for anime challenges.",
+  },
+  {
     label: "JJK Spin the Wheel",
     href: "/jjk-spin-the-wheel",
     description: "Pick a random Jujutsu Kaisen character for anime challenges.",

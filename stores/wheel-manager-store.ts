@@ -4,12 +4,6 @@ import type { State } from "@/data/states";
 import type { Country } from "@/data/countries";
 import type { ActionMode, DisplayMode, JjkEntry, SpinResult } from "@/types/jjk-types";
 import type {
-  ActionMode as NarutoActionMode,
-  DisplayMode as NarutoDisplayMode,
-  NarutoEntry,
-  SpinResult as NarutoSpinResult,
-} from "@/types/naruto-types";
-import type {
   MlbAngelsActionMode,
   MlbAngelsDisplayMode,
   MlbAngelsNicknameEntry,
@@ -23,12 +17,6 @@ import type {
   DemonSlayerEntry,
   SpinResult as DemonSlayerSpinResult,
 } from "@/types/demon-slayer-types";
-import type {
-  FingerPickerActionMode,
-  FingerPickerHistoryItem,
-  FingerPickerMode,
-  FingerPickerPlayer,
-} from "@/types/finger-picker-types";
 import { PICKER_WHEEL_ACHIEVEMENTS } from "@/lib/picker-wheel-achievements";
 import { PICKER_WHEEL_THEMES } from "@/lib/picker-wheel-themes";
 import {
@@ -45,7 +33,6 @@ const HEAVY_TOOL_TYPES = new Set([
   "pokemon-wheel",
   "lol-wheel",
   "jjk-wheel",
-  "naruto-wheel",
   "demon-slayer-wheel",
   "letter-picker-wheel",
 ]);
@@ -620,31 +607,6 @@ export interface JjkWheelData {
   comparisonCharacters?: JjkEntry[];
 }
 
-export interface NarutoWheelData {
-  selectedCharacters: string[];
-  characterOrder: string[];
-  customCharacters: NarutoEntry[];
-  displayMode: NarutoDisplayMode;
-  actionMode: NarutoActionMode;
-  isSpinning: boolean;
-  selectedResult: NarutoSpinResult | null;
-  totalSpins: number;
-  recentResults: NarutoEntry[];
-  achievements?: any[];
-  themes?: any[];
-  currentTheme?: string;
-  spinHistory?: any[];
-  viewMode?: "wheel" | "list";
-  rotation?: number;
-  paletteColors?: string[];
-  showTitle?: boolean;
-  favoriteCharacters?: NarutoEntry[];
-  comparisonCharacters?: NarutoEntry[];
-  keepWinnerIds?: string[];
-  funMode?: string;
-  fightVotes?: Record<string, { a: number; b: number }>;
-}
-
 export interface DemonSlayerWheelData {
   selectedCharacters: string[];
   characterOrder: string[];
@@ -665,23 +627,6 @@ export interface DemonSlayerWheelData {
   showTitle?: boolean;
   favoriteCharacters?: DemonSlayerEntry[];
   comparisonCharacters?: DemonSlayerEntry[];
-}
-
-export interface FingerPickerData {
-  mode: FingerPickerMode;
-  actionMode: FingerPickerActionMode;
-  winnerCount: number;
-  countdownSeconds: number;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-  players: FingerPickerPlayer[];
-  eliminatedIds: string[];
-  totalPicks: number;
-  lastResult: FingerPickerHistoryItem | null;
-  recentResults: FingerPickerHistoryItem[];
-  achievements?: any[];
-  themes?: any[];
-  currentTheme?: string;
 }
 
 export interface YesNoWheelData {
@@ -771,10 +716,8 @@ export interface WheelInstance {
     | PokemonWheelData
     | LoLWheelData
     | JjkWheelData
-    | NarutoWheelData
     | MlbAngelsWheelData
     | DemonSlayerWheelData
-    | FingerPickerData
     | ImageWheelData
     | DateWheelData
     | LetterWheelData
@@ -939,10 +882,8 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
           | PokemonWheelData
           | LoLWheelData
           | JjkWheelData
-          | NarutoWheelData
           | MlbAngelsWheelData
           | DemonSlayerWheelData
-          | FingerPickerData
           | MLBWheelData
           | NBAWheelData;
         if (toolType === "fortune-wheel") {
@@ -1535,30 +1476,6 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             favoriteCharacters: [],
             comparisonCharacters: [],
           } as JjkWheelData;
-        } else if (toolType === "naruto-wheel") {
-          data = {
-            selectedCharacters: [],
-            characterOrder: [],
-            customCharacters: [],
-            displayMode: "emoji-name",
-            actionMode: "normal",
-            isSpinning: false,
-            selectedResult: null,
-            totalSpins: 0,
-            recentResults: [],
-            achievements: PICKER_WHEEL_ACHIEVEMENTS,
-            themes: PICKER_WHEEL_THEMES,
-            currentTheme: "classic",
-            spinHistory: [],
-            viewMode: "wheel",
-            rotation: 0,
-            showTitle: true,
-            favoriteCharacters: [],
-            comparisonCharacters: [],
-            keepWinnerIds: [],
-            funMode: "spin",
-            fightVotes: {},
-          } as NarutoWheelData;
         } else if (toolType === "mlb-angels-wheel") {
           const allIds = getAllMlbAngelsNicknames().map((item) => item.id);
           data = {
@@ -1623,23 +1540,6 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             currentTheme: "classic",
             spinHistory: [],
           } as any;
-        } else if (toolType === "finger-picker") {
-          data = {
-            mode: "roulette",
-            actionMode: "normal",
-            winnerCount: 1,
-            countdownSeconds: 3,
-            soundEnabled: true,
-            vibrationEnabled: true,
-            players: [],
-            eliminatedIds: [],
-            totalPicks: 0,
-            lastResult: null,
-            recentResults: [],
-            achievements: PICKER_WHEEL_ACHIEVEMENTS,
-            themes: PICKER_WHEEL_THEMES,
-            currentTheme: "classic",
-          } as FingerPickerData;
         } else if (toolType === "team-picker") {
           data = {
             participants: [],
@@ -2026,17 +1926,6 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             data: {
               ...wheel.data,
               isSpinning: false,
-              ...(toolType === "finger-picker"
-                ? {
-                    players: Array.isArray(wheel.data?.players) ? wheel.data.players : [],
-                    eliminatedIds: Array.isArray(wheel.data?.eliminatedIds)
-                      ? wheel.data.eliminatedIds
-                      : [],
-                    recentResults: Array.isArray(wheel.data?.recentResults)
-                      ? wheel.data.recentResults
-                      : [],
-                  }
-                : {}),
             },
           }))
         }

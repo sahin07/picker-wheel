@@ -150,11 +150,6 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random Demon Slayer character, Hashira, or breathing style.",
   },
   {
-    label: "Naruto Wheel",
-    href: "/naruto-spin-wheel-picker",
-    description: "Pick a random Naruto character, Akatsuki member, Hokage, or jutsu.",
-  },
-  {
     label: "NBA Picker Wheel",
     href: "/nba-team-picker-wheel",
     description: "Spin for a random NBA team for fantasy and watch parties.",

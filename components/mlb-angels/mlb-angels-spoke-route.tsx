@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import MlbAngelsWheelApp from "@/components/mlb-angels/mlb-angels-wheel-app"
 import {
   MlbAngelsSpokeSeoIntro,
@@ -16,7 +17,7 @@ export function mlbAngelsSpokeMetadata(spokeId: MlbAngelsSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

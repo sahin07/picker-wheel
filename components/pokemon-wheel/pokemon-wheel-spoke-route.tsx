@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import PokemonWheelApp from "@/components/pokemon-wheel/pokemon-wheel-app"
 import {
   PokemonWheelSpokeSeoIntro,
@@ -24,17 +25,7 @@ export function pokemonWheelSpokeMetadata(spokeId: PokemonWheelSpokeId): Metadat
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

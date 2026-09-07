@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import LolWheelApp from "@/components/lol-wheel/lol-wheel-app"
 import {
   LolWheelSpokeSeoIntro,
@@ -24,17 +25,7 @@ export function lolWheelSpokeMetadata(spokeId: LolWheelSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

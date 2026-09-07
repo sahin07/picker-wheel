@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import YesNoPickerWheelApp from "@/components/yes-no-picker-wheel/yes-no-picker-wheel-app"
 import {
   YesNoPickerSpokeSeoIntro,
@@ -24,17 +25,7 @@ export function yesNoPickerSpokeMetadata(spokeId: YesNoPickerSpokeId): Metadata 
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

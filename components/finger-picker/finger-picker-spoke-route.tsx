@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import FingerPickerApp from "@/components/finger-picker/finger-picker-app"
 import { FingerPickerSpokeSeoIntro, FingerPickerSpokeSeoSections } from "@/components/finger-picker/finger-picker-spoke-seo"
 import { FINGER_PICKER_OG_IMAGE_URL, FINGER_PICKER_PATH, FINGER_PICKER_SITE_URL } from "@/lib/finger-picker-seo"
@@ -12,7 +13,7 @@ export function fingerPickerSpokeMetadata(spokeId: FingerPickerSpokeId): Metadat
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle, description: spoke.description, url,
       siteName: "Spinifywheel", type: "website",

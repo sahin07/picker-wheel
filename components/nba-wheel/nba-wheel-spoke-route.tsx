@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import NbaWheelApp from "@/components/nba-wheel/nba-wheel-app"
 import {
   NbaWheelSpokeSeoIntro,
@@ -20,17 +21,7 @@ export function nbaWheelSpokeMetadata(spokeId: NbaWheelSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

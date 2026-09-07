@@ -29,6 +29,19 @@ export const DEFAULT_ROBOTS: NonNullable<Metadata["robots"]> = {
   },
 }
 
+/** Template spokes / weak variants — crawlable UX, not search results */
+export const NOINDEX_FOLLOW_ROBOTS: NonNullable<Metadata["robots"]> = {
+  index: false,
+  follow: true,
+  googleBot: {
+    index: false,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
+  },
+}
+
 export function ogImageEntry(url: string, alt: string) {
   return {
     url,

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import ThemePickerWheelApp from "./theme-picker-wheel-app"
 import {
   ThemePickerSpokeSeoIntro,
@@ -24,7 +25,7 @@ export function themePickerSpokeMetadata(spokeId: ThemePickerSpokeId): Metadata 
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

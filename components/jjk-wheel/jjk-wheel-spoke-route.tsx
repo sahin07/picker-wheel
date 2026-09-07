@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import JjkWheelApp from "@/components/jjk-wheel/jjk-wheel-app"
 import { JjkWheelSpokeSeoIntro, JjkWheelSpokeSeoSections } from "@/components/jjk-wheel/jjk-wheel-spoke-seo"
 import { JJK_WHEEL_OG_IMAGE_URL, JJK_WHEEL_SITE_URL } from "@/lib/jjk-wheel-seo"
@@ -12,7 +13,7 @@ export function jjkWheelSpokeMetadata(spokeId: JjkWheelSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle, description: spoke.description, url,
       siteName: "Spinifywheel", type: "website",

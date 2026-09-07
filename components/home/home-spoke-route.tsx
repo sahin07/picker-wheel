@@ -10,6 +10,11 @@ import {
   homeSpokeUrl,
   type HomeNameSpokeId,
 } from "@/lib/home-name-picker-spokes"
+import { isIndexableHomeSpoke } from "@/lib/seo-index-policy"
+import {
+  DEFAULT_ROBOTS,
+  NOINDEX_FOLLOW_ROBOTS,
+} from "@/lib/site-metadata"
 
 export function homeSpokeMetadata(spokeId: HomeNameSpokeId): Metadata {
   const spoke = getHomeNameSpoke(spokeId)
@@ -20,17 +25,9 @@ export function homeSpokeMetadata(spokeId: HomeNameSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    robots: isIndexableHomeSpoke(spokeId)
+      ? DEFAULT_ROBOTS
+      : NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

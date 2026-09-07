@@ -3,6 +3,7 @@ import fs from "fs"
 import path from "path"
 import { getAllArticleParams } from "@/lib/articles"
 import { HOME_SITE_URL } from "@/lib/home-seo"
+import { isIndexablePath } from "@/lib/seo-index-policy"
 import {
   ALL_WHEELS_ENTRY,
   SPIN_WHEELS_BASE_PATH,
@@ -129,7 +130,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   let staticRoutes: string[] = ["/"]
   try {
-    staticRoutes = collectAppRoutes(appDir)
+    staticRoutes = collectAppRoutes(appDir).filter(isIndexablePath)
   } catch (error) {
     console.error("[sitemap] Failed to scan app routes:", error)
   }
@@ -146,7 +147,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const routes = Array.from(
     new Set([...staticRoutes, ...articleRoutes, ...categoryRoutes]),
-  ).sort()
+  )
+    .filter(isIndexablePath)
+    .sort()
 
   const lastModified = new Date()
 

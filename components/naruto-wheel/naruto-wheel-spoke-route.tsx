@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import NarutoWheelApp from "@/components/naruto-wheel/naruto-wheel-app"
 import { NarutoWheelSpokeSeoIntro, NarutoWheelSpokeSeoSections } from "@/components/naruto-wheel/naruto-wheel-spoke-seo"
 import { NARUTO_WHEEL_OG_IMAGE_URL, NARUTO_WHEEL_SITE_URL } from "@/lib/naruto-wheel-seo"
@@ -12,7 +13,7 @@ export function narutoWheelSpokeMetadata(spokeId: NarutoWheelSpokeId): Metadata 
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle, description: spoke.description, url,
       siteName: "Spinifywheel", type: "website",

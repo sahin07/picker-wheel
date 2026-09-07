@@ -77,23 +77,8 @@ export type HomeLinkItem = {
   description: string
 }
 
-/** Live routes only — popular tool cards */
+/** Core-intent popular tool cards (indexing focus — hubs/pillars only) */
 export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
-  {
-    label: "Wheel of Fortune",
-    href: "/wheel-of-fortune",
-    description: "Create a custom fortune wheel for decisions, activities, prizes, and games.",
-  },
-  {
-    label: "Prize Wheel Spinner",
-    href: "/prize-wheel-spinner",
-    description: "Create equal-odds prizes for giveaways, events, and classroom rewards.",
-  },
-  {
-    label: "Weighted Wheel Spinner",
-    href: "/weighted-wheel-spinner",
-    description: "Set custom odds for simulations, lessons, games, and scenario testing.",
-  },
   {
     label: "Yes or No Wheel",
     href: "/spin-random-yes-no-picker-wheel",
@@ -110,9 +95,9 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Draw a random number from a range for raffles and games.",
   },
   {
-    label: "Country Picker Wheel",
-    href: "/spin-random-country-wheel",
-    description: "Spin for a random country for travel ideas or quizzes.",
+    label: "Team Picker",
+    href: "/spin-random-team-picker-wheel",
+    description: "Split names into random teams for sports and group work.",
   },
   {
     label: "Color Wheel",
@@ -120,19 +105,29 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random color for design, art, or creative challenges.",
   },
   {
-    label: "Theme Picker Wheel",
-    href: "/spin-random-theme-picker-wheel",
-    description: "Spin random themes for parties, writing, drawing, and classrooms.",
+    label: "Country Picker Wheel",
+    href: "/spin-random-country-wheel",
+    description: "Spin for a random country for travel ideas or quizzes.",
   },
   {
-    label: "Image Picker",
-    href: "/spin-random-image-picker-wheel",
-    description: "Spin photos and images for visual choices and classrooms.",
+    label: "State Wheel",
+    href: "/spin-random-state-wheel",
+    description: "Pick a US state for geography practice or trip ideas.",
   },
   {
-    label: "Team Picker",
-    href: "/spin-random-team-picker-wheel",
-    description: "Split names into random teams for sports and group work.",
+    label: "Wheel of Fortune",
+    href: "/wheel-of-fortune",
+    description: "Create a custom fortune wheel for decisions, activities, prizes, and games.",
+  },
+  {
+    label: "Prize Wheel Spinner",
+    href: "/prize-wheel-spinner",
+    description: "Create equal-odds prizes for giveaways, events, and classroom rewards.",
+  },
+  {
+    label: "Weighted Wheel Spinner",
+    href: "/weighted-wheel-spinner",
+    description: "Set custom odds for simulations, lessons, games, and scenario testing.",
   },
   {
     label: "Pokemon Picker Wheel",
@@ -140,24 +135,24 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random Pokémon for challenges and game nights.",
   },
   {
-    label: "JJK Spin Wheel picker",
-    href: "/jjk-spin-the-wheel",
-    description: "Pick a random Jujutsu Kaisen character for fan challenges and team drafts.",
+    label: "Fortnite Picker Wheel",
+    href: "/fortnite-picker-wheel",
+    description: "Spin a random Fortnite skin or challenge when you cannot decide.",
   },
   {
-    label: "Demon Slayer Spin Wheel",
-    href: "/demon-slayer-spin-wheel",
-    description: "Pick a random Demon Slayer character, Hashira, or breathing style.",
+    label: "LoL Picker Wheel",
+    href: "/lol-picker-wheel",
+    description: "Leave your next League champion choice to chance.",
+  },
+  {
+    label: "Food Wheel",
+    href: "/food-wheel",
+    description: "Spin what to eat when the group cannot pick a meal.",
   },
   {
     label: "NBA Picker Wheel",
     href: "/nba-team-picker-wheel",
     description: "Spin for a random NBA team for fantasy and watch parties.",
-  },
-  {
-    label: "MLB Picker Wheel",
-    href: "/mlb-picker-wheel",
-    description: "Choose a random MLB team for drafts and sports games.",
   },
   {
     label: "Custom Spin Wheel",
@@ -592,7 +587,7 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
   },
 ]
 
-/** First-batch name-picker cluster spokes (EEAT-safe launch set) */
+/** Strong name-picker cluster intents (indexable); other presets stay on-page UX */
 export const HOME_CLUSTER_LINKS: HomeLinkItem[] = [
   {
     label: "Classroom Name Picker",
@@ -605,19 +600,9 @@ export const HOME_CLUSTER_LINKS: HomeLinkItem[] = [
     description: "Transparent winner draws for contests and raffles.",
   },
   {
-    label: "Secret Santa Name Picker",
-    href: "/secret-santa-name-picker",
-    description: "Random gift-exchange draws for holiday events.",
-  },
-  {
-    label: "Presentation Order Picker",
-    href: "/presentation-order-picker",
-    description: "Decide who presents first without debate.",
-  },
-  {
     label: "Team Picker Wheel",
     href: "/spin-random-team-picker-wheel",
-    description: "Split names into random teams (existing tool).",
+    description: "Split names into random teams for class or sports.",
   },
 ]
 

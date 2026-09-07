@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import DtiWheelApp from "./dti-wheel-app"
 import { DtiWheelSpokeSeoIntro, DtiWheelSpokeSeoSections } from "./dti-wheel-spoke-seo"
 import {
@@ -17,7 +18,7 @@ export function dtiWheelSpokeMetadata(spokeId: DtiWheelSpokeId): Metadata {
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

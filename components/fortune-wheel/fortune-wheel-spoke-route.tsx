@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import FortuneWheelApp from "./fortune-wheel-app"
 import { FortuneWheelSpokeSeoIntro, FortuneWheelSpokeSeoSections } from "./fortune-wheel-spoke-seo"
 import { FORTUNE_WHEEL_OG_IMAGE_URL, FORTUNE_WHEEL_PATH, FORTUNE_WHEEL_SITE_URL } from "@/lib/fortune-wheel-seo"
@@ -9,7 +10,7 @@ export function fortuneWheelSpokeMetadata(spokeId: FortuneWheelSpokeId): Metadat
   const url = fortuneSpokeUrl(spoke.path)
   return {
     title: { absolute: spoke.pageTitle }, description: spoke.description, keywords: [...spoke.keywords],
-    alternates: { canonical: url }, robots: { index: true, follow: true },
+    alternates: { canonical: url }, robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: { title: spoke.pageTitle, description: spoke.description, url, siteName: "Spinifywheel",
       locale: "en_US", type: "website", images: [{ url: FORTUNE_WHEEL_OG_IMAGE_URL, width: 1200, height: 630, alt: spoke.h1 }] },
     twitter: { card: "summary_large_image", title: spoke.pageTitle, description: spoke.description, images: [FORTUNE_WHEEL_OG_IMAGE_URL] },

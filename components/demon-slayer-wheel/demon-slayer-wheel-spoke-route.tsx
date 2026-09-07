@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
 import DemonSlayerWheelApp from "@/components/demon-slayer-wheel/demon-slayer-wheel-app"
 import { DemonSlayerWheelSpokeSeoIntro, DemonSlayerWheelSpokeSeoSections } from "@/components/demon-slayer-wheel/demon-slayer-wheel-spoke-seo"
 import { DEMON_SLAYER_WHEEL_OG_IMAGE_URL, DEMON_SLAYER_WHEEL_SITE_URL } from "@/lib/demon-slayer-wheel-seo"
@@ -12,7 +13,7 @@ export function demonSlayerWheelSpokeMetadata(spokeId: DemonSlayerWheelSpokeId):
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: NOINDEX_FOLLOW_ROBOTS,
     openGraph: {
       title: spoke.pageTitle, description: spoke.description, url,
       siteName: "Spinifywheel", type: "website",

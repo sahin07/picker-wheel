@@ -200,17 +200,17 @@ export const PRIZE_WHEEL_RELATED_TOOLS: PrizeWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Divide participants into random teams.",
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Select a random number with a visual spin.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Make a quick two-option decision.",
   },
 ]

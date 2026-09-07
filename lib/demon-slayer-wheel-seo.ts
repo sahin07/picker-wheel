@@ -476,7 +476,7 @@ export const DEMON_SLAYER_WHEEL_RELATED_TOOLS = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split people into random teams.",
   },
   {

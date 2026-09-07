@@ -401,17 +401,17 @@ export const LOL_WHEEL_RELATED_TOOLS: LolWheelLinkItem[] = [
   },
   {
     label: "Yes or No Picker Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Make quick queue decisions with a yes/no spin.",
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split names into fair random teams.",
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin a number for giveaways, seats, or challenge ranks.",
   },
   {

@@ -345,12 +345,12 @@ export const YES_NO_PICKER_RELATED_TOOLS: YesNoPickerLinkItem[] = [
   },
   {
     label: "Random Number Picker",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin a random number from any custom range.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Pick a random letter for word games and prompts.",
   },
   {
@@ -375,7 +375,7 @@ export const YES_NO_PICKER_RELATED_TOOLS: YesNoPickerLinkItem[] = [
   },
   {
     label: "Dice Roller",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Use the number picker for dice-style random rolls and ranges.",
   },
   {

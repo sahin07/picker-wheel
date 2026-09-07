@@ -189,7 +189,7 @@ export const RIGGED_RELATED_TOOLS: WeightedWheelLinkItem[] = [
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Quick decision spinner for binary choices.",
   },
   {
@@ -199,7 +199,7 @@ export const RIGGED_RELATED_TOOLS: WeightedWheelLinkItem[] = [
   },
   {
     label: "Color Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Spin a random color for creative projects.",
   },
   {
@@ -209,7 +209,7 @@ export const RIGGED_RELATED_TOOLS: WeightedWheelLinkItem[] = [
   },
   {
     label: "Random Number Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Draw a random number from a range.",
   },
 ]
@@ -455,17 +455,17 @@ export const WEIGHTED_WHEEL_RELATED_TOOLS: WeightedWheelLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for scoring or team sizes.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Quick binary decision spinner.",
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split people into fair random teams.",
   },
   {

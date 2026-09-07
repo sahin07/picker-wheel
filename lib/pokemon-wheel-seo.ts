@@ -467,7 +467,7 @@ export const POKEMON_WHEEL_RELATED_TOOLS: PokemonWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split names into fair random teams.",
   },
   {
@@ -477,7 +477,7 @@ export const POKEMON_WHEEL_RELATED_TOOLS: PokemonWheelLinkItem[] = [
   },
   {
     label: "Random Number Picker",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick a random number with an interactive spinner.",
   },
   {
@@ -487,12 +487,12 @@ export const POKEMON_WHEEL_RELATED_TOOLS: PokemonWheelLinkItem[] = [
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Spin a random color for design or party games.",
   },
   {
     label: "Yes or No Picker Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Make quick yes/no decisions with a fair spin.",
   },
 ]

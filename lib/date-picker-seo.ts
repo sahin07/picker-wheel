@@ -221,32 +221,32 @@ export const DATE_PICKER_RELATED_TOOLS: DatePickerLinkItem[] = [
   },
   {
     label: "Random Number Picker",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin numbers for ranges, bingo, and dice-style rolls.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "A simple decision wheel for binary choices.",
   },
   {
     label: "Random Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Spin the alphabet wheel for games and learning.",
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Spin a random color for games and classrooms.",
   },
   {
     label: "Image Picker Wheel",
-    href: "/image-picker-wheel",
+    href: "/spin-random-image-picker-wheel",
     description: "Spin pictures and photos for visual selections.",
   },
   {
     label: "Team / Name Picker",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Spin names and teams for classrooms and groups.",
   },
 ]

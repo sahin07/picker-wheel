@@ -187,17 +187,17 @@ export const FORTUNE_WHEEL_RELATED_TOOLS: FortuneWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Randomly divide participants into teams.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Get a quick answer to a two-choice question.",
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin to select a random number.",
   },
   {

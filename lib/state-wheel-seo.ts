@@ -402,22 +402,22 @@ export const STATE_WHEEL_RELATED_TOOLS: StateWheelLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for scoring or team sizes.",
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split people into fair random teams.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Alphabet spins for naming games.",
   },
   {
     label: "Date Picker Wheel",
-    href: "/date-picker-wheel",
+    href: "/spin-random-date-picker-wheel",
     description: "Spin a random date for plans and challenges.",
   },
 ]

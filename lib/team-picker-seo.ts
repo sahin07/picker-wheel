@@ -372,22 +372,22 @@ export const TEAM_PICKER_RELATED_TOOLS: TeamPickerLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin numbers for brackets, bingo, and classroom draws.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "A fast decision wheel when captains need a coin-flip call.",
   },
   {
     label: "Letter Picker Wheel",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Spin the alphabet for classroom warm-ups and word games.",
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Pick a random color for design, art, and team jersey themes.",
   },
   {

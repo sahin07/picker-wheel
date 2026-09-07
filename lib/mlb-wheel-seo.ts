@@ -424,12 +424,12 @@ export const MLB_WHEEL_RELATED_TOOLS: MlbWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split custom names into fair teams for sports and classrooms.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Make quick baseball-night decisions with a yes/no spin.",
   },
   {
@@ -439,7 +439,7 @@ export const MLB_WHEEL_RELATED_TOOLS: MlbWheelLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for draft slots or innings challenges.",
   },
   {
@@ -492,7 +492,7 @@ export const MLB_WHEEL_CLUSTER_LINKS: MlbWheelLinkItem[] = [
   },
   {
     label: "Custom Team Generator",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Build teams from your own name list.",
   },
 ]

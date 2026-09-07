@@ -255,22 +255,22 @@ export const COUNTRY_WHEEL_RELATED_TOOLS: CountryWheelLinkItem[] = [
   },
   {
     label: "Random Number Picker",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for scoring or team sizes.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Alphabet spins for naming games.",
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Spin a random color for design and art prompts.",
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split people into fair random teams.",
   },
   {

@@ -140,8 +140,8 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
           "If you already know the theme, jump into a ready-made tool instead of starting from a blank list—numbers, yes/no, colors, team assignment, MLB/NBA teams, Fortnite skins, Pokemon, League champions, countries, and U.S. states are all available.",
         ],
         links: [
-          { label: "Yes or No wheel", href: "/yes-or-no-wheel" },
-          { label: "Team picker", href: "/team-picker-wheel" },
+          { label: "Yes or No wheel", href: "/spin-random-yes-no-picker-wheel" },
+          { label: "Team picker", href: "/spin-random-team-picker-wheel" },
           {
             label: "Teachers name-picker guide",
             href: "/articles/education/random-name-picker-for-teachers",
@@ -337,8 +337,8 @@ export const HELP_FAQ_SECTIONS: HelpFaqSection[] = [
           "Those tools are listed as coming soon. Until they launch, you can approximate a coin flip with the Yes or No wheel, or roll values with the Number Picker by setting the range you need.",
         ],
         links: [
-          { label: "Yes or No picker", href: "/yes-or-no-wheel" },
-          { label: "Number picker", href: "/number-picker-wheel" },
+          { label: "Yes or No picker", href: "/spin-random-yes-no-picker-wheel" },
+          { label: "Number picker", href: "/spin-random-number-picker-wheel" },
         ],
       },
     ],

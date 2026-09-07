@@ -592,7 +592,7 @@ export const ARTICLES: Article[] = [
       },
       {
         label: "Random Letter Picker",
-        href: "/random-letter-picker",
+        href: "/spin-random-letter-picker-wheel",
         description: "Spin letters for phonics and literacy games.",
       },
     ],
@@ -892,7 +892,7 @@ export const ARTICLES: Article[] = [
     tools: [
       {
         label: "Yes or No Wheel",
-        href: "/yes-or-no-wheel",
+        href: "/spin-random-yes-no-picker-wheel",
         description: "Dedicated binary spinner for clear yes/no outcomes.",
       },
       {
@@ -1054,7 +1054,7 @@ export const ARTICLES: Article[] = [
     tools: [
       {
         label: "Team Picker Wheel",
-        href: "/team-picker-wheel",
+        href: "/spin-random-team-picker-wheel",
         description: "Main hub for splitting people into random teams.",
       },
       {
@@ -1539,7 +1539,7 @@ export const ARTICLES: Article[] = [
     tools: [
       {
         label: "Color Picker Wheel",
-        href: "/color-picker-wheel",
+        href: "/spin-random-color-picker-wheel",
         description: "Main color spinning hub for creative picks.",
       },
       {
@@ -1549,7 +1549,7 @@ export const ARTICLES: Article[] = [
       },
       {
         label: "Wheel of Colors",
-        href: "/wheel-of-colors",
+        href: "/spin-random-color-picker-wheel",
         description: "Colors-focused spinner alias into the color tools.",
       },
     ],

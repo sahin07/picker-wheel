@@ -501,7 +501,7 @@ export const FORTNITE_WHEEL_RELATED_TOOLS: FortniteWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split players into fair teams for sports and classrooms.",
   },
   {
@@ -516,12 +516,12 @@ export const FORTNITE_WHEEL_RELATED_TOOLS: FortniteWheelLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for draft slots or score challenges.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Quick fair yes/no decisions between matches.",
   },
   {

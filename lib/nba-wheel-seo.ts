@@ -424,12 +424,12 @@ export const NBA_WHEEL_RELATED_TOOLS: NbaWheelLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split custom names into fair teams for sports and classrooms.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Make quick basketball-night decisions with a yes/no spin.",
   },
   {
@@ -439,7 +439,7 @@ export const NBA_WHEEL_RELATED_TOOLS: NbaWheelLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Pick random numbers for draft slots or quarter challenges.",
   },
   {
@@ -487,7 +487,7 @@ export const NBA_WHEEL_CLUSTER_LINKS: NbaWheelLinkItem[] = [
   },
   {
     label: "Custom Team Generator",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Build teams from your own name list.",
   },
 ]

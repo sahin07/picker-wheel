@@ -155,7 +155,7 @@ export function HomeSpokeSeoSections({ spoke }: { spoke: HomeNameSpokeSeo }) {
           </li>
           <li>
             <Link
-              href="/team-picker-wheel"
+              href="/spin-random-team-picker-wheel"
               className="inline-block rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/50"
             >
               Team Picker Wheel

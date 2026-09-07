@@ -114,7 +114,7 @@ function NumberPickerSpokeJsonLd({ spokeId }: { spokeId: NumberPickerSpokeId }) 
         "@type": "ListItem",
         position: 2,
         name: "Random Number Picker Wheel",
-        item: `${NUMBER_PICKER_SITE_URL}/number-picker-wheel`,
+        item: `${NUMBER_PICKER_SITE_URL}/spin-random-number-picker-wheel`,
       },
       {
         "@type": "ListItem",

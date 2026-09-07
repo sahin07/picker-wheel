@@ -286,7 +286,7 @@ export const THEME_PICKER_RELATED_TOOLS: ThemePickerLinkItem[] = [
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Settle a quick two-choice decision.",
   },
   {
@@ -296,7 +296,7 @@ export const THEME_PICKER_RELATED_TOOLS: ThemePickerLinkItem[] = [
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Pick a random color for creative projects.",
   },
   {

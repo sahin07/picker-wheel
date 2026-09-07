@@ -200,12 +200,12 @@ export const DTI_WHEEL_RELATED_TOOLS = [
     description: "Spin any custom name or option list.",
   },
   {
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     label: "Color Picker Wheel",
     description: "Pick random colors and palettes for DTI color locks.",
   },
   {
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     label: "Yes or No Wheel",
     description: "Settle quick yes/no outfit dilemmas.",
   },

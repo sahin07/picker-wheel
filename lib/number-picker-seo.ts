@@ -277,32 +277,32 @@ export const NUMBER_PICKER_RELATED_TOOLS: NumberPickerLinkItem[] = [
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Pick a random letter for word games and prompts.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "A simple decision wheel for binary choices.",
   },
   {
     label: "Color Picker Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Spin for a random color for design and art challenges.",
   },
   {
     label: "Team Picker",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split people into random teams for sports and class.",
   },
   {
     label: "Image Picker",
-    href: "/image-picker-wheel",
+    href: "/spin-random-image-picker-wheel",
     description: "Spin photos and images for visual random choices.",
   },
   {
     label: "Date Picker Wheel",
-    href: "/date-picker-wheel",
+    href: "/spin-random-date-picker-wheel",
     description: "Pick a random date for planning and games.",
   },
   {

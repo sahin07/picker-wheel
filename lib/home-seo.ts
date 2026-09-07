@@ -96,17 +96,17 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "A simple decision wheel when you need a quick yes or no.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Pick a random letter for word games and writing prompts.",
   },
   {
     label: "Number Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Draw a random number from a range for raffles and games.",
   },
   {
@@ -116,22 +116,22 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
   },
   {
     label: "Color Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Pick a random color for design, art, or creative challenges.",
   },
   {
     label: "Theme Picker Wheel",
-    href: "/theme-picker-wheel",
+    href: "/spin-random-theme-picker-wheel",
     description: "Spin random themes for parties, writing, drawing, and classrooms.",
   },
   {
     label: "Image Picker",
-    href: "/image-picker-wheel",
+    href: "/spin-random-image-picker-wheel",
     description: "Spin photos and images for visual choices and classrooms.",
   },
   {
     label: "Team Picker",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split names into random teams for sports and group work.",
   },
   {
@@ -552,37 +552,37 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
   },
   {
     label: "Number Picker Wheel",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Draw a number from a range for raffles and games.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Random letters for word games and writing prompts.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Binary decisions when you only need yes or no.",
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split names into random teams for class or sports.",
   },
   {
     label: "Color Wheel",
-    href: "/color-picker-wheel",
+    href: "/spin-random-color-picker-wheel",
     description: "Random colors for design and creative challenges.",
   },
   {
     label: "Theme Picker Wheel",
-    href: "/theme-picker-wheel",
+    href: "/spin-random-theme-picker-wheel",
     description: "Random themes for parties, writing, drawing, and classrooms.",
   },
   {
     label: "Image Picker",
-    href: "/image-picker-wheel",
+    href: "/spin-random-image-picker-wheel",
     description: "Spin photos and images for visual choices.",
   },
   {
@@ -616,7 +616,7 @@ export const HOME_CLUSTER_LINKS: HomeLinkItem[] = [
   },
   {
     label: "Team Picker Wheel",
-    href: "/team-picker-wheel",
+    href: "/spin-random-team-picker-wheel",
     description: "Split names into random teams (existing tool).",
   },
 ]
@@ -644,7 +644,7 @@ export const HOME_POPULAR_CATEGORIES: HomeLinkItem[] = [
   },
   {
     label: "Decision Wheels",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "Yes/No and custom lists for everyday choices.",
   },
   {

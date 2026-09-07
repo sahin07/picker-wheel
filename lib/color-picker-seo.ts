@@ -373,17 +373,17 @@ export const COLOR_PICKER_RELATED_TOOLS: ColorPickerLinkItem[] = [
   },
   {
     label: "Random Number Picker",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Spin numbers for ranges, bingo, and dice-style rolls.",
   },
   {
     label: "Letter Picker",
-    href: "/random-letter-picker",
+    href: "/spin-random-letter-picker-wheel",
     description: "Spin the alphabet wheel for games and learning.",
   },
   {
     label: "Yes or No Wheel",
-    href: "/yes-or-no-wheel",
+    href: "/spin-random-yes-no-picker-wheel",
     description: "A simple decision wheel for binary choices.",
   },
   {
@@ -393,12 +393,12 @@ export const COLOR_PICKER_RELATED_TOOLS: ColorPickerLinkItem[] = [
   },
   {
     label: "Coin Flip",
-    href: "/yes-or-no-wheel?mode=fair-coin",
+    href: "/spin-random-yes-no-picker-wheel?mode=fair-coin",
     description: "Heads-or-tails style spins when you need a quick binary pick.",
   },
   {
     label: "Dice Roller",
-    href: "/number-picker-wheel",
+    href: "/spin-random-number-picker-wheel",
     description: "Use the number wheel for dice-style random rolls and ranges.",
   },
 ]

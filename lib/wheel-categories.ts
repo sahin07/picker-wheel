@@ -21,6 +21,7 @@ import {
   Sun,
   Scale,
   Gift,
+  Ticket,
 } from "lucide-react"
 
 export type WheelItem = {
@@ -144,11 +145,19 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
     id: "giveaways-odds-wheel-pickers",
     title: "Giveaways & Odds",
     description:
-      "Run prize giveaways and weighted spins for promotions, classrooms, events, and contests.",
+      "Run prize giveaways, raffle draws, and weighted spins for promotions, classrooms, events, and contests.",
     icon: Gift,
     color: "#d97706",
     bg: "rgba(217, 119, 6, 0.12)",
     items: [
+      {
+        label: "Raffle Spin Wheel",
+        href: "/raffle-spin-wheel",
+        description: "Draw raffle and contest winners from a participant list.",
+        icon: Ticket,
+        color: "#d97706",
+        bg: "rgba(217, 119, 6, 0.15)",
+      },
       {
         label: "Prize Wheel Spinner",
         href: "/prize-wheel-spinner",
@@ -394,6 +403,26 @@ export function hrefToToolType(href: string): string {
   if (href === "/") return "picker-wheel"
   if (href === "/weighted-wheel-spinner") return "weighted-wheel"
   if (href === "/prize-wheel-spinner") return "prize-wheel"
+  if (
+    href === "/raffle-spin-wheel" ||
+    href === "/raffle-wheel" ||
+    href === "/random-winner-picker" ||
+    href === "/contest-winner-picker" ||
+    href === "/giveaway-winner-picker" ||
+    href === "/classroom-raffle-wheel" ||
+    href === "/charity-raffle-wheel" ||
+    href === "/classroom-raffle" ||
+    href === "/ticket-raffle-wheel" ||
+    href === "/charity-raffle" ||
+    href === "/fundraiser-raffle-wheel" ||
+    href === "/giveaway-wheel" ||
+    href === "/lucky-draw-wheel" ||
+    href === "/random-drawing-wheel" ||
+    href === "/winner-picker" ||
+    href === "/random-draw-generator"
+  ) {
+    return "raffle-spin-wheel"
+  }
   if (
     href === "/spin-random-theme-picker-wheel" ||
     href === "/theme-picker-wheel" ||

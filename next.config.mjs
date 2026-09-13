@@ -155,6 +155,58 @@ const nextConfig = {
         destination: "/help",
         permanent: true,
       },
+
+      // --- Raffle spin wheel aliases ---
+      {
+        source: "/raffle-wheel",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/giveaway-wheel",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/lucky-draw-wheel",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-drawing-wheel",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/winner-picker",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-draw-generator",
+        destination: "/raffle-spin-wheel",
+        permanent: true,
+      },
+      {
+        source: "/classroom-raffle",
+        destination: "/classroom-raffle-wheel",
+        permanent: true,
+      },
+      {
+        source: "/ticket-raffle-wheel",
+        destination: "/classroom-raffle-wheel",
+        permanent: true,
+      },
+      {
+        source: "/charity-raffle",
+        destination: "/charity-raffle-wheel",
+        permanent: true,
+      },
+      {
+        source: "/fundraiser-raffle-wheel",
+        destination: "/charity-raffle-wheel",
+        permanent: true,
+      },
     ]
   },
 }

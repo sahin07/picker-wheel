@@ -35,6 +35,7 @@ import {
 } from "@/lib/letter-picker-constants"
 import WheelPreviewModal from "@/components/wheel-preview-modal"
 import ConfirmationDialog from "@/components/confirmation-dialog"
+import { isOptionsWheelTool } from "@/lib/options-wheel-tools"
 
 type SidebarTab = "list" | "text" | "style" | "other"
 type ActionMode = "normal" | "elimination"
@@ -49,6 +50,7 @@ const TABS: { id: SidebarTab; label: string; icon: ReactNode }[] = [
 ]
 
 interface PickerWheelInputPanelProps {
+  toolType?: string
   onViewResults?: () => void
   onOpenSettings?: () => void
   onOpenAI?: () => void
@@ -57,6 +59,8 @@ interface PickerWheelInputPanelProps {
   onToggleFullscreen?: () => void
   actionMode?: ActionMode
   onActionModeChange?: (mode: ActionMode) => void
+  /** Desktop only: match left wheel column height; keeps inner tab scroll. */
+  desktopMaxHeight?: number | null
 }
 
 function readImageFile(file: File): Promise<string> {
@@ -69,6 +73,7 @@ function readImageFile(file: File): Promise<string> {
 }
 
 export default function PickerWheelInputPanel({
+  toolType = "picker-wheel",
   onViewResults,
   onOpenSettings,
   onOpenAI,
@@ -77,6 +82,7 @@ export default function PickerWheelInputPanel({
   onToggleFullscreen,
   actionMode = "normal",
   onActionModeChange,
+  desktopMaxHeight = null,
 }: PickerWheelInputPanelProps = {}) {
   const {
     addOption,
@@ -100,14 +106,16 @@ export default function PickerWheelInputPanel({
 
   const { settings, updateSettings } = useSettingsStore()
   const options = useWheelManagerStore((state) => {
-    if (state.currentTool !== "picker-wheel") return EMPTY_OPTIONS
-    const wheels = state.wheelsByTool["picker-wheel"] || []
+    if (!isOptionsWheelTool(state.currentTool) || state.currentTool !== toolType) {
+      return EMPTY_OPTIONS
+    }
+    const wheels = state.wheelsByTool[toolType] || []
     const wheel = wheels.find((w) => w.id === state.currentWheelId) || wheels[0]
     return ((wheel?.data as any)?.options as WheelOption[]) || EMPTY_OPTIONS
   })
   const resultsCount = useWheelManagerStore((state) => {
-    if (state.currentTool !== "picker-wheel") return 0
-    const wheels = state.wheelsByTool["picker-wheel"] || []
+    if (!isOptionsWheelTool(state.currentTool) || state.currentTool !== toolType) return 0
+    const wheels = state.wheelsByTool[toolType] || []
     const wheel = wheels.find((w) => w.id === state.currentWheelId) || wheels[0]
     return ((wheel?.data as any)?.recentResults as unknown[] | undefined)?.length || 0
   })
@@ -186,39 +194,84 @@ export default function PickerWheelInputPanel({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/80">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-800">INPUTS</h3>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+    <div
+      className="flex max-h-[min(70vh,36rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-white shadow-sm lg:max-h-none"
+      style={
+        desktopMaxHeight != null
+          ? { maxHeight: desktopMaxHeight, height: desktopMaxHeight }
+          : undefined
+      }
+    >
+      <div className="flex shrink-0 items-center justify-between gap-1 border-b bg-slate-50/80 px-2 py-2 sm:gap-2 sm:px-3">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+          <h3 className="truncate text-xs font-semibold text-slate-800 sm:text-sm">INPUTS</h3>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 sm:px-2 sm:text-xs">
             {activeOptions.length} active
           </span>
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setShowPreview(true)} title="Preview">
-            <Eye className="w-4 h-4" />
+        <div className="flex shrink-0 items-center gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 sm:h-8 sm:w-8" onClick={() => setShowPreview(true)} title="Preview">
+            <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 px-2"
+            className="h-7 w-7 p-0 sm:h-8 sm:w-8"
             onClick={() => {
               shuffleOptions()
               showToast("Options shuffled!", "success")
             }}
             title="Shuffle"
           >
-            <Shuffle className="w-4 h-4" />
+            <Shuffle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
           {onHideInputs && (
-            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={onHideInputs} title="Hide">
-              <EyeOff className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 sm:h-8 sm:w-8" onClick={onHideInputs} title="Hide">
+              <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           )}
+          <SlicesManageMenu
+            settings={settings}
+            onUpdateSettings={(partial) => {
+              updateSettings(partial)
+              if (
+                onActionModeChange &&
+                partial.spinBehavior &&
+                "removeWinnerAfterSpin" in partial.spinBehavior
+              ) {
+                onActionModeChange(
+                  partial.spinBehavior.removeWinnerAfterSpin ? "elimination" : "normal",
+                )
+              }
+            }}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSortZA={() => {
+              sortOptionsZA()
+              showToast("Sorted Z–A!", "success")
+            }}
+            onShuffle={() => {
+              shuffleOptions()
+              showToast("Options shuffled!", "success")
+            }}
+            onEqualize={() => {
+              equalizeWeights()
+              showToast("Weights equalized!", "success")
+            }}
+            onDeleteBlanks={() => {
+              removeBlanks()
+              showToast("Blank options removed!", "success")
+            }}
+            onRemoveDuplicates={() => {
+              removeDuplicates()
+              showToast("Duplicates removed!", "success")
+            }}
+            onClearAll={() => setShowClearConfirm(true)}
+          />
         </div>
       </div>
 
-      <div className="flex border-b overflow-x-auto">
+      <div className="flex shrink-0 overflow-x-auto border-b">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -227,10 +280,10 @@ export default function PickerWheelInputPanel({
               if (tab.id === "text") setTextDraft(getTextEditorValue())
               setSidebarTab(tab.id)
             }}
-            className={`flex-1 min-w-[4.5rem] flex flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium transition-colors ${
+            className={`flex min-w-[4.5rem] flex-1 flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium transition-colors ${
               sidebarTab === tab.id
-                ? "text-emerald-700 border-b-2 border-emerald-600 bg-emerald-50/50"
-                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                ? "border-b-2 border-emerald-600 bg-emerald-50/50 text-emerald-700"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
             }`}
           >
             {tab.icon}
@@ -239,7 +292,7 @@ export default function PickerWheelInputPanel({
         ))}
       </div>
 
-      <div className="p-3">
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-2.5 sm:p-3">
         {sidebarTab === "list" && (
           <div className="space-y-3">
             {onActionModeChange && (
@@ -401,34 +454,6 @@ export default function PickerWheelInputPanel({
                 <ImageIcon className="w-3.5 h-3.5 mr-1" />
                 Random
               </Button>
-
-              <SlicesManageMenu
-                settings={settings}
-                onUpdateSettings={updateSettings}
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                onSortZA={() => {
-                  sortOptionsZA()
-                  showToast("Sorted Z–A!", "success")
-                }}
-                onShuffle={() => {
-                  shuffleOptions()
-                  showToast("Options shuffled!", "success")
-                }}
-                onEqualize={() => {
-                  equalizeWeights()
-                  showToast("Weights equalized!", "success")
-                }}
-                onDeleteBlanks={() => {
-                  removeBlanks()
-                  showToast("Blank options removed!", "success")
-                }}
-                onRemoveDuplicates={() => {
-                  removeDuplicates()
-                  showToast("Duplicates removed!", "success")
-                }}
-                onClearAll={() => setShowClearConfirm(true)}
-              />
             </div>
 
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -447,7 +472,7 @@ export default function PickerWheelInputPanel({
               ))}
             </div>
 
-            <div className="max-h-[420px] overflow-y-auto space-y-1.5 pr-1">
+            <div className="space-y-1.5 pr-1">
               {filteredOptions.map((option) => {
                 const selected = selectedIds.includes(option.id)
                 const enabled = option.enabled !== false
@@ -671,7 +696,7 @@ export default function PickerWheelInputPanel({
 
         {sidebarTab === "other" && (
           <SidebarOtherOptions
-            toolLabel="Picker"
+            toolLabel={toolType === "raffle-spin-wheel" ? "Raffle" : "Picker"}
             resultsCount={resultsCount}
             exportFileName="options.csv"
             exportText={getTextEditorValue()}

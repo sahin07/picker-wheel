@@ -70,6 +70,8 @@ export interface PickerWheelData {
     name: string;
     image?: string;
     color?: string;
+    weight?: number;
+    enabled?: boolean;
   }>;
   totalSpins: number;
   lastResult: any;
@@ -79,6 +81,25 @@ export interface PickerWheelData {
   themes?: any[];
   currentTheme?: string;
   spinHistory?: any[];
+}
+
+/** Entrant-first raffle draw — same options shape as name picker, raffle chrome/SEO separate */
+export interface RaffleSpinWheelData extends PickerWheelData {
+  toolTitle?: string;
+  toolDescription?: string;
+  activeUseCaseId?: string;
+  publicMode?: boolean;
+  selectedResult?: any;
+  drawHistory?: Array<{
+    drawNumber: number;
+    name: string;
+    optionId?: string;
+    timestamp: string;
+    prizeLabel?: string;
+    locked?: boolean;
+  }>;
+  lockedWinnerIds?: string[];
+  prizePlaces?: Array<{ place: number; label: string }>;
 }
 
 export interface WeightedWheelEntry {
@@ -705,6 +726,7 @@ export interface WheelInstance {
   toolType: string;
   data:
     | PickerWheelData
+    | RaffleSpinWheelData
     | WeightedWheelData
     | PrizeWheelData
     | FortuneWheelData
@@ -868,6 +890,7 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
 
         let data:
           | PickerWheelData
+          | RaffleSpinWheelData
           | WeightedWheelData
           | PrizeWheelData
           | FortuneWheelData
@@ -1029,6 +1052,44 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
             themes: PICKER_WHEEL_THEMES,
             currentTheme: "classic",
             spinHistory: [],
+          };
+        } else if (toolType === "raffle-spin-wheel") {
+          data = {
+            options: [
+              { id: "raffle-1", name: "Alex", color: "#f59e0b", weight: 1, enabled: true },
+              { id: "raffle-2", name: "Jordan", color: "#22c55e", weight: 1, enabled: true },
+              { id: "raffle-3", name: "Sam", color: "#3b82f6", weight: 1, enabled: true },
+              { id: "raffle-4", name: "Taylor", color: "#ec4899", weight: 1, enabled: true },
+              { id: "raffle-5", name: "Casey", color: "#a855f7", weight: 1, enabled: true },
+              { id: "raffle-6", name: "Riley", color: "#14b8a6", weight: 1, enabled: true },
+              { id: "raffle-7", name: "Morgan", color: "#eab308", weight: 1, enabled: true },
+              { id: "raffle-8", name: "Avery", color: "#f97316", weight: 1, enabled: true },
+            ],
+            totalSpins: 0,
+            lastResult: null,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+            toolTitle: "Raffle Spin Wheel",
+            toolDescription: "Draw a fair raffle winner from your entrant list",
+            publicMode: false,
+            selectedResult: null,
+            drawHistory: [],
+            lockedWinnerIds: [],
+            prizePlaces: [
+              { place: 1, label: "1st Prize" },
+              { place: 2, label: "2nd Prize" },
+              { place: 3, label: "3rd Prize" },
+              { place: 4, label: "4th Prize" },
+              { place: 5, label: "5th Prize" },
+              { place: 6, label: "6th Prize" },
+              { place: 7, label: "7th Prize" },
+              { place: 8, label: "8th Prize" },
+              { place: 9, label: "9th Prize" },
+              { place: 10, label: "10th Prize" },
+            ],
           };
         } else if (toolType === "weighted-wheel") {
           data = {

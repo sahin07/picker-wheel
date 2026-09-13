@@ -17,6 +17,7 @@ export const dynamic = "force-static"
 const EXCLUDED_SEGMENTS = new Set([
   "api",
   "w",
+  "r",
   "faq",
   "a-to-z-wheel",
   "letter-picker-wheel",

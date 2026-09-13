@@ -7,7 +7,7 @@ import { useEnhancedWheelStore } from "@/stores/enhanced-wheel-store"
 import { useSettingsStore } from "@/stores/settings-store"
 import { useWheelManagerStore } from "@/stores/wheel-manager-store"
 import { Badge } from "@/components/ui/badge"
-import { WheelCustomization } from '@/lib/picker-wheel-customization'
+import { isOptionsWheelTool } from "@/lib/options-wheel-tools"
 import { createSpinAudioController, type SpinAudioController } from '@/lib/wheel-spin-audio'
 import {
   computeSpinEndRotation,
@@ -82,7 +82,7 @@ export default function EnhancedWheelSection({
     const wheels = state.wheelsByTool[tool] || []
     const wheel = wheels.find((w) => w.id === state.currentWheelId) || wheels[0]
     if (!wheel) return null
-    if (tool === "picker-wheel") return (wheel.data as any)?.options ?? null
+    if (isOptionsWheelTool(tool)) return (wheel.data as any)?.options ?? null
     if (tool === "country-wheel") return (wheel.data as any)?.selectedCountries ?? null
     if (tool === "state-wheel") return (wheel.data as any)?.selectedStates ?? null
     return null
@@ -131,7 +131,7 @@ export default function EnhancedWheelSection({
   }, [wheelOptionsFromStore])
 
   const options = useMemo(() => {
-    if (currentTool !== "picker-wheel") return rawOptions
+    if (!isOptionsWheelTool(currentTool)) return rawOptions
     return rawOptions.filter((o: any) => o && o.enabled !== false && String(o.name || "").trim())
   }, [rawOptions, currentTool])
 
@@ -502,7 +502,7 @@ export default function EnhancedWheelSection({
     if (hasSmartWeights) {
       const totalWeight = smartWeights.reduce((sum: number, weight: any) => sum + weight.weight, 0)
       segmentAngles = smartWeights.map((weight: any) => (weight.weight / totalWeight) * 2 * Math.PI)
-    } else if (hasOptionWeights || currentTool === "picker-wheel") {
+    } else if (hasOptionWeights || isOptionsWheelTool(currentTool)) {
       const totalWeight = optionWeights.reduce((sum: number, w: number) => sum + w, 0) || 1
       segmentAngles = optionWeights.map((w: number) => (w / totalWeight) * 2 * Math.PI)
     } else {

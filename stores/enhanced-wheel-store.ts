@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { useWheelManagerStore } from "./wheel-manager-store"
 import { useSettingsStore } from "./settings-store"
+import { isOptionsWheelTool } from "@/lib/options-wheel-tools"
 
 export interface WheelOption {
   id: string
@@ -275,7 +276,7 @@ export const useEnhancedWheelStore = create<EnhancedWheelStore>()((set, get) => 
     })
 
     const wheelManager = useWheelManagerStore.getState()
-    if (wheelManager.currentTool !== "picker-wheel") {
+    if (!isOptionsWheelTool(wheelManager.currentTool)) {
       wheelManager.setCurrentTool("picker-wheel")
     }
 

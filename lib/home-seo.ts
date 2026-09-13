@@ -125,6 +125,11 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Create equal-odds prizes for giveaways, events, and classroom rewards.",
   },
   {
+    label: "Raffle Spin Wheel",
+    href: "/raffle-spin-wheel",
+    description: "Draw raffle and contest winners from a participant or ticket list.",
+  },
+  {
     label: "Weighted Wheel Spinner",
     href: "/weighted-wheel-spinner",
     description: "Set custom odds for simulations, lessons, games, and scenario testing.",
@@ -539,6 +544,11 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
     label: "Prize Wheel Spinner",
     href: "/prize-wheel-spinner",
     description: "Spin equal-odds prizes with optional images and winner messages.",
+  },
+  {
+    label: "Raffle Spin Wheel",
+    href: "/raffle-spin-wheel",
+    description: "Transparent winner draws for contests and raffles.",
   },
   {
     label: "Weighted Wheel Spinner",

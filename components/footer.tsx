@@ -116,18 +116,32 @@ export default function Footer() {
           <h2 className="font-spin-display text-sm font-bold uppercase tracking-wider text-neutral-500">
             Featured on
           </h2>
-          <a
-            href="https://wired.business"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              src="https://wired.business/badge0-light.svg"
-              alt="Featured on Wired Business"
-              width={200}
-              height={54}
-            />
-          </a>
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <a
+              href="https://wired.business"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://wired.business/badge0-light.svg"
+                alt="Featured on Wired Business"
+                width={200}
+                height={54}
+              />
+            </a>
+            <a
+              href="https://uno.directory"
+              target="_blank"
+              rel="noopener"
+            >
+              <img
+                src="https://uno.directory/uno-directory.svg"
+                alt="Listed on Uno Directory"
+                width={120}
+                height={30}
+              />
+            </a>
+          </div>
         </div>
       </section>
       <footer className="w-full bg-neutral-950 py-12 font-spin-body text-white">

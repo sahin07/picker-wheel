@@ -107,7 +107,30 @@ const SOCIAL_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-neutral-950 py-12 font-spin-body text-white">
+    <>
+      <section
+        aria-label="Featured on"
+        className="w-full border-t border-neutral-200 bg-white py-8 font-spin-body"
+      >
+        <div className="flex flex-col items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <h2 className="font-spin-display text-sm font-bold uppercase tracking-wider text-neutral-500">
+            Featured on
+          </h2>
+          <a
+            href="https://wired.business"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://wired.business/badge0-light.svg"
+              alt="Featured on Wired Business"
+              width={200}
+              height={54}
+            />
+          </a>
+        </div>
+      </section>
+      <footer className="w-full bg-neutral-950 py-12 font-spin-body text-white">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Link columns */}
         <div className="grid w-full grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-6">
@@ -204,5 +227,6 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    </>
   )
 }

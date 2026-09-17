@@ -66,6 +66,11 @@ const FOOTER_COLUMNS: FooterColumn[] = [
       { label: "Spin Random Number Picker Wheel", href: "/spin-random-number-picker-wheel" },
       { label: "Spin Random Letter Picker Wheel", href: "/spin-random-letter-picker-wheel" },
       { label: "Spin Random Yes No Picker Wheel", href: "/spin-random-yes-no-picker-wheel" },
+      {
+        label: "LEGO Piece Identifier",
+        href: "https://www.brickidfinder.com/",
+        external: true,
+      },
     ],
   },
   {
@@ -156,12 +161,23 @@ export default function Footer() {
               <ul className="space-y-3 text-sm font-medium">
                 {column.links.map((link) => (
                   <li key={`${column.title}-${link.label}`}>
-                    <Link
-                      href={link.href}
-                      className="text-neutral-400 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.external ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-neutral-400 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-neutral-400 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -357,6 +357,11 @@ export const LETTER_PICKER_RELATED_TOOLS: LetterPickerLinkItem[] = [
     description: "Spin photos and images for visual random choices.",
   },
   {
+    label: "Word Picker Wheel",
+    href: "/spin-word-picker-wheel",
+    description: "Spin random words for writing, vocabulary, games, and classrooms.",
+  },
+  {
     label: "Create Custom Wheel",
     href: "/create-custom-wheel-spinner",
     description: "Build a shareable custom spin wheel for any list.",

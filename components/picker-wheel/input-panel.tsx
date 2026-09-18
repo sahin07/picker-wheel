@@ -92,6 +92,7 @@ export default function PickerWheelInputPanel({
     duplicateOptionsByIds,
     clearAllOptions,
     shuffleOptions,
+    sortOptionsAZ,
     sortOptionsZA,
     equalizeWeights,
     removeBlanks,
@@ -246,6 +247,10 @@ export default function PickerWheelInputPanel({
             }}
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
+            onSortAZ={() => {
+              sortOptionsAZ()
+              showToast("Sorted A–Z!", "success")
+            }}
             onSortZA={() => {
               sortOptionsZA()
               showToast("Sorted Z–A!", "success")
@@ -696,7 +701,13 @@ export default function PickerWheelInputPanel({
 
         {sidebarTab === "other" && (
           <SidebarOtherOptions
-            toolLabel={toolType === "raffle-spin-wheel" ? "Raffle" : "Picker"}
+            toolLabel={
+              toolType === "raffle-spin-wheel"
+                ? "Raffle"
+                : toolType === "word-picker-wheel"
+                  ? "Word"
+                  : "Picker"
+            }
             resultsCount={resultsCount}
             exportFileName="options.csv"
             exportText={getTextEditorValue()}

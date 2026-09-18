@@ -20,6 +20,7 @@ export const CORE_INDEXABLE_PATHS = new Set<string>([
   "/wheel-of-fortune",
   "/prize-wheel-spinner",
   "/raffle-spin-wheel",
+  "/spin-word-picker-wheel",
   "/weighted-wheel-spinner",
   "/pokemon-picker-wheel",
   "/fortnite-picker-wheel",

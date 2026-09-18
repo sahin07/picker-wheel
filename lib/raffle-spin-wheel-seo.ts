@@ -164,6 +164,11 @@ export const RAFFLE_SPIN_WHEEL_RELATED_TOOLS: RaffleLinkItem[] = [
     href: "/wheel-of-fortune",
     description: "Fortune-style custom spins for parties and classrooms.",
   },
+  {
+    label: "Word Picker Wheel",
+    href: "/spin-word-picker-wheel",
+    description: "Random words for classroom vocab, writing prompts, and games.",
+  },
 ]
 
 export const RAFFLE_SPIN_WHEEL_POPULAR_TEMPLATES: RaffleLinkItem[] = [

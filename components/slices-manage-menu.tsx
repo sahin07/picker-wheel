@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   ArrowDownAZ,
+  ArrowUpAZ,
   FilterX,
   MoreHorizontal,
   Search,
@@ -27,6 +28,7 @@ import type { WheelSettings } from "@/types/settings"
 interface SlicesManageMenuProps {
   settings: WheelSettings
   onUpdateSettings: (settings: Partial<WheelSettings>) => void
+  onSortAZ?: () => void
   onSortZA: () => void
   onShuffle: () => void
   onEqualize: () => void
@@ -40,6 +42,7 @@ interface SlicesManageMenuProps {
 export function SlicesManageMenu({
   settings,
   onUpdateSettings,
+  onSortAZ,
   onSortZA,
   onShuffle,
   onEqualize,
@@ -77,6 +80,12 @@ export function SlicesManageMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel>Manage</DropdownMenuLabel>
+          {onSortAZ && (
+            <DropdownMenuItem onClick={onSortAZ}>
+              <ArrowUpAZ className="w-4 h-4 mr-2" />
+              Sort A-Z
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={onSortZA}>
             <ArrowDownAZ className="w-4 h-4 mr-2" />
             Sort Z-A

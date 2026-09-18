@@ -671,7 +671,9 @@ export default function EnhancedWheelSection({
       removeOptionsByIds([result.id])
     }
 
-    if (isGameActive && onSpinCompleted) {
+    // Always notify parent tools (challenge modes, history, achievements).
+    // Game-session recording stays gated inside each tool's handler.
+    if (onSpinCompleted) {
       setTimeout(() => {
         onSpinCompleted()
       }, 100)

@@ -90,6 +90,11 @@ export const HOME_POPULAR_WHEELS: HomeLinkItem[] = [
     description: "Pick a random letter for word games and writing prompts.",
   },
   {
+    label: "Word Picker Wheel",
+    href: "/spin-word-picker-wheel",
+    description: "Spin random words for writing, vocabulary, games, and classrooms.",
+  },
+  {
     label: "Number Wheel",
     href: "/spin-random-number-picker-wheel",
     description: "Draw a random number from a range for raffles and games.",
@@ -564,6 +569,11 @@ export const HOME_RELATED_TOOLS: HomeLinkItem[] = [
     label: "Letter Picker",
     href: "/spin-random-letter-picker-wheel",
     description: "Random letters for word games and writing prompts.",
+  },
+  {
+    label: "Word Picker Wheel",
+    href: "/spin-word-picker-wheel",
+    description: "Random words for writing, classrooms, vocabulary, and games.",
   },
   {
     label: "Yes or No Wheel",

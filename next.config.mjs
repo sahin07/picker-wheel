@@ -207,6 +207,53 @@ const nextConfig = {
         destination: "/charity-raffle-wheel",
         permanent: true,
       },
+
+      // --- Word picker ---
+      {
+        source: "/word-picker-wheel",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-generator",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-picker",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-wheel",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-spinner",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/word-spinner",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/word-generator-wheel",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-selector",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
+      {
+        source: "/random-word-generator-online",
+        destination: "/spin-word-picker-wheel",
+        permanent: true,
+      },
     ]
   },
 }

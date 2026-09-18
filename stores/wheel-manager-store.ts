@@ -102,6 +102,15 @@ export interface RaffleSpinWheelData extends PickerWheelData {
   prizePlaces?: Array<{ place: number; label: string }>;
 }
 
+/** Word picker — options are words; category packs live in use-cases */
+export interface WordPickerWheelData extends PickerWheelData {
+  toolTitle?: string;
+  toolDescription?: string;
+  activeUseCaseId?: string;
+  activeCategory?: string;
+  selectedResult?: any;
+}
+
 export interface WeightedWheelEntry {
   id: string;
   name: string;
@@ -1090,6 +1099,31 @@ export const useWheelManagerStore = create<WheelManagerStore>()(
               { place: 9, label: "9th Prize" },
               { place: 10, label: "10th Prize" },
             ],
+          };
+        } else if (toolType === "word-picker-wheel") {
+          data = {
+            options: [
+              { id: "word-1", name: "Adventure", color: "#0ea5e9", weight: 1, enabled: true },
+              { id: "word-2", name: "Bridge", color: "#22c55e", weight: 1, enabled: true },
+              { id: "word-3", name: "Cloud", color: "#a855f7", weight: 1, enabled: true },
+              { id: "word-4", name: "Dream", color: "#f59e0b", weight: 1, enabled: true },
+              { id: "word-5", name: "Echo", color: "#ec4899", weight: 1, enabled: true },
+              { id: "word-6", name: "Forest", color: "#14b8a6", weight: 1, enabled: true },
+              { id: "word-7", name: "Garden", color: "#eab308", weight: 1, enabled: true },
+              { id: "word-8", name: "Horizon", color: "#f97316", weight: 1, enabled: true },
+            ],
+            totalSpins: 0,
+            lastResult: null,
+            recentResults: [],
+            achievements: PICKER_WHEEL_ACHIEVEMENTS,
+            themes: PICKER_WHEEL_THEMES,
+            currentTheme: "classic",
+            spinHistory: [],
+            toolTitle: "Word Picker Wheel",
+            toolDescription: "Spin a random word for writing, class, or games",
+            selectedResult: null,
+            activeUseCaseId: "common",
+            activeCategory: "categories",
           };
         } else if (toolType === "weighted-wheel") {
           data = {

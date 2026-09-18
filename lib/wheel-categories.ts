@@ -22,7 +22,12 @@ import {
   Scale,
   Gift,
   Ticket,
+  BookOpen,
 } from "lucide-react"
+import {
+  WORD_PICKER_ALIAS_REDIRECTS,
+  WORD_PICKER_ALL_SPOKE_PATHS,
+} from "@/lib/word-picker-wheel-spokes"
 
 export type WheelItem = {
   label: string
@@ -76,6 +81,14 @@ export const WHEEL_CATEGORIES: WheelCategory[] = [
         icon: Type,
         color: "#60a5fa",
         bg: "rgba(96, 165, 250, 0.15)",
+      },
+      {
+        label: "Word Picker Wheel",
+        href: "/spin-word-picker-wheel",
+        description: "Spin random words for writing, vocabulary, classrooms, and games.",
+        icon: BookOpen,
+        color: "#0284c7",
+        bg: "rgba(2, 132, 199, 0.15)",
       },
       {
         label: "Spin Random Yes No Picker Wheel",
@@ -403,6 +416,14 @@ export function hrefToToolType(href: string): string {
   if (href === "/") return "picker-wheel"
   if (href === "/weighted-wheel-spinner") return "weighted-wheel"
   if (href === "/prize-wheel-spinner") return "prize-wheel"
+  if (
+    href === "/spin-word-picker-wheel" ||
+    href === "/word-picker-wheel" ||
+    WORD_PICKER_ALL_SPOKE_PATHS.includes(href) ||
+    WORD_PICKER_ALIAS_REDIRECTS.some((alias) => alias.source === href)
+  ) {
+    return "word-picker-wheel"
+  }
   if (
     href === "/raffle-spin-wheel" ||
     href === "/raffle-wheel" ||

@@ -213,6 +213,11 @@ export const PRIZE_WHEEL_RELATED_TOOLS: PrizeWheelLinkItem[] = [
     href: "/spin-random-yes-no-picker-wheel",
     description: "Make a quick two-option decision.",
   },
+  {
+    label: "Word Picker Wheel",
+    href: "/spin-word-picker-wheel",
+    description: "Spin random words for writing prompts, parties, and classrooms.",
+  },
 ]
 
 export const PRIZE_WHEEL_POPULAR_TEMPLATES: PrizeWheelLinkItem[] = [

@@ -1,5 +1,9 @@
 /** Tools that store slices as `data.options` (name picker shape). */
-export const OPTIONS_WHEEL_TOOL_TYPES = ["picker-wheel", "raffle-spin-wheel"] as const
+export const OPTIONS_WHEEL_TOOL_TYPES = [
+  "picker-wheel",
+  "raffle-spin-wheel",
+  "word-picker-wheel",
+] as const
 
 export type OptionsWheelToolType = (typeof OPTIONS_WHEEL_TOOL_TYPES)[number]
 

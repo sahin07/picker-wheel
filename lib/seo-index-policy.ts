@@ -47,8 +47,19 @@ export const CORE_INDEXABLE_PATHS = new Set<string>([
 /** Name-picker spokes that keep indexability (Tier B) */
 export const INDEXABLE_HOME_SPOKE_IDS = new Set(["classroom", "giveaway"])
 
+/** Spokes with their own search demand in GSC — indexable despite being template routes */
+export const INDEXABLE_SPOKE_PATHS = new Set<string>([
+  "/percentage-wheel",
+  "/number-wheel-1-to-100",
+  "/minecraft-mob-wheel",
+  "/decision-wheel",
+  "/rigged-wheel-spinner",
+  "/true-false-wheel",
+])
+
 export function isIndexablePath(pathname: string): boolean {
   if (CORE_INDEXABLE_PATHS.has(pathname)) return true
+  if (INDEXABLE_SPOKE_PATHS.has(pathname)) return true
   if (pathname.startsWith("/articles/")) return true
   if (pathname.startsWith("/spin-wheels/")) return true
   return false

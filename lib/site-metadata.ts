@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { HOME_SITE_URL } from "@/lib/home-seo"
+import { isIndexablePath } from "@/lib/seo-index-policy"
 
 /** Canonical site origin for absolute meta URLs */
 export const SITE_URL = HOME_SITE_URL
@@ -40,6 +41,10 @@ export const NOINDEX_FOLLOW_ROBOTS: NonNullable<Metadata["robots"]> = {
     "max-snippet": -1,
     "max-video-preview": -1,
   },
+}
+
+export function spokeRobots(path: string): NonNullable<Metadata["robots"]> {
+  return isIndexablePath(path) ? DEFAULT_ROBOTS : NOINDEX_FOLLOW_ROBOTS
 }
 
 export function ogImageEntry(url: string, alt: string) {

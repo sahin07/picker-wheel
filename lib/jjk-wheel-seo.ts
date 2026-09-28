@@ -4,13 +4,13 @@ export const JJK_WHEEL_PATH = "/jjk-spin-the-wheel"
 export const JJK_WHEEL_SITE_URL = HOME_SITE_URL
 export const JJK_WHEEL_URL = `${HOME_SITE_URL}${JJK_WHEEL_PATH}`
 export const JJK_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/og/jjk-spin-wheel.svg`
-export const JJK_WHEEL_PAGE_TITLE = "JJK Spin Wheel picker | Random Jujutsu Kaisen Character Picker"
+export const JJK_WHEEL_PAGE_TITLE = "JJK Spin the Wheel | Random Jujutsu Kaisen Character Picker & OC Maker"
 export const JJK_WHEEL_PAGE_DESCRIPTION =
-  "Spin a free JJK wheel to pick a random Jujutsu Kaisen character, sorcerer, villain, cursed spirit, Domain Expansion, or cursed technique."
-export const JJK_WHEEL_H1 = "JJK Spin Wheel picker"
-export const JJK_WHEEL_SHORT_TITLE = "JJK Spin Wheel picker"
+  "Spin the free JJK wheel to pick a random Jujutsu Kaisen character from 61 sorcerers, villains, and cursed spirits, or build your own character by spinning grade, cursed technique, and Domain Expansion."
+export const JJK_WHEEL_H1 = "JJK Spin the Wheel"
+export const JJK_WHEEL_SHORT_TITLE = "JJK Spin the Wheel"
 export const JJK_WHEEL_HERO_INTRO =
-  "Pick a random JJK character with a fair, equal-odds Jujutsu Kaisen Wheel. Filter ready-made templates, add custom entries, upload your own images, or draft without repeats in Elimination mode."
+  "Pick a random JJK character with a fair, equal-odds Jujutsu Kaisen wheel, or build your own sorcerer one spin at a time: grade, cursed technique, Domain Expansion, school, mentor, and rival. Add custom entries, upload images, or draft without repeats in Elimination mode."
 export const JJK_WHEEL_ARTICLE_TITLE = "Spin the JJK Wheel"
 export const JJK_WHEEL_DISCLAIMER =
   "This is an independent fan-made entertainment tool. It is not affiliated with or endorsed by Gege Akutami, Shueisha, MAPPA, or Toho. Character and series names belong to their respective owners."
@@ -26,6 +26,7 @@ export const JJK_WHEEL_KEYWORDS = [
 export const JJK_WHEEL_ON_THIS_PAGE = [
   { id: "jjk-popular", label: "Popular JJK templates" },
   { id: "jjk-spin-wheel", label: "Spin the JJK wheel" },
+  { id: "jjk-oc-builder", label: "Build your own JJK character" },
   { id: "jjk-whats-on", label: "What you can put on the wheel" },
   { id: "jjk-features", label: "Features on this page" },
   { id: "jjk-create", label: "Create your own JJK wheel" },
@@ -47,6 +48,63 @@ export const JJK_WHEEL_ARTICLE_INTRO = [
   "Use the template strip when you want a focused randomizer. The student wheel combines Tokyo and Kyoto school entries, while the villain and cursed-spirit pages narrow the pool to antagonists. Separate cursed technique and Domain Expansion templates contain concepts rather than characters, so they are useful for drawing prompts, fan challenges, roleplay ideas, and discussion games.",
   "For a normal spin, leave Action Mode on Normal. Choose Elimination when you are drafting a team or running several rounds and do not want the same winner twice. Results stores the latest picks so a group can recap the order without writing every result down.",
 ] as const
+
+export const JJK_WHEEL_OC_BUILDER_INTRO = [
+  "One of the most popular ways to use a JJK spin wheel is to build an original sorcerer one spin at a time. Each spin locks in a single trait (grade, cursed technique, Domain Expansion, school, mentor, and rival), so the finished character is a combination nobody picked on purpose. That surprise is the whole point of the challenge.",
+  "Everything you need is already on this site: 61 Jujutsu Kaisen characters, 12 cursed techniques, 8 Domain Expansions, and 10 Ten Shadows shikigami. Work through the spins below in order, spin once per step, and note each result (Results keeps your recent picks if you lose track).",
+] as const
+
+export const JJK_WHEEL_OC_BUILDER_STEPS = [
+  {
+    step: 1,
+    title: "Spin your grade",
+    description:
+      "Open the Text tab above and paste Grade 4, Grade 3, Semi-Grade 2, Grade 2, Semi-Grade 1, Grade 1, and Special Grade, one per line, then spin once. The grade sets how strong your sorcerer is at the start of their story.",
+  },
+  {
+    step: 2,
+    title: "Spin your cursed technique",
+    description:
+      "Load the cursed technique template and spin for your innate technique: Limitless, Ten Shadows, Shrine, Boogie Woogie, Cursed Speech, and more.",
+    href: "/jjk-cursed-technique-wheel",
+    linkLabel: "Open the Cursed Technique Wheel",
+  },
+  {
+    step: 3,
+    title: "Spin your Domain Expansion",
+    description:
+      "Spin the Domain Expansion wheel next. Many groups use a house rule: if you rolled Grade 3 or lower, the domain is 'not unlocked yet' and becomes a future power-up for your character.",
+    href: "/jjk-domain-expansion-wheel",
+    linkLabel: "Open the Domain Expansion Wheel",
+  },
+  {
+    step: 4,
+    title: "Spin your school",
+    description:
+      "Spin the student wheel and take the winner's school (Tokyo Jujutsu High or Kyoto Jujutsu High) as your own. Your character's classmate is the student you landed on.",
+    href: "/jjk-student-wheel",
+    linkLabel: "Open the JJK Student Wheel",
+  },
+  {
+    step: 5,
+    title: "Spin your mentor",
+    description:
+      "Spin the teacher wheel to find out who trains your sorcerer. A strong mentor with a weak grade makes for a fun underdog story.",
+    href: "/jjk-teacher-wheel",
+    linkLabel: "Open the JJK Teacher Wheel",
+  },
+  {
+    step: 6,
+    title: "Spin your rival or enemy",
+    description:
+      "Finish with the villain wheel (or the cursed spirit wheel) to pick who your character has to beat. For a bonus twist, spin the Mahoraga wheel for a shikigami partner.",
+    href: "/jjk-villain-wheel",
+    linkLabel: "Open the JJK Villain Wheel",
+  },
+] as const
+
+export const JJK_WHEEL_OC_BUILDER_TIP =
+  "Building characters with friends? Switch Action Mode to Elimination for the technique and Domain spins so no two people end up with the same power."
 
 export const JJK_WHEEL_WHATS_ON_WHEEL = [
   "Jujutsu Kaisen characters — students, teachers, villains, and cursed spirits",
@@ -350,7 +408,10 @@ export const JJK_WHEEL_CUSTOMIZE_STEPS = [
 ] as const
 
 export const JJK_WHEEL_FAQ_ITEMS = [
-  { question: "What is JJK Spin Wheel picker?", answer: "It is a free fan-made randomizer preloaded with Jujutsu Kaisen characters and optional technique or Domain Expansion templates." },
+  { question: "What is JJK Spin the Wheel?", answer: "It is a free fan-made randomizer preloaded with 61 Jujutsu Kaisen characters, plus separate templates for 12 cursed techniques, 8 Domain Expansions, and 10 Ten Shadows shikigami." },
+  { question: "How do I make my own JJK character with the spin wheel?", answer: "Spin one trait at a time: grade, cursed technique, Domain Expansion, school, mentor, and rival. The Build Your Own JJK Character section on this page links to the right template for each spin." },
+  { question: "Can I spin for a random cursed technique or Domain Expansion?", answer: "Yes. Open the Cursed Technique Wheel or the Domain Expansion Wheel from the templates strip. Both use equal odds and contain techniques and domains rather than characters." },
+  { question: "Is this the same as a JJK wheel of names?", answer: "It works the same way, but the list is already filled with Jujutsu Kaisen characters, so you do not have to type names. You can still paste your own list in the Text tab." },
   { question: "Does every entry have equal odds?", answer: "Yes. Every enabled entry appears once and has the same chance. Use the Weighted Wheel Spinner when you need unequal probabilities." },
   { question: "Can I add my own JJK characters or images?", answer: "Yes. Add a custom name and emoji, then upload an image from your device. Uploaded images stay part of your local wheel session." },
   { question: "Can the wheel avoid repeat winners?", answer: "Yes. Choose Elimination mode to disable the winner after each spin, which is useful for team drafts and challenges." },

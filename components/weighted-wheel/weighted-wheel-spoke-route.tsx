@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
+import { spokeRobots } from "@/lib/site-metadata"
 import WeightedWheelApp from "./weighted-wheel-app"
 import {
   WeightedWheelSpokeSeoIntro,
@@ -24,7 +24,7 @@ export function weightedWheelSpokeMetadata(spokeId: WeightedWheelSpokeId): Metad
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: NOINDEX_FOLLOW_ROBOTS,
+    robots: spokeRobots(spoke.path),
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

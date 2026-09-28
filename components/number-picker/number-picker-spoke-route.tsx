@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
+import { spokeRobots } from "@/lib/site-metadata"
 import NumberPickerWheelApp from "@/components/number-picker/number-picker-wheel-app"
 import {
   NumberPickerSpokeSeoIntro,
@@ -24,7 +24,7 @@ export function numberPickerSpokeMetadata(spokeId: NumberPickerSpokeId): Metadat
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: NOINDEX_FOLLOW_ROBOTS,
+    robots: spokeRobots(spoke.path),
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

@@ -3,6 +3,7 @@ import {
   WheelGuideCustomizeSection,
   WheelGuideFeaturesSection,
   WheelGuideHowItWorksSection,
+  WheelGuideSpinBuilderSection,
   WheelGuideWhatsOnSection,
 } from "@/components/picker-wheel/wheel-guide-extra-sections"
 import {
@@ -18,6 +19,9 @@ import {
   DEMON_SLAYER_WHEEL_H1,
   DEMON_SLAYER_WHEEL_HERO_INTRO,
   DEMON_SLAYER_WHEEL_HOW_IT_WORKS,
+  DEMON_SLAYER_WHEEL_OC_BUILDER_INTRO,
+  DEMON_SLAYER_WHEEL_OC_BUILDER_STEPS,
+  DEMON_SLAYER_WHEEL_OC_BUILDER_TIP,
   DEMON_SLAYER_WHEEL_ON_THIS_PAGE,
   DEMON_SLAYER_WHEEL_OPTIONS_GUIDE,
   DEMON_SLAYER_WHEEL_RELATED_TOOLS,
@@ -92,6 +96,15 @@ export default function DemonSlayerWheelSeoSections() {
             ))}
           </div>
         </section>
+
+        <WheelGuideSpinBuilderSection
+          id="ds-oc-builder"
+          heading="Make Your Own Demon Slayer Character (Spin the Wheel OC Maker)"
+          intro={DEMON_SLAYER_WHEEL_OC_BUILDER_INTRO}
+          steps={DEMON_SLAYER_WHEEL_OC_BUILDER_STEPS}
+          closingTip={DEMON_SLAYER_WHEEL_OC_BUILDER_TIP}
+          accent="violet"
+        />
 
         <WheelGuideWhatsOnSection
           id="ds-whats-on"

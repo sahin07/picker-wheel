@@ -4,9 +4,9 @@ export const DEMON_SLAYER_WHEEL_PATH = "/demon-slayer-spin-wheel"
 export const DEMON_SLAYER_WHEEL_SITE_URL = HOME_SITE_URL
 export const DEMON_SLAYER_WHEEL_URL = `${HOME_SITE_URL}${DEMON_SLAYER_WHEEL_PATH}`
 export const DEMON_SLAYER_WHEEL_OG_IMAGE_URL = `${HOME_SITE_URL}/og/demon-slayer-spin-wheel.svg`
-export const DEMON_SLAYER_WHEEL_PAGE_TITLE = "Demon Slayer Spin Wheel | Random Character Picker"
+export const DEMON_SLAYER_WHEEL_PAGE_TITLE = "Demon Slayer Spin the Wheel | Random Character Picker & OC Maker"
 export const DEMON_SLAYER_WHEEL_PAGE_DESCRIPTION =
-  "Spin the Demon Slayer Spin Wheel to randomly choose a Demon Slayer character. Create custom wheels with Hashira, demons, breathing styles, or your favorite characters for games, anime challenges, and fun."
+  "Spin the free Demon Slayer wheel to pick a random character, or make your own Demon Slayer by spinning breathing style, Nichirin blade color, Corps rank, Hashira mentor, and the demon you hunt."
 export const DEMON_SLAYER_WHEEL_H1 = "Demon Slayer Spin Wheel"
 export const DEMON_SLAYER_WHEEL_SHORT_TITLE = "Demon Slayer Spin Wheel"
 export const DEMON_SLAYER_WHEEL_HERO_INTRO =
@@ -40,6 +40,7 @@ export const DEMON_SLAYER_WHEEL_KEYWORDS = [
 export const DEMON_SLAYER_WHEEL_ON_THIS_PAGE = [
   { id: "ds-popular", label: "Popular Demon Slayer templates" },
   { id: "ds-spin-wheel", label: "Spin the Demon Slayer wheel" },
+  { id: "ds-oc-builder", label: "Make your own Demon Slayer character" },
   { id: "ds-whats-on", label: "What you can put on the wheel" },
   { id: "ds-features", label: "Features on this page" },
   { id: "ds-create", label: "Create your own Demon Slayer wheel" },
@@ -373,11 +374,78 @@ export const DEMON_SLAYER_WHEEL_CUSTOMIZE_STEPS = [
   },
 ] as const
 
+export const DEMON_SLAYER_WHEEL_OC_BUILDER_INTRO = [
+  "A favorite Demon Slayer spin-the-wheel challenge is making your own slayer. Instead of choosing traits, you spin for each one (breathing style, Nichirin blade color, Corps rank, mentor, and the demon you hunt) and build a character from whatever lands.",
+  "The wheel already holds 70 entries, including 14 breathing styles, 10 Nichirin blade colors, all 9 Hashira, and Upper and Lower Rank demons. Follow the spins below in order and keep Results open to track your picks.",
+] as const
+
+export const DEMON_SLAYER_WHEEL_OC_BUILDER_STEPS = [
+  {
+    step: 1,
+    title: "Spin your breathing style",
+    description:
+      "Start with the breathing style wheel: Water, Flame, Thunder, Beast, Insect, Sound, Love, Mist, Serpent, Wind, Stone, Flower, Sun, and Moon Breathing are all on it.",
+    href: "/demon-slayer-breathing-style-wheel",
+    linkLabel: "Open the Breathing Style Wheel",
+  },
+  {
+    step: 2,
+    title: "Spin your Nichirin blade color",
+    description:
+      "Spin the Nichirin color wheel for your sword. Keep the result even if it does not match your breathing style, since an unexpected blade color makes a better backstory.",
+    href: "/nichirin-color-wheel",
+    linkLabel: "Open the Nichirin Color Wheel",
+  },
+  {
+    step: 3,
+    title: "Spin your Corps rank",
+    description:
+      "Paste the ten Demon Slayer Corps ranks into the Text tab, from lowest to highest: Mizunoto, Mizunoe, Kanoto, Kanoe, Tsuchinoto, Tsuchinoe, Hinoto, Hinoe, Kinoto, Kinoe. Add Hashira as an eleventh slice if you want a rare lucky roll.",
+  },
+  {
+    step: 4,
+    title: "Spin your Hashira mentor",
+    description:
+      "Spin the Hashira wheel to see who trains your slayer, from Giyu Tomioka and Shinobu Kocho to Kyojuro Rengoku and Gyomei Himejima.",
+    href: "/hashira-wheel",
+    linkLabel: "Open the Hashira Wheel",
+  },
+  {
+    step: 5,
+    title: "Spin the demon you hunt",
+    description:
+      "Spin the Upper Rank demon wheel for a tough rival, or the Lower Rank wheel if your slayer is still low in the Corps.",
+    href: "/upper-rank-demon-wheel",
+    linkLabel: "Open the Upper Rank Demon Wheel",
+  },
+  {
+    step: 6,
+    title: "Spin a friend or sibling",
+    description:
+      "Finish with the full character wheel to pick a companion who fights alongside your slayer.",
+    href: "/demon-slayer-character-wheel",
+    linkLabel: "Open the Demon Slayer Character Wheel",
+  },
+] as const
+
+export const DEMON_SLAYER_WHEEL_OC_BUILDER_TIP =
+  "Making characters with friends? Turn on Elimination mode for the breathing style spin so everyone in the group ends up with a different style."
+
 export const DEMON_SLAYER_WHEEL_FAQ_ITEMS = [
   {
     question: "What is the Demon Slayer Spin Wheel?",
     answer:
-      "It is a free fan-made randomizer preloaded with Demon Slayer characters and optional Hashira, demon, breathing style, and Nichirin color templates.",
+      "It is a free fan-made randomizer preloaded with 70 Demon Slayer entries: characters, all 9 Hashira, Upper and Lower Rank demons, 14 breathing styles, and 10 Nichirin blade colors.",
+  },
+  {
+    question: "How do I make my own Demon Slayer character with the wheel?",
+    answer:
+      "Spin one trait at a time: breathing style, Nichirin blade color, Corps rank, Hashira mentor, and the demon you hunt. The Make Your Own Demon Slayer Character section on this page links to the right wheel for each spin.",
+  },
+  {
+    question: "Can I spin for a random breathing style?",
+    answer:
+      "Yes. Open the Breathing Style Wheel from the templates strip. It includes all 14 breathing styles, from Water and Flame Breathing to Sun and Moon Breathing, with equal odds.",
   },
   {
     question: "Can I include every Demon Slayer character?",

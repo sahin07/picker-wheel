@@ -3,6 +3,7 @@ import {
   WheelGuideCustomizeSection,
   WheelGuideFeaturesSection,
   WheelGuideHowItWorksSection,
+  WheelGuideSpinBuilderSection,
   WheelGuideWhatsOnSection,
 } from "@/components/picker-wheel/wheel-guide-extra-sections"
 import {
@@ -18,6 +19,9 @@ import {
   JJK_WHEEL_H1,
   JJK_WHEEL_HERO_INTRO,
   JJK_WHEEL_HOW_IT_WORKS,
+  JJK_WHEEL_OC_BUILDER_INTRO,
+  JJK_WHEEL_OC_BUILDER_STEPS,
+  JJK_WHEEL_OC_BUILDER_TIP,
   JJK_WHEEL_ON_THIS_PAGE,
   JJK_WHEEL_OPTIONS_GUIDE,
   JJK_WHEEL_RELATED_TOOLS,
@@ -92,6 +96,15 @@ export default function JjkWheelSeoSections() {
             ))}
           </div>
         </section>
+
+        <WheelGuideSpinBuilderSection
+          id="jjk-oc-builder"
+          heading="Build Your Own JJK Character (Spin the Wheel OC Maker)"
+          intro={JJK_WHEEL_OC_BUILDER_INTRO}
+          steps={JJK_WHEEL_OC_BUILDER_STEPS}
+          closingTip={JJK_WHEEL_OC_BUILDER_TIP}
+          accent="violet"
+        />
 
         <WheelGuideWhatsOnSection
           id="jjk-whats-on"

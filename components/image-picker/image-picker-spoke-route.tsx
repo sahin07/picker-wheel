@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/site-metadata"
+import { spokeRobots } from "@/lib/site-metadata"
 import ImagePickerWheelApp from "@/components/image-picker/image-picker-wheel-app"
 import {
   ImagePickerSpokeSeoIntro,
@@ -25,7 +25,7 @@ export function imagePickerSpokeMetadata(spokeId: ImagePickerSpokeId): Metadata 
     description: spoke.description,
     keywords: [...spoke.keywords],
     alternates: { canonical: url },
-    robots: NOINDEX_FOLLOW_ROBOTS,
+    robots: spokeRobots(spoke.path),
     openGraph: {
       title: spoke.pageTitle,
       description: spoke.description,

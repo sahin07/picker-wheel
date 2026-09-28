@@ -1,4 +1,13 @@
+import Link from "next/link"
+
 type StepItem = { step: number; title: string; description: string }
+type BuilderStep = {
+  step: number
+  title: string
+  description: string
+  href?: string
+  linkLabel?: string
+}
 type FeatureItem = { title: string; description: string }
 type ComparisonRow = { aspect: string; wheel: string; generator: string }
 type EeatItem = { id: string; title: string; body: string }
@@ -110,6 +119,73 @@ export function WheelGuideHowItWorksSection({
           </li>
         ))}
       </ol>
+    </section>
+  )
+}
+
+export function WheelGuideSpinBuilderSection({
+  id,
+  heading,
+  intro,
+  steps,
+  closingTip,
+  accent,
+}: {
+  id: string
+  heading: string
+  intro: readonly string[]
+  steps: readonly BuilderStep[]
+  closingTip?: string
+  accent: Accent
+}) {
+  return (
+    <section id={id} aria-labelledby={`${id}-heading`} className="mt-12 scroll-mt-24">
+      <h2
+        id={`${id}-heading`}
+        className="font-spin-display mb-3 text-2xl font-bold text-slate-900 sm:text-3xl"
+      >
+        {heading}
+      </h2>
+      <div className="mb-6 space-y-4 text-base leading-relaxed text-slate-600">
+        {intro.map((paragraph) => (
+          <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+        ))}
+      </div>
+      <ol className="space-y-4">
+        {steps.map((item) => (
+          <li
+            key={item.step}
+            className={`flex gap-4 rounded-xl border p-5 shadow-sm ${
+              accent === "violet" ? "border-violet-100 bg-white/90" : "border-emerald-100 bg-white/90"
+            }`}
+          >
+            <span
+              className={`font-spin-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white ${STEP_BADGE[accent]}`}
+            >
+              {item.step}
+            </span>
+            <div>
+              <h3 className="font-spin-display text-lg font-semibold text-slate-900">{item.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.description}</p>
+              {item.href && item.linkLabel ? (
+                <Link
+                  href={item.href}
+                  className={`mt-2 inline-block text-sm font-semibold underline-offset-2 hover:underline ${
+                    accent === "violet" ? "text-violet-700" : "text-emerald-700"
+                  }`}
+                >
+                  {item.linkLabel} →
+                </Link>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ol>
+      {closingTip ? (
+        <p className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+          {closingTip}
+        </p>
+      ) : null}
     </section>
   )
 }

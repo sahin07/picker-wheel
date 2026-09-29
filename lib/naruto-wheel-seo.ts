@@ -43,217 +43,212 @@ export const NARUTO_WHEEL_ON_THIS_PAGE = [
 ] as const
 
 export const NARUTO_WHEEL_ARTICLE_INTRO = [
-  "Naruto Wheel is a visual Naruto character picker for moments when a plain list feels too predictable. The wheel starts with a broad catalog of characters, from familiar genin, jōnin, and Kage to villains and jinchūriki. Press the spin button and the pointer lands on one enabled slice. Because every enabled entry uses the same weight, each name has equal odds when it appears once.",
-  "The template strip focuses the randomizer: Part I, Shippuden, Boruto, Akatsuki, Hokage, Uchiha, and more. Separate jutsu, village, and clan templates load concept lists instead of characters—great for drawing prompts, fan challenges, and discussion games.",
-  "For a normal spin, leave Action Mode on Normal. Choose Elimination when you are drafting a team or running several rounds and do not want the same winner twice. Results stores the latest picks so a group can recap the order without writing every result down.",
+  "The Naruto wheel holds 100 shinobi from all three eras: Team 7 and the Konoha 11 from Part I, the Akatsuki and the Five Kage from Shippuden, and Boruto-era faces. Naruto Uzumaki takes one slice and so does Tenten, so landing the Seventh Hokage is luck, not a weighted favorite.",
+  "Templates split the cast the way fans already argue about it. Part I, Shippuden, and Boruto separate the eras. Akatsuki, Hokage, Kage, Uchiha, Jinchūriki, and Sensei narrow it to one group. Clan, Village, and Jutsu wheels spin 17 clans, 12 hidden villages, and around 30 named techniques instead of people.",
+  "The Naruto wheel also has play modes the other anime wheels on this site don't. Build Your Ninja rolls a village, clan, chakra nature, kekkei genkai, and rank for an original shinobi. Random Fight spins two characters for a versus vote, Who Are You? builds a random identity, and Ninja Challenge spins fan dares.",
 ] as const
 
 export const NARUTO_WHEEL_WHATS_ON_WHEEL = [
-  "Naruto characters — students, teachers, villains, and villains",
-  "Grade filters — Grade 1 and Special Grade shortlists",
-  "Jutsus and kekkei genkai concepts for creative prompts",
+  "100 Naruto characters across Part I, Shippuden, and Boruto",
+  "Group shortlists — Akatsuki, Hokage, Five Kage, Uchiha, jinchūriki and tailed beasts, and sensei",
+  "17 clans, 12 hidden villages, and about 30 named jutsu as separate wheels",
+  "Chakra natures, kekkei genkai, ninja ranks, and summons for Build Your Ninja",
   "Custom entries with emoji and optional user-uploaded images",
-  "Favorites and comparison shortlists before you spin",
   "Display modes — emoji + name, emoji only, or name only",
-  "Popular templates — character, villain, spirit, Mahoraga, technique, domain, and team presets",
+  "Play modes — Build Your Ninja, Random Fight, Who Are You?, and Ninja Challenge",
 ] as const
 
 export const NARUTO_WHEEL_FEATURES_REAL = [
   {
-    title: "Instant spin",
+    title: "100 shinobi across three eras",
     description:
-      "The interactive wheel sits above this guide. Load a template or the full catalog and spin without leaving the page.",
+      "From Team 7 and the Legendary Sannin to the Akatsuki and Boruto's generation, the full roster is loaded without typing.",
   },
   {
-    title: "Catalog filters & templates",
+    title: "Era and group templates",
     description:
-      "Switch students, teachers, villains, spirits, grades, techniques, or domains—or open a ready-made spoke page.",
+      "Filter to Part I, Shippuden, Boruto, Akatsuki, Hokage, Kage, Uchiha, Jinchūriki, or Sensei with one tap.",
   },
   {
-    title: "Favorites, comparison & preview",
+    title: "Build Your Ninja",
     description:
-      "Heart entries, compare up to four side by side, and open preview details before you commit to a spin.",
+      "One click rolls a base character, village, clan, chakra nature, kekkei genkai, and rank for an original shinobi you can share.",
   },
   {
-    title: "Elimination & Results history",
+    title: "Random Fight",
     description:
-      "Remove winners across rounds for team drafts, then review recent picks from Results or Spin History.",
+      "Spin two characters—say Rock Lee and Gaara—and let the group vote on who wins the matchup.",
   },
   {
-    title: "Text, Style & Sound",
+    title: "Character preview",
     description:
-      "Bulk-edit lists, recolor slices, toggle confetti and spin sounds, and go fullscreen for group calls or streams.",
+      "Each entry shows its village, clan, rank, and a one-line bio (like \"Copy Ninja and Sixth Hokage\") before you spin.",
   },
   {
-    title: "Achievements, Analytics, Social & Games",
+    title: "No-repeat Elimination",
     description:
-      "Feature chips open achievements, spin analytics, Social sharing, and advanced game modes.",
+      "Draft a four-player squad and each pick leaves the wheel, so only one person gets Itachi.",
   },
   {
-    title: "My Wheels on this device",
+    title: "Saved rosters",
     description:
-      "Save custom Naruto wheels locally so the same shortlist is ready for the next challenge night.",
+      "Keep an Akatsuki-only wheel or a Chūnin Exams bracket in My Wheels on this device.",
   },
 ] as const
 
 export const NARUTO_WHEEL_CREATE_POINTS = [
   {
-    title: "Add custom entries",
+    title: "Add missing ninja",
     description:
-      "Type a name and emoji in Inputs, or paste one name per line in the Text tab to enable matching catalog entries.",
+      "Filler characters, Boruto newcomers, or your own shinobi go in through Inputs with a name and emoji.",
   },
   {
-    title: "Choose favorites",
+    title: "Heart your Team 7 picks",
     description:
-      "Heart characters into Favorites and reopen them from the sidebar for quick shortlists before you spin.",
+      "Favorite Naruto, Sasuke, Sakura, and Kakashi for a quick favorites-only wheel.",
   },
   {
-    title: "Load templates",
+    title: "Start from a village or clan",
     description:
-      "Open student, villain, spirit, technique, domain, or team presets—or build a custom challenge wheel from scratch.",
+      "Open the Uchiha, Hokage, or Village template and edit it instead of building a Naruto wheel from scratch.",
   },
   {
-    title: "Customize colors",
+    title: "Pick your village colors",
     description:
-      "Style tab palettes and Themes recolor wheel slices so your Naruto wheel matches your stream or group branding.",
+      "Choose a Leaf-green or Akatsuki-red palette in Style, or unlock a Theme to match your stream.",
   },
   {
-    title: "Save wheels",
+    title: "Save a bracket",
     description:
-      "Keep custom Naruto wheels in My Wheels on this device for the next club meeting or watch party.",
+      "Store a Chūnin Exams or Fourth Great Ninja War lineup in My Wheels for your next watch night.",
   },
   {
-    title: "Share wheels",
+    title: "Share with your squad",
     description:
-      "Open Social under the spinner and share the page link so friends can load the same tool on their device.",
+      "Send the page through the Social chip so friends spin the same Naruto wheel on their phones.",
   },
 ] as const
 
 export const NARUTO_WHEEL_HOW_IT_WORKS = [
   {
     step: 1,
-    title: "Choose your list",
+    title: "Pick an era or group",
     description:
-      "Load the full catalog, pick a category template, or open a spoke page—or paste custom names in Text.",
+      "Start with all 100 characters, or narrow to Part I, Shippuden, Akatsuki, Hokage, or a clan wheel.",
   },
   {
     step: 2,
-    title: "Customize the wheel",
+    title: "Choose a mode",
     description:
-      "Toggle entries, set display mode, favorite shortlists, enable elimination, and tune colors from Style.",
+      "Spin for a single pick, run Build Your Ninja, or set up a Random Fight between two shinobi.",
   },
   {
     step: 3,
-    title: "Spin the wheel",
+    title: "Spin with the group watching",
     description:
-      "Click Spin or tap the wheel so everyone sees a fair random character, technique, or domain land live.",
+      "Everyone sees the pointer pass Sasuke and slow down near Shikamaru, so the result can't be argued.",
   },
   {
     step: 4,
     title: "Use the result",
     description:
-      "Accept the pick, open Results for recent winners, or continue in Elimination until the draft is complete.",
+      "Draw the ninja, vote on the fight, or share your Build Your Ninja card with the group.",
   },
 ] as const
 
 export const NARUTO_WHEEL_OPTIONS_GUIDE = [
   {
-    title: "Category filters",
+    title: "Era and category filters",
     description:
-      "Choose All or a single category (Students, Villains, Domains, and more) in Inputs. The wheel rebuilds with matching entries.",
+      "In Inputs, filter by Part I, Shippuden, or Boruto, or by Akatsuki, Hokage, Kage, Uchiha, Jinchūriki, Sensei, or Villains.",
   },
   {
-    title: "Display Options & Show Title",
+    title: "Slice labels",
     description:
-      "In the Style tab, pick Emoji & Name, Emoji Only, or Name Only for slice labels. Toggle Show title for the wheel heading preference.",
+      "Show 🦊 Naruto Uzumaki with emoji and name, emoji only for a guess-the-ninja game, or name only.",
   },
   {
     title: "Favorites",
     description:
-      "Tap the heart on any entry or open Favorites from the sidebar header. Starred characters stay ready for quick shortlists.",
+      "The heart icon saves ninja like Itachi or Might Guy to Favorites for a personal shortlist.",
   },
   {
     title: "Comparison",
     description:
-      "Add up to four entries to Comparison from the list or the compare icon. The modal shows name, emoji, and categories side by side.",
+      "Put up to four shinobi side by side—Minato, Tobirama, Hashirama, and Tsunade—to compare their tags.",
   },
   {
     title: "Preview",
     description:
-      "Open preview on a row to see categories, school, clan, and optional uploaded images before enabling it on the wheel.",
+      "See each character's categories, village, clan, rank, and short bio, then enable them on the wheel.",
   },
   {
     title: "Collection Stats",
     description:
-      "Open the Stats sub-tab under Inputs for category distribution, total spins, and top recent picks.",
+      "The Stats sub-tab counts enabled ninja per group and shows which characters came up most.",
   },
   {
     title: "Manual vs AI",
     description:
-      "Manual lists every entry with toggles, search, shuffle, and add-random. AI offers chat, analysis, and generator presets for focused sets.",
+      "Manual is a searchable list of every ninja with shuffle and add-random. AI can suggest a set like \"only Sand Village shinobi\".",
   },
   {
-    title: "Action Mode & Game Mode",
+    title: "Action Mode",
     description:
-      "Normal keeps every entry after a spin. Elimination removes the winner (synced with Remove winner in Settings). Manual adds names under the wheel. Game Mode mirrors the same setting.",
+      "Normal keeps every ninja in play. Elimination takes the winner off the wheel, matching the Remove winner setting. Manual writes picks below the wheel.",
   },
   {
-    title: "Text tab (bulk list)",
+    title: "Text tab",
     description:
-      "Paste one name per line to enable matching catalog entries. Export your current list, load what's on the wheel, or import a challenge roster.",
+      "Paste names like Naruto Uzumaki, Sasuke Uchiha, Sakura Haruno to enable them, or export the current roster.",
   },
   {
-    title: "Style, Palettes & Themes",
+    title: "Palettes & Themes",
     description:
-      "Style sets display mode. Color palettes recolor slices; Themes unlock visual styles (earn more through Achievements).",
+      "Palettes recolor the slices, and Themes restyle the whole wheel as you unlock them through Achievements.",
   },
   {
-    title: "Other Options (sound & spin)",
+    title: "Sound, confetti & fullscreen",
     description:
-      "Other Options toggles confetti and spin sound, opens Analytics, fullscreen, Settings, and AI shortcuts.",
+      "Other Options has the spin sound, confetti, Analytics, fullscreen, and Settings.",
   },
   {
-    title: "Shuffle, Sort & Manage",
+    title: "Shuffle & Manage",
     description:
-      "Shuffle randomizes slice order. Manage covers Sort Z–A, remove duplicates, delete blanks, clear all, and Remove winner sync.",
+      "Shuffle mixes slice order so the Uchiha aren't grouped together. Manage sorts, removes duplicates, and clears the list.",
   },
   {
     title: "Results & Spin History",
     description:
-      "Results (top-left) opens recent winners. Spin History in the sidebar header tracks past spins with a badge count.",
-  },
-  {
-    title: "Achievements, Analytics, Social & Games",
-    description:
-      "Feature chips under the wheel open Achievements, Analytics, Social, and Games.",
+      "Results (top-left) lists recent picks; Spin History in the sidebar keeps a longer log.",
   },
   {
     title: "Wheel controls",
     description:
-      "Mute toggles sounds. Fullscreen expands the spinner. STOP ends a spin early. Click the wheel face or Spin to start.",
+      "Mute silences the spin, STOP ends it early, and clicking the wheel face works like the Spin button.",
   },
 ] as const
 
 export const NARUTO_WHEEL_USE_CASES_CONTENT = [
   {
-    title: "Character challenges",
+    title: "Draw-a-ninja prompts",
     description:
-      "Assign a random shinobi for drawing prompts, cosplay inspiration, or a no-repeat watch-party challenge.",
+      "Spin a shinobi and a village, then draw them in the other village's headband for a quick art challenge.",
   },
   {
-    title: "Team drafts",
+    title: "Three-person squads",
     description:
-      "Use Elimination with the team template to fill roster slots one spin at a time so every pick stays visible.",
+      "Use the Team template with Elimination to form Team 7-style squads of a genin trio plus a sensei.",
   },
   {
-    title: "Technique & Domain prompts",
+    title: "Jutsu and clan prompts",
     description:
-      "Spin jutsus or kekkei genkais for writing, roleplay, or edit ideas without picking a character.",
+      "Spin a jutsu, a clan, or a chakra nature for fan fiction, roleplay, or edit ideas without choosing a character.",
   },
   {
-    title: "Group debates",
+    title: "Versus debates",
     description:
-      "Settle favorite-character arguments with a shared screen spin so the pool and result are transparent.",
+      "Random Fight picks two shinobi, such as Neji versus Kiba, and the chat votes on who wins.",
   },
 ] as const
 
@@ -261,99 +256,100 @@ export const NARUTO_WHEEL_WHY_POINTS = [
   {
     title: "Visible fairness",
     description:
-      "Everyone sees the enabled list and equal slices before the pointer stops—ideal for groups and streams.",
+      "Madara and Tenten get equal slices, and the whole spin plays out on screen, so nobody can say the Hokage pick was fixed.",
   },
   {
-    title: "Franchise-focused templates",
+    title: "Three eras in one place",
     description:
-      "Stay inside Naruto instead of scrolling a huge all-anime database.",
+      "Part I, Shippuden, and Boruto characters sit on one wheel, with era filters when you want just one.",
   },
   {
-    title: "Custom control",
+    title: "Modes beyond a single spin",
     description:
-      "Toggle catalog entries, add OCs, upload images, and save wheels for the next session.",
+      "Build Your Ninja, Random Fight, Who Are You?, and Ninja Challenge turn the wheel into a party game.",
   },
   {
-    title: "No-repeat drafts",
+    title: "Squads without duplicates",
     description:
-      "Elimination mode removes winners automatically so drafts and challenges stay interesting.",
+      "Elimination splits Sasuke, Itachi, and Kakashi across teams instead of letting one player stack every Sharingan user.",
   },
 ] as const
 
 export const NARUTO_WHEEL_COMPARISON = [
   {
     aspect: "Visibility",
-    wheel: "Full candidate list and live spin are shared on screen",
-    generator: "Usually returns a hidden one-click result",
+    wheel: "Every ninja on the wheel is visible while it spins",
+    generator: "A name appears with no way to see the pool",
   },
   {
     aspect: "Odds",
-    wheel: "Equal weight per enabled entry (transparent)",
-    generator: "Odds may be opaque or database-weighted",
+    wheel: "One equal slice per shinobi, Hokage included",
+    generator: "You can't tell if popular characters are favored",
   },
   {
     aspect: "Customization",
-    wheel: "Templates, toggles, custom entries, images, themes",
-    generator: "Often fixed pool with limited editing",
+    wheel: "Era, clan, village, and Akatsuki filters plus custom ninja",
+    generator: "Usually one fixed character list",
   },
   {
     aspect: "Best for",
-    wheel: "Groups, drafts, streams, challenge nights",
-    generator: "Solo instant picks across many series",
+    wheel: "Squad drafts, versus votes, OC ninja, watch nights",
+    generator: "A quick solo \"which Naruto character am I\" answer",
   },
 ] as const
 
 export const NARUTO_WHEEL_EEAT_TIPS = [
   {
-    title: "Agree on the pool first",
+    title: "Settle the era first",
     description:
-      "Before spinning, confirm which templates or toggles are active so nobody disputes the result afterward.",
+      "Decide whether Boruto characters count before the first spin, so nobody complains when Kawaki shows up.",
   },
   {
-    title: "Share the screen",
+    title: "Spin where everyone can see",
     description:
-      "On calls or streams, show the full wheel so the spin—and equal slices—are visible to everyone.",
+      "On Discord or a stream, share the wheel so chat sees the pointer land on its own.",
   },
   {
-    title: "Use Elimination for drafts",
+    title: "Draft squads with Elimination",
     description:
-      "Remove winners after each pick when filling teams or running multi-round challenges.",
+      "Remove each picked ninja so every squad in a Chūnin Exams-style bracket gets different members.",
   },
   {
-    title: "Keep fan use respectful",
+    title: "Fan tool, not canon",
     description:
-      "This is an independent entertainment tool. Character names belong to their owners; do not present results as official lore.",
+      "Build Your Ninja results are for fun; a random clan and kekkei genkai combination is not official Naruto lore.",
   },
 ] as const
 
 export const NARUTO_WHEEL_CUSTOMIZE_STEPS = [
   {
     step: 1,
-    title: "Tune the catalog",
-    description: "Search, filter by category, or clear and rebuild a shortlist of characters you recognize.",
+    title: "Match your watch progress",
+    description: "Switch to the Part I template if you haven't started Shippuden, or add Boruto for the full timeline.",
   },
   {
     step: 2,
-    title: "Add customs",
-    description: "Create OC names, challenge prompts, or techniques, then optionally upload your own image.",
+    title: "Add your ninja",
+    description: "Put your OC, a filler character, or a made-up jutsu on the wheel, with your own art if you have it.",
   },
   {
     step: 3,
-    title: "Style the wheel",
-    description: "Pick display mode, apply a color palette, and choose an unlocked theme.",
+    title: "Style it by village",
+    description: "Use emoji-only slices for a guessing game, then pick a palette and theme that fits your village.",
   },
   {
     step: 4,
-    title: "Save for next time",
-    description: "Keep the wheel in My Wheels or export the Text list so the same challenge is ready again.",
+    title: "Save the lineup",
+    description: "Keep it in My Wheels or copy the Text list so your group can rerun the same draft later.",
   },
 ] as const
 
 export const NARUTO_WHEEL_FAQ_ITEMS = [
-  { question: "What is Naruto Wheel?", answer: "It is a free fan-made randomizer preloaded with Naruto characters and optional technique or kekkei genkai templates." },
-  { question: "Does every entry have equal odds?", answer: "Yes. Every enabled entry appears once and has the same chance. Use the Weighted Wheel Spinner when you need unequal probabilities." },
-  { question: "Can I add my own Naruto characters or images?", answer: "Yes. Add a custom name and emoji, then upload an image from your device. Uploaded images stay part of your local wheel session." },
-  { question: "Can the wheel avoid repeat winners?", answer: "Yes. Choose Elimination mode to disable the winner after each spin, which is useful for team drafts and challenges." },
+  { question: "What is the Naruto Wheel?", answer: "A free fan-made spinner with 100 Naruto characters from Part I, Shippuden, and Boruto, plus separate wheels for 17 clans, 12 hidden villages, and about 30 jutsu." },
+  { question: "Is Naruto or Madara more likely to land?", answer: "No. Every enabled character has one equal slice, so the Hokage and a minor genin have the same odds. Use the Weighted Wheel Spinner if you want rarer picks." },
+  { question: "Can I spin a random ninja build?", answer: "Yes. Build Your Ninja rolls a base character, village, clan, chakra nature, kekkei genkai, and rank in one click, and you can share the result." },
+  { question: "Can I add my own Naruto characters or images?", answer: "Yes. Type a filler, Boruto, or OC name, pick an emoji, and upload fan art from your device. The image stays on your wheel in this browser." },
+  { question: "Can the wheel avoid repeat winners?", answer: "Yes. In Elimination mode each winner leaves the wheel, so only one person in a squad draft can get Itachi or Kakashi." },
   { question: "Is this an official Naruto tool?", answer: NARUTO_WHEEL_DISCLAIMER },
 ] as const
 

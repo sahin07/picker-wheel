@@ -217,9 +217,9 @@ export const DEMON_SLAYER_WHEEL_SPOKES: Record<DemonSlayerWheelSpokeId, DemonSla
     "favorite",
     "/favorite-demon-slayer-character",
     "Favorite Demon Slayer Character",
-    "Fan Favorites",
+    "Demon Slayer Favorites",
     "favorites",
-    "Spin a compact list of recognizable fan favorites.",
+    "Spin the 11 most-picked characters, from Tanjiro and Nezuko to Rengoku, Akaza, and Kokushibo.",
   ),
 }
 

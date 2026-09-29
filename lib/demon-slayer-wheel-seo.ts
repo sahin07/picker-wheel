@@ -58,9 +58,9 @@ export const DEMON_SLAYER_WHEEL_ON_THIS_PAGE = [
 ] as const
 
 export const DEMON_SLAYER_WHEEL_ARTICLE_INTRO = [
-  "Demon Slayer Spin Wheel is a visual Kimetsu no Yaiba character picker for moments when a plain list feels too predictable. The wheel starts with a broad catalog of characters, from familiar protagonists and Hashira to Upper Rank demons and Demon Slayer Corps members. Press the spin button and the pointer lands on one enabled slice. Because every enabled entry uses the same weight, each name has equal odds when it appears once.",
-  "Use the template strip when you want a focused randomizer. The Hashira wheel narrows the pool to the nine pillars, while Upper Rank and Lower Rank demon pages focus on Moon demons. Separate breathing style and Nichirin color templates contain concepts rather than characters, so they are useful for drawing prompts, cosplay ideas, roleplay, and discussion games.",
-  "For a normal spin, leave Action Mode on Normal. Choose Elimination when you are drafting a team or running several rounds and do not want the same winner twice. Results stores the latest picks so a group can recap the order without writing every result down.",
+  "The Demon Slayer wheel starts with Tanjiro, Nezuko, Zenitsu, and Inosuke, then adds all nine Hashira, the Twelve Kizuki from Kokushibo down to Kamanue, Muzan himself, and minor demons like the Spider family and the Swamp Demon. Rengoku and the Hand Demon each get one slice, so every spin is an even draw.",
+  "Templates follow the story's ranks. The Hashira wheel lines up Giyu, Shinobu, Rengoku, Tengen, Mitsuri, Muichiro, Obanai, Sanemi, and Gyomei. Upper Rank covers Upper Moons One to Six, including Daki and Gyutaro sharing Six and the replacements Kaigaku and Nakime. Lower Rank goes from Enmu to Kamanue, while the Breathing and Nichirin wheels spin 14 styles and 10 blade colors instead of characters.",
+  "Running a Hashira draft with friends? Turn on Elimination and each pillar leaves the wheel once picked, so two people never share Rengoku. Keep it on Normal to spin a random demon for tonight's fan art, and use Results to replay the order of a multi-round draft.",
 ] as const
 
 export const DEMON_SLAYER_WHEEL_WHATS_ON_WHEEL = [
@@ -75,39 +75,39 @@ export const DEMON_SLAYER_WHEEL_WHATS_ON_WHEEL = [
 
 export const DEMON_SLAYER_WHEEL_FEATURES_REAL = [
   {
-    title: "Instant spin",
+    title: "Slayers, Hashira, and Twelve Kizuki",
     description:
-      "The interactive wheel sits above this guide. Load a template or the full catalog and spin without leaving the page.",
+      "Tanjiro's group, all nine Hashira, every Upper and Lower Moon, and Muzan are loaded before you type anything.",
   },
   {
-    title: "Catalog filters & templates",
+    title: "Rank-based templates",
     description:
-      "Switch Hashira, demons, Corps, breathing styles, or Nichirin colors—or open a ready-made spoke page.",
+      "Jump to Hashira, Upper Rank, Lower Rank, Demons, or Corps—each one mirrors a tier from the series.",
   },
   {
-    title: "Favorites, comparison & preview",
+    title: "14 breathing styles",
     description:
-      "Heart entries, compare up to four side by side, and open preview details before you commit to a spin.",
+      "Spin Water, Flame, Thunder, Beast, Insect, Sound, Love, Mist, Serpent, Wind, Stone, Flower, Sun, or Moon Breathing.",
   },
   {
-    title: "Elimination & Results history",
+    title: "10 Nichirin colors",
     description:
-      "Remove winners across rounds for team drafts, then review recent picks from Results or Spin History.",
+      "From Black to Indigo-Gray, the blade color wheel is built for OC swords and cosplay ideas.",
   },
   {
-    title: "Text, Style & Sound",
+    title: "Breathing and rank preview",
     description:
-      "Bulk-edit lists, recolor slices, toggle confetti and spin sounds, and go fullscreen for group calls or streams.",
+      "Preview shows each entry's breathing style and rank, like \"Flame Hashira\" or \"Upper Rank Three\", before you spin.",
   },
   {
-    title: "Achievements, Analytics, Social & Games",
+    title: "Hashira drafts without repeats",
     description:
-      "Feature chips open achievements, spin analytics, Social sharing, and advanced game modes.",
+      "Elimination removes each drafted pillar, so a nine-player group ends up with nine different Hashira.",
   },
   {
-    title: "My Wheels on this device",
+    title: "Saved slayer rosters",
     description:
-      "Save custom Demon Slayer wheels locally so the same shortlist is ready for the next challenge night.",
+      "Keep an Entertainment District wheel or a Moons-only wheel in My Wheels on this device.",
   },
 ] as const
 
@@ -115,7 +115,7 @@ export const DEMON_SLAYER_WHEEL_CREATE_POINTS = [
   {
     title: "Add characters",
     description:
-      "Type a name and emoji in Inputs, or paste one name per line in the Text tab to enable matching catalog entries.",
+      "Add slayers the catalog skips, like Murata or Aoi Kanzaki, in Inputs, or paste a whole Corps roster into the Text tab.",
   },
   {
     title: "Remove characters",
@@ -130,17 +130,17 @@ export const DEMON_SLAYER_WHEEL_CREATE_POINTS = [
   {
     title: "Customize colors",
     description:
-      "Style tab palettes and Themes recolor wheel slices so your Demon Slayer wheel matches your stream or group branding.",
+      "Choose a checkered-haori green or a Flame Hashira red palette in Style so the wheel fits your stream.",
   },
   {
     title: "Save custom wheels",
     description:
-      "Keep custom Demon Slayer wheels in My Wheels on this device for the next club meeting or watch party.",
+      "Store a Mugen Train or Swordsmith Village cast in My Wheels for the next episode night.",
   },
   {
     title: "Share wheels",
     description:
-      "Open Social under the spinner and share the page link so friends can load the same tool on their device.",
+      "Send the page from the Social chip so your Corps squad spins the same wheel on their own phones.",
   },
   {
     title: "Duplicate existing wheels",
@@ -152,105 +152,100 @@ export const DEMON_SLAYER_WHEEL_CREATE_POINTS = [
 export const DEMON_SLAYER_WHEEL_HOW_IT_WORKS = [
   {
     step: 1,
-    title: "Choose your list",
+    title: "Pick a tier",
     description:
-      "Load the full catalog, pick a category template, or open a spoke page—or paste custom names in Text.",
+      "Everyone, Hashira only, Upper Moons, Lower Moons, or a concept wheel like Breathing Styles or Nichirin colors.",
   },
   {
     step: 2,
-    title: "Customize the wheel",
+    title: "Match your episode",
     description:
-      "Toggle entries, set display mode, favorite shortlists, enable elimination, and tune colors from Style.",
+      "Toggle off demons you haven't met yet, and turn on Elimination if the group is drafting Hashira.",
   },
   {
     step: 3,
-    title: "Spin the wheel",
+    title: "Spin for the room",
     description:
-      "Click Spin or tap the wheel so everyone sees a fair random character, breathing style, or Nichirin color land live.",
+      "The whole group watches the pointer slip past Akaza and settle on Doma, so the result is beyond argument.",
   },
   {
     step: 4,
-    title: "Use the result",
+    title: "Use the pick",
     description:
-      "Accept the pick, open Results for recent winners, or continue in Elimination until the draft is complete.",
+      "Draw the demon, assign the Hashira mentor, or move to the next OC spin; Results keeps the order.",
   },
 ] as const
 
 export const DEMON_SLAYER_WHEEL_OPTIONS_GUIDE = [
   {
-    title: "Category filters",
+    title: "Tier filters",
     description:
-      "Choose All or a single category (Hashira, Demons, Breathing Styles, and more) in Inputs. The wheel rebuilds with matching entries.",
+      "In Inputs, pick Main, Hashira, Corps, Demons, Upper Rank, Lower Rank, Breathing, or Nichirin and the wheel redraws with only that tier.",
   },
   {
-    title: "Display Options & Show Title",
+    title: "Slice labels",
     description:
-      "In the Style tab, pick Emoji & Name, Emoji Only, or Name Only for slice labels. Toggle Show title for the wheel heading preference.",
+      "Show 🔥 Kyojuro Rengoku with emoji and name, emoji only for a guess-the-Hashira round, or plain names.",
   },
   {
     title: "Favorites",
     description:
-      "Tap the heart on any entry or open Favorites from the sidebar header. Starred characters stay ready for quick shortlists.",
+      "Heart Tanjiro, Shinobu, or Akaza and reopen them from the sidebar as your own shortlist.",
   },
   {
     title: "Comparison",
     description:
-      "Add up to four entries to Comparison from the list or the compare icon. The modal shows name, emoji, and categories side by side.",
+      "Line up four entries such as Kokushibo, Doma, Akaza, and Hantengu to compare their tags side by side.",
   },
   {
     title: "Preview",
     description:
-      "Open preview on a row to see categories, breathing style, rank, and optional uploaded images before enabling it on the wheel.",
+      "Each row's preview lists its breathing style (\"Water / Sun\" for Tanjiro) and rank (\"Upper Rank Six\" for Daki).",
   },
   {
     title: "Collection Stats",
     description:
-      "Open the Stats sub-tab under Inputs for category distribution, total spins, and top recent picks.",
+      "The Stats sub-tab shows how many Hashira, demons, and Corps members are on the wheel and who lands most.",
   },
   {
     title: "Manual vs AI",
     description:
-      "Manual lists every entry with toggles, search, shuffle, and add-random. AI offers chat, analysis, and generator presets for focused sets.",
+      "Manual is a searchable checklist of every slayer and demon. AI can suggest a set like \"demons from the Mugen Train arc\".",
   },
   {
-    title: "Action Mode & Game Mode",
+    title: "Action Mode",
     description:
-      "Normal keeps every entry after a spin. Elimination removes the winner (synced with Remove winner in Settings). Manual adds names under the wheel. Game Mode mirrors the same setting.",
+      "Normal leaves every entry in place. Elimination drops each winner (linked to Remove winner in Settings). Manual lists picks under the wheel.",
   },
   {
-    title: "Text tab (bulk list)",
+    title: "Text tab",
     description:
-      "Paste one name per line to enable matching catalog entries. Export your current list, load what's on the wheel, or import a challenge roster.",
+      "Paste Giyu Tomioka, Shinobu Kocho, Kyojuro Rengoku to enable them in one go, or export the current roster.",
   },
   {
-    title: "Style, Palettes & Themes",
+    title: "Palettes & Themes",
     description:
-      "Style sets display mode. Color palettes recolor slices; Themes unlock visual styles (earn more through Achievements).",
+      "Palettes recolor slices; Themes restyle the whole wheel and unlock through Achievements.",
   },
   {
-    title: "Other Options (sound & spin)",
+    title: "Sound, confetti & fullscreen",
     description:
-      "Other Options toggles confetti and spin sound, opens Analytics, fullscreen, Settings, and AI shortcuts.",
+      "Other Options holds the spin sound, winner confetti, Analytics, fullscreen, and Settings.",
   },
   {
-    title: "Shuffle, Sort & Manage",
+    title: "Shuffle & Manage",
     description:
-      "Shuffle randomizes slice order. Manage covers Sort Z–A, remove duplicates, delete blanks, clear all, and Remove winner sync.",
+      "Shuffle breaks up the Upper Moons so they aren't in a row. Manage sorts, removes duplicates, and clears the list.",
   },
   {
     title: "Results & Spin History",
     description:
-      "Results (top-left) opens recent winners. Spin History in the sidebar header tracks past spins with a badge count.",
-  },
-  {
-    title: "Achievements, Analytics, Social & Games",
-    description:
-      "Feature chips under the wheel open Achievements, Analytics, Social, and Games.",
+      "Results (top-left) shows the latest picks; Spin History in the sidebar keeps a longer, counted log.",
   },
   {
     title: "Wheel controls",
     description:
-      "Mute toggles sounds. Fullscreen expands the spinner. STOP ends a spin early. Click the wheel face or Spin to start.",
+      "Mute silences the spin, STOP ends it early, and tapping the wheel starts a spin like the Spin button.",
   },
 ] as const
 
@@ -281,7 +276,7 @@ export const DEMON_SLAYER_WHEEL_WHY_POINTS = [
   {
     title: "Fair random selection",
     description:
-      "Everyone sees the enabled list and equal slices before the pointer stops—ideal for groups and streams.",
+      "Muzan and the Swamp Demon get the same slice, and the whole spin is visible, so a streamer can't quietly favor Rengoku.",
   },
   {
     title: "Easy customization",
@@ -318,7 +313,7 @@ export const DEMON_SLAYER_WHEEL_COMPARISON = [
   },
   {
     aspect: "Customization",
-    wheel: "Templates, toggles, custom entries, images, themes",
+    wheel: "Hashira, Moon rank, breathing, and Nichirin filters plus custom slayers",
     generator: "General random selection with limited editing",
   },
   {
@@ -354,23 +349,23 @@ export const DEMON_SLAYER_WHEEL_EEAT_TIPS = [
 export const DEMON_SLAYER_WHEEL_CUSTOMIZE_STEPS = [
   {
     step: 1,
-    title: "Tune the catalog",
-    description: "Search, filter by category, or clear and rebuild a shortlist of characters you recognize.",
+    title: "Cut to your current arc",
+    description: "Anime-only viewers can switch off Infinity Castle demons; manga readers can keep every Moon.",
   },
   {
     step: 2,
-    title: "Add customs",
-    description: "Create OC names, challenge prompts, or breathing styles, then optionally upload your own image.",
+    title: "Invent a breathing style",
+    description: "Add a made-up style, your slayer OC, or a custom demon, and upload your own art for the slice.",
   },
   {
     step: 3,
-    title: "Style the wheel",
-    description: "Pick display mode, apply a color palette, and choose an unlocked theme.",
+    title: "Dress the wheel",
+    description: "Try emoji-only slices for a guessing game, then choose a palette and theme for your stream.",
   },
   {
     step: 4,
-    title: "Save for next time",
-    description: "Keep the wheel in My Wheels or export the Text list so the same challenge is ready again.",
+    title: "Keep the roster",
+    description: "Save it in My Wheels or copy the Text list so your group can rerun the Hashira draft later.",
   },
 ] as const
 
@@ -464,12 +459,12 @@ export const DEMON_SLAYER_WHEEL_FAQ_ITEMS = [
   {
     question: "Can I upload character images?",
     answer:
-      "Yes. Add a custom name and emoji, then upload an image from your device. Uploaded images stay part of your local wheel session.",
+      "Yes. Add your slayer OC or a missing character like Murata, choose an emoji, and upload fan art. The image stays on your wheel in this browser.",
   },
   {
-    question: "Does every character have an equal chance?",
+    question: "Is Muzan or a Hashira more likely to land?",
     answer:
-      "Yes. Every enabled entry appears once and has the same chance. Use the Weighted Wheel Spinner when you need unequal probabilities.",
+      "No. Muzan, Rengoku, and a minor demon each get one equal slice. If you want Upper Moons to be rare, build the list in the Weighted Wheel Spinner instead.",
   },
   {
     question: "Can I save my custom wheel?",

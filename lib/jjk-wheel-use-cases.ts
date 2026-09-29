@@ -63,7 +63,7 @@ export const JJK_WHEEL_USE_CASES: JjkWheelUseCase[] = [
     getAllJjkEntries().filter((item) => mahoragaIds.has(item.id)),
     "slate",
   ),
-  make("favorites", "Fan Favorites", "A compact set of recognizable favorites.", jjkCharacters.filter((item) => favoriteIds.has(item.id)), "rose"),
+  make("favorites", "JJK Favorites", "Yuji, Megumi, Nobara, Gojo, Sukuna, and six more fan picks.", jjkCharacters.filter((item) => favoriteIds.has(item.id)), "rose"),
   make("team", "JJK Team Draft", "Students and sorcerers suited to elimination drafts.", jjkCharacters.filter((item) =>
     item.category.includes("student") || item.category.includes("grade_1") || item.category.includes("special_grade")), "emerald"),
   make("custom", "Custom JJK Wheel", "Start empty and add your own entries.", [], "slate"),

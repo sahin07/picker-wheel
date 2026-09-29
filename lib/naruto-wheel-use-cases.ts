@@ -82,7 +82,7 @@ export const NARUTO_WHEEL_USE_CASES: NarutoWheelUseCase[] = [
   make("who-are-you", "Who Are You?", "Build a random identity stack.", people(), "violet", "who-are-you"),
   make("build-ninja", "Build Your Ninja", "Spin character, village, clan, nature, kekkei ability, and rank.", people(), "orange", "build-ninja"),
   make("fight", "Random Fight", "Spin two characters and vote.", people(), "red", "fight"),
-  make("favorites", "Fan Favorites", "A compact recognizable shortlist.", people().filter((item) => favoriteIds.has(item.id)), "rose"),
+  make("favorites", "Naruto Favorites", "Naruto, Sasuke, Kakashi, Itachi, Gaara, and five more fan picks.", people().filter((item) => favoriteIds.has(item.id)), "rose"),
   make("custom", "Custom Naruto Wheel", "Start empty and add your own entries.", [], "slate"),
 ]
 

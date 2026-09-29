@@ -129,7 +129,7 @@ export const JJK_WHEEL_SPOKES: Record<JjkWheelSpokeId, JjkWheelSpokeSeo> = {
   "special-grade": spoke("special-grade", "/jjk-special-grade-wheel", "JJK Special Grade Wheel", "Special Grade", "special-grade", "Randomize special-grade sorcerers and curses."),
   student: spoke("student", "/jjk-student-wheel", "JJK Student Wheel", "Students", "students", "Pick a Tokyo or Kyoto Jujutsu High student."),
   teacher: spoke("teacher", "/jjk-teacher-wheel", "JJK Teacher Wheel", "Teachers", "teachers", "Pick a teacher or school staff character."),
-  favorite: spoke("favorite", "/favorite-jjk-character-picker", "Favorite JJK Character Picker", "Fan Favorites", "favorites", "Spin a compact list of recognizable fan favorites."),
+  favorite: spoke("favorite", "/favorite-jjk-character-picker", "Favorite JJK Character Picker", "JJK Favorites", "favorites", "Spin the 11 most-picked sorcerers, from Yuji, Megumi, and Nobara to Gojo, Sukuna, and Toji."),
   team: spoke("team", "/jjk-team-generator", "JJK Team Generator", "Team Draft", "team", "Draft JJK students and sorcerers with elimination-friendly spins."),
   mahoraga: finalize({
     id: "mahoraga",

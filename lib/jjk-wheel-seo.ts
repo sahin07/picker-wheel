@@ -44,9 +44,9 @@ export const JJK_WHEEL_ON_THIS_PAGE = [
 ] as const
 
 export const JJK_WHEEL_ARTICLE_INTRO = [
-  "JJK Spin Wheel picker is a visual Jujutsu Kaisen character picker for moments when a plain list feels too predictable. The wheel starts with a broad catalog of characters, from familiar students and teachers to villains and cursed spirits. Press the spin button and the pointer lands on one enabled slice. Because every enabled entry uses the same weight, each name has equal odds when it appears once.",
-  "Use the template strip when you want a focused randomizer. The student wheel combines Tokyo and Kyoto school entries, while the villain and cursed-spirit pages narrow the pool to antagonists. Separate cursed technique and Domain Expansion templates contain concepts rather than characters, so they are useful for drawing prompts, fan challenges, roleplay ideas, and discussion games.",
-  "For a normal spin, leave Action Mode on Normal. Choose Elimination when you are drafting a team or running several rounds and do not want the same winner twice. Results stores the latest picks so a group can recap the order without writing every result down.",
+  "The JJK wheel loads 61 Jujutsu Kaisen characters on one spinner: first-years like Yuji Itadori, Megumi Fushiguro, and Nobara Kugisaki, second-years like Maki Zenin, Toge Inumaki, and Panda, sorcerers like Satoru Gojo and Kento Nanami, and curses from Mahito and Jogo up to Ryomen Sukuna himself. Gojo gets exactly one slice, the same as Kokichi Muta, so a Special Grade pull is pure luck rather than a rigged favorite.",
+  "Narrow the pool with the templates above the wheel. The Students template mixes Tokyo Jujutsu High with Kyoto Jujutsu High (Aoi Todo, Mai Zenin, Noritoshi Kamo, Momo Nishimiya, and Kasumi Miwa), which makes it a quick way to rerun the Goodwill Event with random teams. The Special Grade template is the short list for Gojo, Yuta, Sukuna, Kenjaku, and the disaster curses, while the Cursed Technique and Domain Expansion templates spin powers instead of people.",
+  "Want a draft where nobody gets Gojo twice? Switch Action Mode to Elimination and each winner drops off the wheel until the roster is full. Leave it on Normal for one-off picks such as \"which character do I draw tonight\". The Results button keeps the pick order, which helps when a Discord server drafts sorcerers across several rounds.",
 ] as const
 
 export const JJK_WHEEL_OC_BUILDER_INTRO = [
@@ -118,99 +118,99 @@ export const JJK_WHEEL_WHATS_ON_WHEEL = [
 
 export const JJK_WHEEL_FEATURES_REAL = [
   {
-    title: "Instant spin",
+    title: "61 sorcerers and curses preloaded",
     description:
-      "The interactive wheel sits above this guide. Load a template or the full catalog and spin without leaving the page.",
+      "Tokyo and Kyoto students, teachers, Grade 1 sorcerers, Death Painting brothers, and disaster curses are ready without typing a single name.",
   },
   {
-    title: "Catalog filters & templates",
+    title: "Grade and school filters",
     description:
-      "Switch students, teachers, villains, spirits, grades, techniques, or domains—or open a ready-made spoke page.",
+      "Cut the pool to Special Grade, Grade 1, Tokyo Jujutsu High, Kyoto Jujutsu High, villains, or cursed spirits in one tap.",
   },
   {
-    title: "Favorites, comparison & preview",
+    title: "Techniques, domains, and shikigami",
     description:
-      "Heart entries, compare up to four side by side, and open preview details before you commit to a spin.",
+      "Separate entries for 12 cursed techniques, 8 Domain Expansions, and 10 Ten Shadows shikigami power the OC builder and power-roll challenges.",
   },
   {
-    title: "Elimination & Results history",
+    title: "Side-by-side compare",
     description:
-      "Remove winners across rounds for team drafts, then review recent picks from Results or Spin History.",
+      "Put Gojo, Sukuna, Yuta, and Kenjaku next to each other with their grade and role tags before you decide who stays on the wheel.",
   },
   {
-    title: "Text, Style & Sound",
+    title: "No-repeat Elimination drafts",
     description:
-      "Bulk-edit lists, recolor slices, toggle confetti and spin sounds, and go fullscreen for group calls or streams.",
+      "Every drafted sorcerer leaves the wheel, so a four-player Goodwill Event draft never hands out the same student twice.",
   },
   {
-    title: "Achievements, Analytics, Social & Games",
+    title: "Stream-ready spins",
     description:
-      "Feature chips open achievements, spin analytics, Social sharing, and advanced game modes.",
+      "Fullscreen, spin sound, and confetti make the Sukuna-or-Gojo reveal readable on Twitch, TikTok, or a Discord screen share.",
   },
   {
-    title: "My Wheels on this device",
+    title: "Saved JJK rosters",
     description:
-      "Save custom JJK wheels locally so the same shortlist is ready for the next challenge night.",
+      "Keep a Culling Game roster, a villains-only wheel, or your OC traits in My Wheels on this device for next week's session.",
   },
 ] as const
 
 export const JJK_WHEEL_CREATE_POINTS = [
   {
-    title: "Add custom entries",
+    title: "Add manga-only or OC names",
     description:
-      "Type a name and emoji in Inputs, or paste one name per line in the Text tab to enable matching catalog entries.",
+      "Characters from later arcs or your own sorcerers go in through Inputs with a name and emoji; the Text tab accepts a pasted roster, one per line.",
   },
   {
-    title: "Choose favorites",
+    title: "Heart your main picks",
     description:
-      "Heart characters into Favorites and reopen them from the sidebar for quick shortlists before you spin.",
+      "Favorite Yuji, Megumi, Nobara, and the rest of your go-to cast so a quick fan-favorites wheel is one click away.",
   },
   {
-    title: "Load templates",
+    title: "Start from a JJK preset",
     description:
-      "Open student, villain, spirit, technique, domain, or team presets—or build a custom challenge wheel from scratch.",
+      "Students, Villains, Cursed Spirits, Mahoraga / Ten Shadows, or Team Draft gives you a themed pool to edit instead of an empty wheel.",
   },
   {
-    title: "Customize colors",
+    title: "Match the slices to your server",
     description:
-      "Style tab palettes and Themes recolor wheel slices so your JJK wheel matches your stream or group branding.",
+      "Pick a Gojo-blue or Sukuna-red color palette in Style, or unlock a Theme, so the wheel fits your stream overlay or Discord.",
   },
   {
-    title: "Save wheels",
+    title: "Keep it for the next arc",
     description:
-      "Keep custom JJK wheels in My Wheels on this device for the next club meeting or watch party.",
+      "Save a Shibuya Incident or Culling Game wheel in My Wheels so the same cast is loaded when your watch party continues.",
   },
   {
-    title: "Share wheels",
+    title: "Send it to your group",
     description:
-      "Open Social under the spinner and share the page link so friends can load the same tool on their device.",
+      "Share the page from the Social chip so every friend spins the same JJK wheel from their own phone.",
   },
 ] as const
 
 export const JJK_WHEEL_HOW_IT_WORKS = [
   {
     step: 1,
-    title: "Choose your list",
+    title: "Pick your pool",
     description:
-      "Load the full catalog, pick a category template, or open a spoke page—or paste custom names in Text.",
+      "All 61 characters, only Kyoto students, only disaster curses, or only Domain Expansions—choose the template that matches your challenge.",
   },
   {
     step: 2,
-    title: "Customize the wheel",
+    title: "Set the rules",
     description:
-      "Toggle entries, set display mode, favorite shortlists, enable elimination, and tune colors from Style.",
+      "Toggle off anyone you have not reached in the anime yet, and turn on Elimination if the spin is for a no-repeat team draft.",
   },
   {
     step: 3,
-    title: "Spin the wheel",
+    title: "Spin in front of everyone",
     description:
-      "Click Spin or tap the wheel so everyone sees a fair random character, technique, or domain land live.",
+      "Hit Spin so the whole group watches the pointer slow down between Nanami and Mahito and nobody can claim the pick was chosen.",
   },
   {
     step: 4,
-    title: "Use the result",
+    title: "Play out the result",
     description:
-      "Accept the pick, open Results for recent winners, or continue in Elimination until the draft is complete.",
+      "Draw the sorcerer, add them to your team, or spin the next OC trait; Results keeps the order if you need to replay the draft.",
   },
 ] as const
 
@@ -218,77 +218,72 @@ export const JJK_WHEEL_OPTIONS_GUIDE = [
   {
     title: "Category filters",
     description:
-      "Choose All or a single category (Students, Villains, Domains, and more) in Inputs. The wheel rebuilds with matching entries.",
+      "In Inputs, switch from All to Students, Teachers, Villains, Cursed Spirits, Grade 1, Special Grade, Techniques, or Domains and the JJK wheel redraws with only that group.",
   },
   {
-    title: "Display Options & Show Title",
+    title: "Slice labels",
     description:
-      "In the Style tab, pick Emoji & Name, Emoji Only, or Name Only for slice labels. Toggle Show title for the wheel heading preference.",
+      "Style offers Emoji & Name (👊 Yuji Itadori), Emoji Only for a guessing game, or Name Only for a cleaner look with long names like Yoshinobu Gakuganji.",
   },
   {
     title: "Favorites",
     description:
-      "Tap the heart on any entry or open Favorites from the sidebar header. Starred characters stay ready for quick shortlists.",
+      "The heart icon saves characters like Nanami or Todo to Favorites, which you can reopen from the sidebar header for a personal shortlist.",
   },
   {
     title: "Comparison",
     description:
-      "Add up to four entries to Comparison from the list or the compare icon. The modal shows name, emoji, and categories side by side.",
+      "Queue up to four entries—say Gojo, Sukuna, Yuta, and Kenjaku—and the compare window lines up their emoji and category tags.",
   },
   {
     title: "Preview",
     description:
-      "Open preview on a row to see categories, school, clan, and optional uploaded images before enabling it on the wheel.",
+      "Preview shows each entry's school (Tokyo or Kyoto), clan (Zenin, Gojo, Kamo, Inumaki), categories, and any image you uploaded.",
   },
   {
     title: "Collection Stats",
     description:
-      "Open the Stats sub-tab under Inputs for category distribution, total spins, and top recent picks.",
+      "The Stats sub-tab counts how many students, villains, and curses are enabled and which sorcerers have come up most often.",
   },
   {
     title: "Manual vs AI",
     description:
-      "Manual lists every entry with toggles, search, shuffle, and add-random. AI offers chat, analysis, and generator presets for focused sets.",
+      "Manual is a searchable checklist of all 61 characters with shuffle and add-random. AI can suggest a themed set, like \"only characters from the Shibuya arc\".",
   },
   {
-    title: "Action Mode & Game Mode",
+    title: "Action Mode",
     description:
-      "Normal keeps every entry after a spin. Elimination removes the winner (synced with Remove winner in Settings). Manual adds names under the wheel. Game Mode mirrors the same setting.",
+      "Normal leaves every sorcerer on the wheel. Elimination removes each winner (same as Remove winner in Settings). Manual lists picks under the wheel instead of removing them.",
   },
   {
-    title: "Text tab (bulk list)",
+    title: "Text tab",
     description:
-      "Paste one name per line to enable matching catalog entries. Export your current list, load what's on the wheel, or import a challenge roster.",
+      "Paste a list such as Yuji Itadori, Megumi Fushiguro, Nobara Kugisaki to turn those catalog entries on, or export the current JJK roster to reuse elsewhere.",
   },
   {
-    title: "Style, Palettes & Themes",
+    title: "Palettes & Themes",
     description:
-      "Style sets display mode. Color palettes recolor slices; Themes unlock visual styles (earn more through Achievements).",
+      "Palettes recolor the slices; Themes change the whole wheel style, and more of them unlock as you earn Achievements.",
   },
   {
-    title: "Other Options (sound & spin)",
+    title: "Sound, confetti & fullscreen",
     description:
-      "Other Options toggles confetti and spin sound, opens Analytics, fullscreen, Settings, and AI shortcuts.",
+      "Other Options holds the spin sound, confetti on the winner, Analytics, fullscreen, and Settings shortcuts.",
   },
   {
-    title: "Shuffle, Sort & Manage",
+    title: "Shuffle & Manage",
     description:
-      "Shuffle randomizes slice order. Manage covers Sort Z–A, remove duplicates, delete blanks, clear all, and Remove winner sync.",
+      "Shuffle scrambles the slice order so Gojo is not always next to Geto. Manage sorts, removes duplicates or blanks, and clears the list.",
   },
   {
     title: "Results & Spin History",
     description:
-      "Results (top-left) opens recent winners. Spin History in the sidebar header tracks past spins with a badge count.",
-  },
-  {
-    title: "Achievements, Analytics, Social & Games",
-    description:
-      "Feature chips under the wheel open Achievements, Analytics, Social, and Games.",
+      "Results (top-left) lists the latest winners; Spin History in the sidebar keeps a longer log with a badge counter.",
   },
   {
     title: "Wheel controls",
     description:
-      "Mute toggles sounds. Fullscreen expands the spinner. STOP ends a spin early. Click the wheel face or Spin to start.",
+      "Mute silences the spin, STOP ends a spin early, and clicking the wheel face starts a spin just like the Spin button.",
   },
 ] as const
 
@@ -319,7 +314,7 @@ export const JJK_WHEEL_WHY_POINTS = [
   {
     title: "Visible fairness",
     description:
-      "Everyone sees the enabled list and equal slices before the pointer stops—ideal for groups and streams.",
+      "Gojo and Kokichi Muta get the same size slice, and chat can watch the whole spin, so nobody can say the streamer picked Sukuna on purpose.",
   },
   {
     title: "Franchise-focused templates",
@@ -351,13 +346,13 @@ export const JJK_WHEEL_COMPARISON = [
   },
   {
     aspect: "Customization",
-    wheel: "Templates, toggles, custom entries, images, themes",
-    generator: "Often fixed pool with limited editing",
+    wheel: "Grade, school, and villain filters plus your own OCs and images",
+    generator: "Usually a fixed JJK list you cannot trim",
   },
   {
     aspect: "Best for",
-    wheel: "Groups, drafts, streams, challenge nights",
-    generator: "Solo instant picks across many series",
+    wheel: "Goodwill Event drafts, OC building, streams, watch parties",
+    generator: "A quick solo \"which JJK character am I\" answer",
   },
 ] as const
 
@@ -387,23 +382,23 @@ export const JJK_WHEEL_EEAT_TIPS = [
 export const JJK_WHEEL_CUSTOMIZE_STEPS = [
   {
     step: 1,
-    title: "Tune the catalog",
-    description: "Search, filter by category, or clear and rebuild a shortlist of characters you recognize.",
+    title: "Trim to where you are in the story",
+    description: "Anime-only watchers can switch off late-manga characters; manga readers can keep the full cast.",
   },
   {
     step: 2,
-    title: "Add customs",
-    description: "Create OC names, challenge prompts, or techniques, then optionally upload your own image.",
+    title: "Add your sorcerers",
+    description: "Put your OC, a fan-made technique, or a custom binding vow on the wheel, with your own art if you have it.",
   },
   {
     step: 3,
-    title: "Style the wheel",
-    description: "Pick display mode, apply a color palette, and choose an unlocked theme.",
+    title: "Give it a JJK look",
+    description: "Choose emoji-only slices for a guess-the-sorcerer game, then pick a palette and theme for your stream.",
   },
   {
     step: 4,
-    title: "Save for next time",
-    description: "Keep the wheel in My Wheels or export the Text list so the same challenge is ready again.",
+    title: "Save the roster",
+    description: "Store it in My Wheels or copy the Text list so your Discord can rerun the same draft next week.",
   },
 ] as const
 
@@ -412,9 +407,9 @@ export const JJK_WHEEL_FAQ_ITEMS = [
   { question: "How do I make my own JJK character with the spin wheel?", answer: "Spin one trait at a time: grade, cursed technique, Domain Expansion, school, mentor, and rival. The Build Your Own JJK Character section on this page links to the right template for each spin." },
   { question: "Can I spin for a random cursed technique or Domain Expansion?", answer: "Yes. Open the Cursed Technique Wheel or the Domain Expansion Wheel from the templates strip. Both use equal odds and contain techniques and domains rather than characters." },
   { question: "Is this the same as a JJK wheel of names?", answer: "It works the same way, but the list is already filled with Jujutsu Kaisen characters, so you do not have to type names. You can still paste your own list in the Text tab." },
-  { question: "Does every entry have equal odds?", answer: "Yes. Every enabled entry appears once and has the same chance. Use the Weighted Wheel Spinner when you need unequal probabilities." },
-  { question: "Can I add my own JJK characters or images?", answer: "Yes. Add a custom name and emoji, then upload an image from your device. Uploaded images stay part of your local wheel session." },
-  { question: "Can the wheel avoid repeat winners?", answer: "Yes. Choose Elimination mode to disable the winner after each spin, which is useful for team drafts and challenges." },
+  { question: "Is Gojo or Sukuna more likely to land?", answer: "No. Each enabled character takes one equal slice, so Gojo, Sukuna, and Kasumi Miwa all have the same odds. If you want Special Grades to be rarer, use the Weighted Wheel Spinner instead." },
+  { question: "Can I add my own JJK characters or images?", answer: "Yes. Type the name of a late-manga character or your OC, pick an emoji, and upload fan art from your device. The image stays on your wheel in this browser." },
+  { question: "Can the wheel avoid repeat winners?", answer: "Yes. Elimination mode takes each winner off the wheel, so in a team draft only one person can end up with Gojo or Yuji." },
   { question: "Is this an official Jujutsu Kaisen tool?", answer: JJK_WHEEL_DISCLAIMER },
 ] as const
 

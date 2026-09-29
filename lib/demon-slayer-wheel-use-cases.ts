@@ -65,8 +65,8 @@ export const DEMON_SLAYER_WHEEL_USE_CASES: DemonSlayerWheelUseCase[] = [
   make("nichirin", "Nichirin Sword Colors", "Nichirin blade colors for fan games.", by("nichirin"), "violet"),
   make(
     "favorites",
-    "Fan Favorites",
-    "A compact set of recognizable favorites.",
+    "Demon Slayer Favorites",
+    "Tanjiro, Nezuko, Rengoku, Akaza, Muzan, and six more fan picks.",
     demonSlayerCharacters.filter((item) => favoriteIds.has(item.id)),
     "rose",
   ),

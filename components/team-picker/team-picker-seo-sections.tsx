@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   TEAM_PICKER_ARTICLE_INTRO,
   TEAM_PICKER_ARTICLE_TITLE,

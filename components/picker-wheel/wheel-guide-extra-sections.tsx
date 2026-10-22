@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 
 type StepItem = { step: number; title: string; description: string }
 type BuilderStep = {

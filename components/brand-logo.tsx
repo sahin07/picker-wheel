@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { SITE_NAME } from "@/lib/site-metadata"
 import { cn } from "@/lib/utils"
 

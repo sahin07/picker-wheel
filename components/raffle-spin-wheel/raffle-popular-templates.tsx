@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { usePathname } from "next/navigation"
 import {
   RAFFLE_SPIN_WHEEL_POPULAR_SPOKE_LINKS,

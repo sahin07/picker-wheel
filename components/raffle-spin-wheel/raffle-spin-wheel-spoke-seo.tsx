@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import type { RaffleSpinWheelSpokeSeo } from "@/lib/raffle-spin-wheel-spokes"
 import { RAFFLE_SPIN_WHEEL_PATH } from "@/lib/raffle-spin-wheel-seo"
 

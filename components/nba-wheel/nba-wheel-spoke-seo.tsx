@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { NBA_WHEEL_OPTIONS_GUIDE, NBA_WHEEL_PATH } from "@/lib/nba-wheel-seo"
 import {
   getNbaSpokeSiblings,

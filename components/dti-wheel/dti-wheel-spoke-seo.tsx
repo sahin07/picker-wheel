@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { DTI_WHEEL_DISCLAIMER, DTI_WHEEL_PATH } from "@/lib/dti-wheel-seo"
 import { getDtiSpokeSiblings, type DtiWheelSpokeSeo } from "@/lib/dti-wheel-spokes"
 import {

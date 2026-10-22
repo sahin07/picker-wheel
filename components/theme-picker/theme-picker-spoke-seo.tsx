@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { THEME_PICKER_PATH } from "@/lib/theme-picker-seo"
 import { getThemeSpokeSiblings, type ThemePickerSpokeSeo } from "@/lib/theme-picker-spokes"
 import {

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   RAFFLE_SPIN_WHEEL_DISCLAIMER,
   RAFFLE_SPIN_WHEEL_FAQ_ITEMS,

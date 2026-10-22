@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   STATE_WHEEL_PATH,
   STATE_WHEEL_POPULAR_TEMPLATES,

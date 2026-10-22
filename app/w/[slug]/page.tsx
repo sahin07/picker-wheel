@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { useParams } from "next/navigation"
 import Header from "@/components/header"
 import SettingsPanel from "@/components/settings-panel"

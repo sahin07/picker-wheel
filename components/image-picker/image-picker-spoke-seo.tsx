@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { IMAGE_PICKER_PATH } from "@/lib/image-picker-seo"
 import {
   getImageSpokeSiblings,

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { FINGER_PICKER_POPULAR } from "@/lib/finger-picker-seo"
 
 export function FingerPickerPopularTemplates() {

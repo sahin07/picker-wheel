@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   YES_NO_PICKER_ARTICLE_INTRO,
   YES_NO_PICKER_ARTICLE_TITLE,

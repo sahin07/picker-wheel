@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { DEMON_SLAYER_WHEEL_DISCLAIMER, DEMON_SLAYER_WHEEL_PATH } from "@/lib/demon-slayer-wheel-seo"
 import { getDemonSlayerSpokeSiblings, type DemonSlayerWheelSpokeSeo } from "@/lib/demon-slayer-wheel-spokes"
 

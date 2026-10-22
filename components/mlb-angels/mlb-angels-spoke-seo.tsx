@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   MLB_ANGELS_NICKNAME_DISCLAIMER,
   MLB_ANGELS_NICKNAME_WHEEL_PATH,

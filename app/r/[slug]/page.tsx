@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { useParams } from "next/navigation"
 import SettingsPanel from "@/components/settings-panel"
 import { ToastProvider } from "@/contexts/toast-context"

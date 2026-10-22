@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   FORTNITE_WHEEL_OPTIONS_GUIDE,
   FORTNITE_WHEEL_PATH,

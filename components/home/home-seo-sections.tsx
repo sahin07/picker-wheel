@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   HOME_ARTICLE_INTRO,
   HOME_ARTICLE_TITLE,

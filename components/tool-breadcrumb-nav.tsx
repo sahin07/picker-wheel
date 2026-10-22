@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import type { ToolBreadcrumbCrumb } from "@/lib/wheel-categories"
 import { HOME_SITE_URL } from "@/lib/home-seo"
 

@@ -110,46 +110,9 @@ export const useSettingsStore = create<SettingsStore>()(
         }
       },
 
-      loadFromDatabase: async () => {
-        try {
-          const response = await fetch("/api/tools/picker-wheel/settings")
-          if (response.ok) {
-            const data = await response.json()
-            if (data.settings) {
-              const incoming = data.settings as Partial<WheelSettings>
-              set((state) => ({
-                settings: {
-                  ...defaultSettings,
-                  ...state.settings,
-                  ...incoming,
-                  spinBehavior: {
-                    ...defaultSettings.spinBehavior,
-                    ...state.settings.spinBehavior,
-                    ...incoming.spinBehavior,
-                  },
-                  display: {
-                    ...defaultSettings.display,
-                    ...state.settings.display,
-                    ...incoming.display,
-                  },
-                  appearance: {
-                    ...defaultSettings.appearance,
-                    ...state.settings.appearance,
-                    ...incoming.appearance,
-                  },
-                  confettiSound: {
-                    ...defaultSettings.confettiSound,
-                    ...state.settings.confettiSound,
-                    ...incoming.confettiSound,
-                  },
-                },
-              }))
-            }
-          }
-        } catch (error) {
-          console.error("Error loading settings from database:", error)
-        }
-      },
+      // Settings live in localStorage (persist). No server store exists yet, so skip the
+      // per-page-view API call that only ever returned null.
+      loadFromDatabase: async () => {},
     }),
     {
       name: "picker-wheel-settings",

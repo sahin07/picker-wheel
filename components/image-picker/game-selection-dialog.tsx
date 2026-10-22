@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { GAME_MODES } from "@/lib/constants"
 import type { GameStats, WheelItem } from "@/lib/types"
 import { Gamepad2, HelpCircle, RotateCcw, ExternalLink } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 
 interface GameSelectionDialogProps {
   showGames: boolean

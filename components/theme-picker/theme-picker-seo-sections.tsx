@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   THEME_PICKER_BENEFITS,
   THEME_PICKER_FAQ_ITEMS,

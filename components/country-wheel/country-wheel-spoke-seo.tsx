@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   COUNTRY_WHEEL_OPTIONS_GUIDE,
   COUNTRY_WHEEL_PATH,

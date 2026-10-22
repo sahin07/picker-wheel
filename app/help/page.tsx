@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import Footer from "@/components/footer"
 import HelpFaqContent from "@/components/help-faq-content"
 import { HELP_FAQ_SECTIONS } from "@/lib/help-faq"

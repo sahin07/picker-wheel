@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { FORTUNE_WHEEL_DISCLAIMER, FORTUNE_WHEEL_PATH } from "@/lib/fortune-wheel-seo"
 import { getFortuneSpokeSiblings, type FortuneWheelSpokeSeo } from "@/lib/fortune-wheel-spokes"
 import {

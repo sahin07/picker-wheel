@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   FINGER_PICKER_ARTICLE_TITLE,
   FINGER_PICKER_FAQ_ITEMS,

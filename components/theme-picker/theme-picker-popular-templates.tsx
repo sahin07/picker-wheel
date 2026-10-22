@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { usePathname } from "next/navigation"
 import { Sparkles } from "lucide-react"
 import { THEME_PICKER_POPULAR_SPOKE_LINKS } from "@/lib/theme-picker-spokes"

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { DATE_PICKER_PATH } from "@/lib/date-picker-seo"
 import {
   getDateSpokeSiblings,

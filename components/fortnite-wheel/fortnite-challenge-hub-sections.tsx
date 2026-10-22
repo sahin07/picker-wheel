@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   FORTNITE_CHALLENGE_HUB_FAQ,
   FORTNITE_CHALLENGE_HUB_H1,

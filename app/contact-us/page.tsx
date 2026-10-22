@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import Footer from "@/components/footer"
 import { HOME_OG_IMAGE_URL, HOME_SITE_URL } from "@/lib/home-seo"
 import { SITE_SUPPORT_EMAIL } from "@/lib/site-metadata"

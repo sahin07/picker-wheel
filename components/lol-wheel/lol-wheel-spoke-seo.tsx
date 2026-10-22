@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   LOL_WHEEL_OPTIONS_GUIDE,
   LOL_WHEEL_PATH,

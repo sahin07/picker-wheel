@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   FORTUNE_WHEEL_BENEFITS,
   FORTUNE_WHEEL_DISCLAIMER,

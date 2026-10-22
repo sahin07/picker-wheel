@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   MLB_WHEEL_ARTICLE_INTRO,
   MLB_WHEEL_ARTICLE_TITLE,

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { SpokeIntentRelatedSection, SpokeTipsSection, SpokeUpdatedLabel } from "@/components/spoke-seo-blocks"
 import { NARUTO_WHEEL_DISCLAIMER, NARUTO_WHEEL_PATH } from "@/lib/naruto-wheel-seo"
 import { getNarutoSpokeSiblings, type NarutoWheelSpokeSeo } from "@/lib/naruto-wheel-spokes"

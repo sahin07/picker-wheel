@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   LETTER_PICKER_ARTICLE_INTRO,
   LETTER_PICKER_ARTICLE_TITLE,

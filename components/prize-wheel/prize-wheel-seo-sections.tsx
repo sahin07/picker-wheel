@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   PRIZE_WHEEL_BENEFITS,
   PRIZE_WHEEL_FAQ_ITEMS,

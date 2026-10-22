@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { JJK_WHEEL_DISCLAIMER, JJK_WHEEL_PATH } from "@/lib/jjk-wheel-seo"
 import { getJjkSpokeSiblings, type JjkWheelSpokeSeo } from "@/lib/jjk-wheel-spokes"
 

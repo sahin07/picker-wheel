@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { HOME_PATH } from "@/lib/home-seo"
 import {
   getHomeSpokeSiblings,

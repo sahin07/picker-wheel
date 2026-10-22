@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   WORD_PICKER_WHEEL_FAQ_ITEMS,
   WORD_PICKER_WHEEL_FEATURES,

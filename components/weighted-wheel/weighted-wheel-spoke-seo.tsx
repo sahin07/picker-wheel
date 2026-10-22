@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { WEIGHTED_WHEEL_DISCLAIMER, WEIGHTED_WHEEL_PATH } from "@/lib/weighted-wheel-seo"
 import {
   getWeightedSpokeSiblings,

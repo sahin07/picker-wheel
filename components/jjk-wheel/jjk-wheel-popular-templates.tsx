@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { usePathname } from "next/navigation"
 import { CircleDot } from "lucide-react"
 import { JJK_WHEEL_POPULAR_SPOKE_LINKS } from "@/lib/jjk-wheel-spokes"

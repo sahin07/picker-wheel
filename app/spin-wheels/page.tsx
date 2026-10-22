@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import Footer from "@/components/footer"
 import { ToolBreadcrumbNav } from "@/components/tool-breadcrumb-nav"
 import {

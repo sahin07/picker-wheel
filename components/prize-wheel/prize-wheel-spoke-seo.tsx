@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { PRIZE_WHEEL_PATH } from "@/lib/prize-wheel-seo"
 import { getPrizeSpokeSiblings, type PrizeWheelSpokeSeo } from "@/lib/prize-wheel-spokes"
 

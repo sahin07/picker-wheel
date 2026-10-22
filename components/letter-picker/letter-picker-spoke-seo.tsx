@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   LETTER_PICKER_PATH,
   LETTER_PICKER_POPULAR_WHEELS,

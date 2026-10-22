@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { MLB_WHEEL_OPTIONS_GUIDE, MLB_WHEEL_PATH } from "@/lib/mlb-wheel-seo"
 import {
   getMlbSpokeSiblings,

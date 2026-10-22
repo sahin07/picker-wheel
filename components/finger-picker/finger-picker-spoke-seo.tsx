@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { FINGER_PICKER_PATH, FINGER_PICKER_POPULAR } from "@/lib/finger-picker-seo"
 import { getFingerSpokeSiblings, type FingerPickerSpokeSeo } from "@/lib/finger-picker-spokes"
 import { SpokeIntentRelatedSection, SpokeTipsSection, SpokeUpdatedLabel } from "@/components/spoke-seo-blocks"

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { COLOR_PICKER_PATH } from "@/lib/color-picker-seo"
 import {
   getColorSpokeSiblings,

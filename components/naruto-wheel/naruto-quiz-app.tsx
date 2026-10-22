@@ -5,7 +5,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { getNarutoQuizByKind, type NarutoQuizKind, type NarutoQuizQuestion } from "@/data/naruto-quiz"
-import Link from "next/link"
+import Link from "@/components/app-link"
 
 function shuffle<T>(list: T[]): T[] {
   return [...list].sort(() => Math.random() - 0.5)

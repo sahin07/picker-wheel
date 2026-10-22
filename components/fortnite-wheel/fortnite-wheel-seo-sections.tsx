@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   FORTNITE_WHEEL_ARTICLE_INTRO,
   FORTNITE_WHEEL_ARTICLE_TITLE,

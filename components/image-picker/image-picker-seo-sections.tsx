@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   IMAGE_PICKER_ARTICLE_INTRO,
   IMAGE_PICKER_ARTICLE_TITLE,

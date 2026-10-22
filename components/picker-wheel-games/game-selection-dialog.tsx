@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Gamepad2, HelpCircle, Play, RotateCcw, Target, Grid3X3, Brain, Star, Zap } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/app-link"
 
 interface GameStats {
   bingoWins: number

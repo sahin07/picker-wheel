@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   DATE_PICKER_ARTICLE_INTRO,
   DATE_PICKER_ARTICLE_TITLE,

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   BarChart3, Brain, Eye, EyeOff, FileText, GitCompare, Heart, History, ImagePlus,
   List, MoreHorizontal, MoreVertical, Palette, Plus, RotateCcw, Shuffle, Trash2, Trophy, X,

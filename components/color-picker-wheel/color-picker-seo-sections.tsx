@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   COLOR_PICKER_ARTICLE_INTRO,
   COLOR_PICKER_ARTICLE_TITLE,

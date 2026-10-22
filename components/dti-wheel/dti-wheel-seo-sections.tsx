@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import {
   DTI_WHEEL_BENEFITS,
   DTI_WHEEL_DISCLAIMER,

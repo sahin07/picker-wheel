@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { EyeOff, ImagePlus, List, MoreVertical, Palette, Plus, Shuffle, Trash2, Trophy, Type } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

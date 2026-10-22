@@ -254,6 +254,41 @@ const nextConfig = {
         destination: "/spin-word-picker-wheel",
         permanent: true,
       },
+
+      // --- Finger picker aliases ---
+      { source: "/finger-chooser", destination: "/finger-picker", permanent: true },
+      { source: "/finger-picker-online", destination: "/finger-picker", permanent: true },
+      { source: "/finger-picking-game", destination: "/finger-picker-game", permanent: true },
+      { source: "/pick-a-finger-game", destination: "/finger-picker-game", permanent: true },
+      { source: "/random-finger-game", destination: "/finger-picker-game", permanent: true },
+      { source: "/finger-roulette-game", destination: "/finger-roulette", permanent: true },
+      { source: "/finger-selector", destination: "/random-finger-selector", permanent: true },
+      { source: "/random-finger-picker", destination: "/random-finger-selector", permanent: true },
+      { source: "/pick-a-random-player", destination: "/random-player-picker", permanent: true },
+      { source: "/random-person-selector", destination: "/random-player-picker", permanent: true },
+      { source: "/who-gets-the-first-turn", destination: "/who-goes-first", permanent: true },
+      { source: "/who-goes-first-in-a-game", destination: "/who-goes-first", permanent: true },
+      { source: "/who-should-go-first", destination: "/who-goes-first", permanent: true },
+      { source: "/who-should-start", destination: "/who-goes-first", permanent: true },
+
+      // --- Naruto aliases ---
+      { source: "/naruto-wheel", destination: "/naruto-spin-wheel-picker", permanent: true },
+      { source: "/naruto-character-picker", destination: "/naruto-character-wheel", permanent: true },
+      {
+        source: "/what-naruto-character-should-i-draw",
+        destination: "/which-naruto-character-should-i-draw",
+        permanent: true,
+      },
+      {
+        source: "/which-naruto-character-are-you",
+        destination: "/what-naruto-character-am-i",
+        permanent: true,
+      },
+      {
+        source: "/which-naruto-character-should-i-be",
+        destination: "/what-naruto-character-am-i",
+        permanent: true,
+      },
     ]
   },
 }

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { BrandLogo } from "@/components/brand-logo"
 import { SITE_NAME, SITE_SUPPORT_EMAIL } from "@/lib/site-metadata"
 

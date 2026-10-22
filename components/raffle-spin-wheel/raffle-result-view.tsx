@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { Trophy } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"

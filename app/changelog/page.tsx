@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import Link from "@/components/app-link"
 import Footer from "@/components/footer"
 import { BrandLogo } from "@/components/brand-logo"
 import { buildPageMetadata, SITE_NAME, SITE_URL } from "@/lib/site-metadata"

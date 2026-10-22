@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/app-link"
 import { WORD_PICKER_WHEEL_PATH } from "@/lib/word-picker-wheel-seo"
 import {
   getWordPickerSpokeSiblings,
